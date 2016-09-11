@@ -1,6 +1,7 @@
 package ru.iammaxim.vkmonitor;
 
 import android.content.Intent;
+import android.os.Messenger;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void onClickStart() {
         App.setAccessToken(((EditText)findViewById(R.id.at)).getEditableText().toString());
-        startService(new Intent(this, LongPollService.class));
+        startService(new Intent(this, LongPollService.class).putExtra("MESSENGER", new Messenger(App.updateMessageHandler)));
     }
 
     @Override

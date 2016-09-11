@@ -1,5 +1,8 @@
 package ru.iammaxim.vkmonitor;
 
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,8 +26,15 @@ import java.util.Scanner;
 public class LogActivity extends AppCompatActivity {
     private RecyclerView log;
     private LogAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private LinearLayoutManager layoutManager;
     private CircleTransformation circleTransformation = new CircleTransformation();
+    private UpdateMessageHandler.Callback callback;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        App.updateMessageHandler.callbacks.remove(callback);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +45,29 @@ public class LogActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         log.setLayoutManager(layoutManager);
         adapter = new LogAdapter();
-        //log.setAdapter(adapter);
+        callback = new UpdateMessageHandler.Callback() {
+            @Override
+            public void run(final int update_code, final int user_id, final String time, final int[] args) {
+                new AsyncTask() {
+                    private boolean added;
+
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        added = filterAndAdd(new LogElement(update_code, user_id, time, args));
+                        return null;
+                    }
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        if (added) {
+                            adapter.notifyItemInserted(adapter.elements.size() - 1);
+                            if (layoutManager.findLastVisibleItemPosition() == adapter.elements.size() - 2)
+                                layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
+                        }
+                    }
+                }.execute();
+            }
+        };
+        App.updateMessageHandler.callbacks.add(callback);
 
         new Thread(new Runnable() {
             @Override
@@ -45,12 +77,7 @@ public class LogActivity extends AppCompatActivity {
                     while (scanner.hasNext()) {
                         String s = scanner.next();
                         JSONObject o = new JSONObject(s);
-                        if (App.useFilter) {
-                            if (App.filter.contains(o.getInt("user_id")))
-                                adapter.elements.add(new LogElement(o));
-                        } else {
-                            adapter.elements.add(new LogElement(o));
-                        }
+                        filterAndAdd(new LogElement(o));
                     }
                     runOnUiThread(new Runnable() {
                         @Override
@@ -64,6 +91,19 @@ public class LogActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    private boolean filterAndAdd(LogElement e) {
+        if (App.useFilter) {
+            if (App.filter.contains(e.user_id)) {
+                adapter.elements.add(e);
+                return true;
+            }
+        } else {
+            adapter.elements.add(e);
+            return true;
+        }
+        return false;
     }
 
     private int getColorForAction(int action) {
@@ -200,6 +240,16 @@ public class LogActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        public LogElement(int update_code, int user_id, String time, int[] args) {
+            this.update_code = update_code;
+            this.user_id = user_id;
+            this.time = time;
+            this.args = args;
+            ObjectUser user = Users.get(user_id);
+            name = user.toString();
+            photo_url = user.photo_url;
         }
     }
 }

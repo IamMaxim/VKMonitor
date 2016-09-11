@@ -6,7 +6,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +37,7 @@ public class App extends Application {
     private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
+    public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
 
     static {
         logFile = new File(logPath);
@@ -89,18 +93,27 @@ public class App extends Application {
         return access_token;
     }
 
-    public static void addToLog(int user_id, int action, int... args) {
+    public static void addToLog(int user_id, int update_code, int... args) {
         try {
+            String time = sdf.format(new Date(System.currentTimeMillis()));
             JSONObject o = new JSONObject();
-            o.put("time", sdf.format(new Date(System.currentTimeMillis())));
+            o.put("time", time);
             o.put("user_id", user_id);
-            o.put("action", action);
+            o.put("action", update_code);
             JSONArray arr = new JSONArray();
             for (int i = 0; i < args.length; i++) {
                 arr.put(args[i]);
             }
             o.put("args", arr);
             fos.write((o.toString() + '\n').getBytes());
+            Message msg = Message.obtain();
+            Bundle data = new Bundle();
+            data.putInt("update_code", update_code);
+            data.putInt("user_id", user_id);
+            data.putString("time", time);
+            data.putIntArray("args", args);
+            msg.setData(data);
+            updateMessageHandler.sendMessage(msg);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }

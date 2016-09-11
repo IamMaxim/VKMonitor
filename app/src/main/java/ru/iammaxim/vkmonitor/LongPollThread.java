@@ -1,9 +1,9 @@
 package ru.iammaxim.vkmonitor;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Looper;
-import android.widget.Toast;
+import android.os.Bundle;
+import android.os.Message;
+import android.os.Messenger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +17,7 @@ import java.io.IOException;
 public class LongPollThread extends Thread {
     private ObjectLongPollServer currentLongPollServer;
     private Context ctx;
+    private Messenger messageHandler;
 
     private void init() throws JSONException {
         try {
@@ -27,9 +28,10 @@ public class LongPollThread extends Thread {
         }
     }
 
-    public LongPollThread(Context ctx, String name) {
+    public LongPollThread(Context ctx, Messenger messenger, String name) {
         super(name);
         this.ctx = ctx;
+        this.messageHandler = messageHandler;
     }
 
     private void log(String s) {
