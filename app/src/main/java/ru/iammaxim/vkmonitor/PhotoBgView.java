@@ -16,6 +16,10 @@ public class PhotoBgView extends View {
         bgPaint.setColor(color);
     }
 
+    public int getColor() {
+        return bgPaint.getColor();
+    }
+
     public PhotoBgView(Context context, AttributeSet attrs) {
         super(context, attrs);
         bgPaint.setAntiAlias(true);

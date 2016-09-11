@@ -62,6 +62,10 @@ public class LogActivity extends AppCompatActivity {
                             adapter.notifyItemInserted(adapter.elements.size() - 1);
                             if (layoutManager.findLastVisibleItemPosition() == adapter.elements.size() - 2)
                                 layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
+                            View v = layoutManager.findViewByPosition(adapter.elements.size() - 2);
+                            View v2 = v.findViewById(R.id.lowerConnector);
+                            v2.setVisibility(View.VISIBLE);
+                            v2.setBackgroundColor(((PhotoBgView)v.findViewById(R.id.photo_bg)).getColor());
                         }
                     }
                 }.execute();
