@@ -14,10 +14,6 @@ public class ObjectLongPollServer {
         ts = o.getLong("ts");
     }
 
-    public static ObjectLongPollServer getServer(String JSON) throws JSONException {
-        return new ObjectLongPollServer(JSON);
-    }
-
     public void update(long ts) {
         this.ts = ts;
     }

@@ -35,7 +35,7 @@ public class LogActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         log.setLayoutManager(layoutManager);
         adapter = new LogAdapter();
-        log.setAdapter(adapter);
+        //log.setAdapter(adapter);
 
         new Thread(new Runnable() {
             @Override
@@ -52,6 +52,13 @@ public class LogActivity extends AppCompatActivity {
                             adapter.elements.add(new LogElement(o));
                         }
                     }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            log.setAdapter(adapter);
+                            findViewById(R.id.progressBar).setVisibility(View.GONE);
+                        }
+                    });
                 } catch (FileNotFoundException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -193,16 +200,6 @@ public class LogActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-        }
-
-        public LogElement (int user_id, int update_code, int... args) {
-            this.user_id = user_id;
-            this.update_code = update_code;
-            ObjectUser user = Users.get(user_id);
-            name = user.toString();
-            photo_url = user.photo_url;
-            this.args = args;
         }
     }
 }

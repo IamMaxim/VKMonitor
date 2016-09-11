@@ -1,6 +1,11 @@
 package ru.iammaxim.vkmonitor;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 
 import org.json.JSONArray;
@@ -63,7 +68,6 @@ public class App extends Application {
             FileOutputStream fos = new FileOutputStream(filterFile);
             JSONArray arr = new JSONArray();
             for (Integer integer : filter) {
-                System.out.println("saved filter user: " + integer);
                 arr.put(integer);
             }
             if (filter.size() == 0)
@@ -105,5 +109,24 @@ public class App extends Application {
     public static void log(String s) {
         String str = sdf.format(new Date(System.currentTimeMillis())) + s + '\n';
         System.out.println(str);
+    }
+
+    public static void showNotification(Context applicationContext, String text) {
+        Intent notificationIntent = new Intent(applicationContext, MainActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(applicationContext,
+                0, notificationIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        Notification.Builder builder = new Notification.Builder(applicationContext);
+        builder.setContentIntent(contentIntent)
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setContentTitle("title")
+                .setContentText(text)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setVibrate(new long[]{0, 100, 100, 100, 100, 100, 100, 100});
+        Notification notification = builder.build();
+        NotificationManager notificationManager = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(5246451, notification);
     }
 }
