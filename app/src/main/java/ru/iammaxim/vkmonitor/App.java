@@ -1,0 +1,109 @@
+package ru.iammaxim.vkmonitor;
+
+import android.app.Application;
+import android.os.Environment;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Scanner;
+
+/**
+ * Created by maxim on 10.09.2016.
+ */
+public class App extends Application {
+    public static String logPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.log";
+    public static String filterPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.filter";
+    private static String access_token;
+    private static File logFile;
+    private static FileOutputStream fos;
+    private static Date date;
+    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    public static ArrayList<Integer> filter = new ArrayList<>();
+    public static boolean useFilter = false;
+
+    static {
+        logFile = new File(logPath);
+        try {
+            if (!logFile.exists())
+                logFile.createNewFile();
+            fos = new FileOutputStream(logFile, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File filterFile = new File(filterPath);
+        try {
+            if (filterFile.exists()) {
+                Scanner scanner = new Scanner(filterFile).useDelimiter("\\A");
+                JSONArray json = new JSONArray(scanner.next());
+                if (json.length() > 0) useFilter = true;
+                for (int i = 0; i < json.length(); i++) {
+                    filter.add(json.getInt(i));
+                }
+                scanner.close();
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveFilter() {
+        try {
+            File filterFile = new File(filterPath);
+            if (!filterFile.exists())
+                filterFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(filterFile);
+            JSONArray arr = new JSONArray();
+            for (Integer integer : filter) {
+                System.out.println("saved filter user: " + integer);
+                arr.put(integer);
+            }
+            if (filter.size() == 0)
+                useFilter = false;
+            else
+                useFilter = true;
+            fos.write(arr.toString().getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setAccessToken(String s) {
+        access_token = s;
+    }
+
+    public static String getAccessToken() {
+        return access_token;
+    }
+
+    public static void addToLog(int user_id, int action, int... args) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("time", sdf.format(new Date(System.currentTimeMillis())));
+            o.put("user_id", user_id);
+            o.put("action", action);
+            JSONArray arr = new JSONArray();
+            for (int i = 0; i < args.length; i++) {
+                arr.put(args[i]);
+            }
+            o.put("args", arr);
+            fos.write((o.toString() + '\n').getBytes());
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void log(String s) {
+        String str = sdf.format(new Date(System.currentTimeMillis())) + s + '\n';
+        System.out.println(str);
+    }
+}
