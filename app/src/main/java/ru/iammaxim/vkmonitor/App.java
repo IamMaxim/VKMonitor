@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Message;
 
 import org.json.JSONArray;
@@ -21,8 +20,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Scanner;
+
+import ru.iammaxim.vkmonitor.Activities.MainActivity;
 
 /**
  * Created by maxim on 10.09.2016.
@@ -30,11 +30,13 @@ import java.util.Scanner;
 public class App extends Application {
     public static String logPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.log";
     public static String filterPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.filter";
+    public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
     private static String access_token;
     private static File logFile;
     private static FileOutputStream fos;
     private static Date date;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
+    private static SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
     public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
@@ -95,9 +97,12 @@ public class App extends Application {
 
     public static void addToLog(int user_id, int update_code, int... args) {
         try {
-            String time = sdf.format(new Date(System.currentTimeMillis()));
+            Date date = new Date(System.currentTimeMillis());
+            String dateStr = sdf.format(date);
+            String timeStr = sdf2.format(date);
             JSONObject o = new JSONObject();
-            o.put("time", time);
+            o.put("date", dateStr);
+            o.put("time", timeStr);
             o.put("user_id", user_id);
             o.put("action", update_code);
             JSONArray arr = new JSONArray();
@@ -110,18 +115,14 @@ public class App extends Application {
             Bundle data = new Bundle();
             data.putInt("update_code", update_code);
             data.putInt("user_id", user_id);
-            data.putString("time", time);
+            data.putString("date", dateStr);
+            data.putString("time", timeStr);
             data.putIntArray("args", args);
             msg.setData(data);
             updateMessageHandler.sendMessage(msg);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void log(String s) {
-        String str = sdf.format(new Date(System.currentTimeMillis())) + s + '\n';
-        System.out.println(str);
     }
 
     public static void showNotification(Context applicationContext, String text) {
@@ -134,7 +135,7 @@ public class App extends Application {
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
-                .setContentTitle("title")
+                .setContentTitle("VK Monitor")
                 .setContentText(text)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setVibrate(new long[]{0, 100, 100, 100, 100, 100, 100, 100});

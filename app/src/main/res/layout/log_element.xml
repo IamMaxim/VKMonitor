@@ -3,16 +3,32 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="time"
-        android:id="@+id/time"
-        android:layout_gravity="center_vertical"
-        android:textAlignment="viewEnd"
-        android:layout_marginRight="1dp"
-        android:layout_marginLeft="1dp" />
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="date"
+            android:id="@+id/date"
+            android:textAlignment="viewEnd"
+            android:layout_marginRight="1dp"
+            android:layout_marginLeft="1dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="time"
+            android:id="@+id/time"
+            android:textAlignment="viewEnd"
+            android:layout_marginRight="1dp"
+            android:layout_marginLeft="1dp" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="64dp"
@@ -40,7 +56,7 @@
                 android:background="#ff0000" />
         </LinearLayout>
 
-        <ru.iammaxim.vkmonitor.PhotoBgView
+        <ru.iammaxim.vkmonitor.Views.PhotoBgView
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:id="@+id/photo_bg"

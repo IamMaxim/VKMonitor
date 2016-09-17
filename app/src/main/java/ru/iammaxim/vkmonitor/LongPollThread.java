@@ -40,14 +40,10 @@ public class LongPollThread extends Thread {
 
     @Override
     public void run() {
-//        log("starting long poll thread...");
         try {
             UserDB.load();
-//            log("userDB loaded");
             UserDB.startSaveThread();
-//            log("userDB save thread started");
             init();
-//            log("init completed");
             try {
                 Net.processRequest("stats.trackVisitor", true);
             } catch (IOException e) {
@@ -60,7 +56,6 @@ public class LongPollThread extends Thread {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        log("Shutting down long poll thread...");
     }
 
     private void processLongPollMessage() throws JSONException {

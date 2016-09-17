@@ -1,12 +1,13 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Activities;
 
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,12 +24,22 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.App;
+import ru.iammaxim.vkmonitor.CircleTransformation;
+import ru.iammaxim.vkmonitor.ObjectUser;
+import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.UpdateMessageHandler;
+import ru.iammaxim.vkmonitor.Users;
+import ru.iammaxim.vkmonitor.Views.PhotoBgView;
+
 public class LogActivity extends AppCompatActivity {
     private RecyclerView log;
-    private LogAdapter adapter;
+    private Adapter adapter;
     private LinearLayoutManager layoutManager;
     private CircleTransformation circleTransformation = new CircleTransformation();
     private UpdateMessageHandler.Callback callback;
+    private FloatingActionButton scrollDownButton;
+//    private ScrollDownButton scrollDownButton;
 
     @Override
     protected void onDestroy() {
@@ -40,38 +51,65 @@ public class LogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        CoordinatorLayout layout = (CoordinatorLayout) findViewById(R.id.layout);
         log = (RecyclerView) findViewById(R.id.rv);
+        scrollDownButton = (FloatingActionButton) findViewById(R.id.scroll_down);
+        scrollDownButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
+                } catch (IllegalArgumentException e) {}
+            }
+        });
         layoutManager = new LinearLayoutManager(this);
         log.setLayoutManager(layoutManager);
-        adapter = new LogAdapter();
+        adapter = new Adapter();
         callback = new UpdateMessageHandler.Callback() {
             @Override
-            public void run(final int update_code, final int user_id, final String time, final int[] args) {
+            public void run(final int update_code, final int user_id, final String date, final String time, final int[] args) {
                 new AsyncTask() {
                     private boolean added;
 
                     @Override
                     protected Object doInBackground(Object[] params) {
-                        added = filterAndAdd(new LogElement(update_code, user_id, time, args));
+                        added = filterAndAdd(new Element(update_code, user_id, date, time, args));
                         return null;
                     }
                     @Override
                     protected void onPostExecute(Object o) {
                         if (added) {
-                            adapter.notifyItemInserted(adapter.elements.size() - 1);
-                            if (layoutManager.findLastVisibleItemPosition() == adapter.elements.size() - 2)
-                                layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
-                            View v = layoutManager.findViewByPosition(adapter.elements.size() - 2);
-                            View v2 = v.findViewById(R.id.lowerConnector);
-                            v2.setVisibility(View.VISIBLE);
-                            v2.setBackgroundColor(((PhotoBgView)v.findViewById(R.id.photo_bg)).getColor());
+                            try {
+                                adapter.notifyItemInserted(adapter.elements.size() - 1);
+                                if (layoutManager.findLastVisibleItemPosition() == adapter.elements.size() - 2)
+                                    layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
+                                View v = layoutManager.findViewByPosition(adapter.elements.size() - 2);
+                                View v2 = v.findViewById(R.id.lowerConnector);
+                                v2.setVisibility(View.VISIBLE);
+                                v2.setBackgroundColor(((PhotoBgView) v.findViewById(R.id.photo_bg)).getColor());
+                            } catch (NullPointerException e) {}
                         }
                     }
                 }.execute();
             }
         };
         App.updateMessageHandler.callbacks.add(callback);
+        log.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (layoutManager.findLastVisibleItemPosition() >= adapter.elements.size() - 3) {
+/*                    if (scrollDownButton.isShown)
+                        scrollDownButton.hide();
+                } else {
+                    if (!scrollDownButton.isShown)
+                        scrollDownButton.show();
+                        */
+                }
+            }
+        });
 
         new Thread(new Runnable() {
             @Override
@@ -81,7 +119,7 @@ public class LogActivity extends AppCompatActivity {
                     while (scanner.hasNext()) {
                         String s = scanner.next();
                         JSONObject o = new JSONObject(s);
-                        filterAndAdd(new LogElement(o));
+                        filterAndAdd(new Element(o));
                     }
                     runOnUiThread(new Runnable() {
                         @Override
@@ -97,7 +135,7 @@ public class LogActivity extends AppCompatActivity {
         }).start();
     }
 
-    private boolean filterAndAdd(LogElement e) {
+    private boolean filterAndAdd(Element e) {
         if (App.useFilter) {
             if (App.filter.contains(e.user_id)) {
                 adapter.elements.add(e);
@@ -170,8 +208,8 @@ public class LogActivity extends AppCompatActivity {
         }
     }
 
-    class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
-        public ArrayList<LogElement> elements = new ArrayList<>();
+    public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+        public ArrayList<Element> elements = new ArrayList<>();
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -180,8 +218,9 @@ public class LogActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            LogElement element = elements.get(position);
+            Element element = elements.get(position);
             holder.name.setText(element.name);
+            holder.date.setText(element.date);
             holder.time.setText(element.time);
             holder.description.setText(getDescription(element.update_code, element.user_id, element.args));
             int color = getColorForAction(element.update_code);
@@ -208,7 +247,7 @@ public class LogActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView photo, upperConnector, lowerConnector;
-            TextView name, description, time;
+            TextView name, description, date, time;
             PhotoBgView photoBg;
 
             public ViewHolder(View itemView) {
@@ -218,19 +257,21 @@ public class LogActivity extends AppCompatActivity {
                 lowerConnector = (ImageView) itemView.findViewById(R.id.lowerConnector);
                 name = (TextView) itemView.findViewById(R.id.name);
                 description = (TextView) itemView.findViewById(R.id.description);
+                date = (TextView) itemView.findViewById(R.id.date);
                 time = (TextView) itemView.findViewById(R.id.time);
                 photoBg = (PhotoBgView) itemView.findViewById(R.id.photo_bg);
             }
         }
     }
 
-    class LogElement {
-        String name, photo_url, time;
+    class Element {
+        String name, photo_url, date, time;
         int update_code, user_id;
         int[] args;
 
-        public LogElement(JSONObject o) {
+        public Element(JSONObject o) {
             try {
+                date = o.getString("date");
                 time = o.getString("time");
                 user_id = o.getInt("user_id");
                 update_code = o.getInt("action");
@@ -246,9 +287,10 @@ public class LogActivity extends AppCompatActivity {
             }
         }
 
-        public LogElement(int update_code, int user_id, String time, int[] args) {
+        public Element(int update_code, int user_id, String date, String time, int[] args) {
             this.update_code = update_code;
             this.user_id = user_id;
+            this.date = date;
             this.time = time;
             this.args = args;
             ObjectUser user = Users.get(user_id);

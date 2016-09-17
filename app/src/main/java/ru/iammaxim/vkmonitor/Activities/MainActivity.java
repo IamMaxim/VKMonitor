@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Activities;
 
 import android.content.Intent;
 import android.os.Messenger;
@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import ru.iammaxim.vkmonitor.App;
+import ru.iammaxim.vkmonitor.LongPollService;
+import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.UserDB;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static boolean started = false;

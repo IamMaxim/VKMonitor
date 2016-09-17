@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,19 +25,28 @@
             android:exported="true" />
 
         <activity
-            android:name=".LogActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".Activities.LogActivity"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.iammaxim.vkmonitor.MainActivity" />
+                android:value=".Activities.MainActivity" />
         </activity>
         <activity
-            android:name=".ChangeFilterActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".Activities.ChangeFilterActivity"
+            android:parentActivityName=".Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.iammaxim.vkmonitor.MainActivity" />
+                android:value=".Activities.MainActivity" />
         </activity>
+        <activity
+            android:name=".Activities.AccessTokenManagerActivity"
+            android:label="@string/title_activity_access_token_manager"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.ScrollingActivity"
+            android:label="@string/title_activity_scrolling"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

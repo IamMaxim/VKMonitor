@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Activities;
 
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +17,13 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import ru.iammaxim.vkmonitor.App;
+import ru.iammaxim.vkmonitor.CircleTransformation;
+import ru.iammaxim.vkmonitor.ObjectUser;
+import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.UserDB;
+import ru.iammaxim.vkmonitor.Users;
 
 public class ChangeFilterActivity extends AppCompatActivity {
     private CircleTransformation circleTransformation = new CircleTransformation();
@@ -46,6 +53,16 @@ public class ChangeFilterActivity extends AppCompatActivity {
 
     class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ViewHolder> {
         public ArrayList<UserElement> elements = new ArrayList<>();
+        private CompoundButton.OnCheckedChangeListener checkboxListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                UserElement element = elements.get(buttonView.getId());
+                if (!buttonView.isPressed()) return;
+                if (isChecked) App.filter.add(element.user_id);
+                else App.filter.remove((Integer) element.user_id);
+                element.enabled = !element.enabled;
+            }
+        };
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -54,18 +71,11 @@ public class ChangeFilterActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
-            final UserElement element = elements.get(position);
+            UserElement element = elements.get(position);
             holder.name.setText(element.name);
+            holder.cb.setId(position);
             holder.cb.setChecked(element.enabled);
-            holder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (!buttonView.isPressed()) return;
-                    if (isChecked) App.filter.add(element.user_id);
-                    else App.filter.remove((Integer) element.user_id);
-                    element.enabled = !element.enabled;
-                }
-            });
+            holder.cb.setOnCheckedChangeListener(checkboxListener);
             Picasso.with(holder.photo.getContext()).load(element.photo_url).transform(circleTransformation).into(holder.photo);
         }
 
