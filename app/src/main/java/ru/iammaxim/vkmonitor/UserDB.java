@@ -1,7 +1,5 @@
 package ru.iammaxim.vkmonitor;
 
-import android.app.Application;
-import android.content.Context;
 import android.os.Environment;
 
 import org.json.JSONArray;
@@ -9,15 +7,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
-import java.util.function.Function;
+
+import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 
 /**
  * Created by maxim on 18.08.2016.

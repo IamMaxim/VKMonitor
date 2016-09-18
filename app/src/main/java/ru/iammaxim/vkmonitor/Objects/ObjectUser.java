@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Objects;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,9 +22,7 @@ public class ObjectUser {
             first_name = o.getString("first_name");
             last_name = o.getString("last_name");
             photo_url = o.getString("photo_200");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) {}
     }
 
     @Override

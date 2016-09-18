@@ -1,11 +1,9 @@
 package ru.iammaxim.vkmonitor.Activities;
 
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -19,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.CircleTransformation;
-import ru.iammaxim.vkmonitor.ObjectUser;
+import ru.iammaxim.vkmonitor.Views.CircleTransformation;
+import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UserDB;
 import ru.iammaxim.vkmonitor.Users;

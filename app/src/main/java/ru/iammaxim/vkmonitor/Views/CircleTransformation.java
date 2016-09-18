@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Views;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

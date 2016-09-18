@@ -27,8 +27,6 @@ public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
 
     @Override
     public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-
         if (rvLayoutManager == null) {
             RecyclerView rv = (RecyclerView)coordinatorLayout.findViewById(R.id.rv);
             rvLayoutManager = ((LinearLayoutManager)rv.getLayoutManager());

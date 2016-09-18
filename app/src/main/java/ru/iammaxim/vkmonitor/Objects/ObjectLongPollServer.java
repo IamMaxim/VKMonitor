@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.Objects;
 
 import org.json.JSONException;
 import org.json.JSONObject;

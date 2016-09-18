@@ -3,13 +3,12 @@ package ru.iammaxim.vkmonitor;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Messenger;
+import android.support.v4.app.NotificationCompat;
 
 public class LongPollService extends Service {
     private LongPollThread thread;
-    Messenger messageHandler;
+//    Messenger messageHandler;
     private static final int NOTIFICATION_ID = 124678;
 
     public LongPollService() {
@@ -17,19 +16,27 @@ public class LongPollService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        messageHandler = (Messenger) intent.getExtras().get("MESSENGER");
-        thread = new LongPollThread(getApplicationContext(), messageHandler, "LongPollThread");
+//        messageHandler = (Messenger) intent.getExtras().get("MESSENGER");
+        thread = new LongPollThread(getApplicationContext(), "LongPollThread");
+        App.longPollThread = thread;
         thread.start();
-        Notification.Builder builder = new Notification.Builder(this).setContentTitle("VK Monitor").setContentText("running");
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setContentTitle("VK Monitor")
+                .setContentText("running")
+                .setSmallIcon(R.mipmap.icon)
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true);
         Notification notification = builder.build();
         startForeground(NOTIFICATION_ID, notification);
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         thread.interrupt();
+        stopForeground(true);
         App.showNotification(getApplicationContext(), "Service killed");
+        stopSelf();
     }
 
     @Override

@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,20 +34,20 @@ public class App extends Application {
     public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
     private static String access_token;
     private static File logFile;
-    private static FileOutputStream fos;
-    private static Date date;
+    private static FileOutputStream logFos;
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
     private static SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
     public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
+    public static LongPollThread longPollThread;
 
     static {
         logFile = new File(logPath);
         try {
             if (!logFile.exists())
                 logFile.createNewFile();
-            fos = new FileOutputStream(logFile, true);
+            logFos = new FileOutputStream(logFile, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,7 +111,8 @@ public class App extends Application {
                 arr.put(args[i]);
             }
             o.put("args", arr);
-            fos.write((o.toString() + '\n').getBytes());
+            byte[] bytes = (o.toString() + '\n').getBytes();
+            logFos.write(bytes);
             Message msg = Message.obtain();
             Bundle data = new Bundle();
             data.putInt("update_code", update_code);
@@ -127,9 +129,7 @@ public class App extends Application {
 
     public static void showNotification(Context applicationContext, String text) {
         Intent notificationIntent = new Intent(applicationContext, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(applicationContext,
-                0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification.Builder builder = new Notification.Builder(applicationContext);
         builder.setContentIntent(contentIntent)
                 .setDefaults(Notification.DEFAULT_SOUND)
@@ -137,7 +137,7 @@ public class App extends Application {
                 .setAutoCancel(true)
                 .setContentTitle("VK Monitor")
                 .setContentText(text)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.icon)
                 .setVibrate(new long[]{0, 100, 100, 100, 100, 100, 100, 100});
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);

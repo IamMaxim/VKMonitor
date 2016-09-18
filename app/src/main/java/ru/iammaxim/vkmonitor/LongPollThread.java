@@ -1,8 +1,6 @@
 package ru.iammaxim.vkmonitor;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Message;
 import android.os.Messenger;
 
 import org.json.JSONArray;
@@ -11,13 +9,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import ru.iammaxim.vkmonitor.Objects.ObjectLongPollServer;
+
 /**
  * Created by Maxim on 21.06.2016.
  */
 public class LongPollThread extends Thread {
     private ObjectLongPollServer currentLongPollServer;
     private Context ctx;
-    private Messenger messageHandler;
 
     private void init() throws JSONException {
         try {
@@ -28,10 +27,9 @@ public class LongPollThread extends Thread {
         }
     }
 
-    public LongPollThread(Context ctx, Messenger messenger, String name) {
+    public LongPollThread(Context ctx, String name) {
         super(name);
         this.ctx = ctx;
-        this.messageHandler = messageHandler;
     }
 
     private void log(String s) {
@@ -73,7 +71,6 @@ public class LongPollThread extends Thread {
                 }
             }
             JSONArray arr = o.getJSONArray("updates");
-//            log(arr.toString());
             for (int i = 0; i < arr.length(); i++) {
                 JSONArray obj = (JSONArray) arr.get(i);
                 int updateCode = obj.getInt(0);
@@ -99,6 +96,15 @@ public class LongPollThread extends Thread {
                 }
             }
             currentLongPollServer.update(o.getLong("ts"));
+            if (App.updateMessageHandler.getCallbacksSize() == 0) {
+                synchronized (this) {
+                    try {
+                        wait(300000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

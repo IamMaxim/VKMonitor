@@ -2,6 +2,8 @@ package ru.iammaxim.vkmonitor;
 
 import java.io.IOException;
 
+import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+
 /**
  * Created by maxim on 18.08.2016.
  */

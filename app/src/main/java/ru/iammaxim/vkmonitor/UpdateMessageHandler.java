@@ -10,7 +10,22 @@ import java.util.ArrayList;
  * Created by maxim on 11.09.2016.
  */
 public class UpdateMessageHandler extends Handler {
-    public ArrayList<Callback> callbacks = new ArrayList<>();
+    private ArrayList<Callback> callbacks = new ArrayList<>();
+
+    public void addCallback(Callback callback) {
+        callbacks.add(callback);
+        synchronized (App.longPollThread) {
+            App.longPollThread.notify();
+        }
+    }
+
+    public void removeCallback(Callback callback) {
+        callbacks.remove(callback);
+    }
+
+    public int getCallbacksSize() {
+        return callbacks.size();
+    }
 
     @Override
     public void handleMessage(Message msg) {

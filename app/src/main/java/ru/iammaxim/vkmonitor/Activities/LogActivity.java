@@ -1,7 +1,7 @@
 package ru.iammaxim.vkmonitor.Activities;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -25,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.CircleTransformation;
-import ru.iammaxim.vkmonitor.ObjectUser;
+import ru.iammaxim.vkmonitor.Views.CircleTransformation;
+import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
 import ru.iammaxim.vkmonitor.Users;
@@ -39,12 +40,11 @@ public class LogActivity extends AppCompatActivity {
     private CircleTransformation circleTransformation = new CircleTransformation();
     private UpdateMessageHandler.Callback callback;
     private FloatingActionButton scrollDownButton;
-//    private ScrollDownButton scrollDownButton;
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        App.updateMessageHandler.callbacks.remove(callback);
+        App.updateMessageHandler.removeCallback(callback);
     }
 
     @Override
@@ -54,7 +54,6 @@ public class LogActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        CoordinatorLayout layout = (CoordinatorLayout) findViewById(R.id.layout);
         log = (RecyclerView) findViewById(R.id.rv);
         scrollDownButton = (FloatingActionButton) findViewById(R.id.scroll_down);
         scrollDownButton.setOnClickListener(new View.OnClickListener() {
@@ -83,10 +82,10 @@ public class LogActivity extends AppCompatActivity {
                     protected void onPostExecute(Object o) {
                         if (added) {
                             try {
-                                adapter.notifyItemInserted(adapter.elements.size() - 1);
-                                if (layoutManager.findLastVisibleItemPosition() == adapter.elements.size() - 2)
-                                    layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
-                                View v = layoutManager.findViewByPosition(adapter.elements.size() - 2);
+                                adapter.notifyItemInserted(adapter.getItemCount() - 1);
+                                if (layoutManager.findLastVisibleItemPosition() == adapter.getItemCount() - 2)
+                                    layoutManager.smoothScrollToPosition(log, null, adapter.getItemCount() - 1);
+                                View v = layoutManager.findViewByPosition(adapter.getItemCount() - 2);
                                 View v2 = v.findViewById(R.id.lowerConnector);
                                 v2.setVisibility(View.VISIBLE);
                                 v2.setBackgroundColor(((PhotoBgView) v.findViewById(R.id.photo_bg)).getColor());
@@ -96,21 +95,7 @@ public class LogActivity extends AppCompatActivity {
                 }.execute();
             }
         };
-        App.updateMessageHandler.callbacks.add(callback);
-        log.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (layoutManager.findLastVisibleItemPosition() >= adapter.elements.size() - 3) {
-/*                    if (scrollDownButton.isShown)
-                        scrollDownButton.hide();
-                } else {
-                    if (!scrollDownButton.isShown)
-                        scrollDownButton.show();
-                        */
-                }
-            }
-        });
-
+        App.updateMessageHandler.addCallback(callback);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -125,7 +110,14 @@ public class LogActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             log.setAdapter(adapter);
-                            findViewById(R.id.progressBar).setVisibility(View.GONE);
+                            final ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
+                            pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    pb.setVisibility(View.GONE);
+                                }
+                            }).start();
+                            layoutManager.scrollToPosition(adapter.getItemCount() - 1);
                         }
                     });
                 } catch (FileNotFoundException | JSONException e) {
