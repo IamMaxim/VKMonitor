@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
-
     defaultConfig {
         applicationId "ru.iammaxim.vkmonitor"
         minSdkVersion 16
@@ -26,4 +27,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.3.2'
     compile 'com.android.support:recyclerview-v7:24.2.0'
     compile 'com.android.support:design:24.2.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha1'
 }

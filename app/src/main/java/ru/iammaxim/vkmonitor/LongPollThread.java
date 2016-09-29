@@ -42,18 +42,18 @@ public class LongPollThread extends Thread {
             UserDB.load();
             UserDB.startSaveThread();
             init();
-            try {
-                Net.processRequest("stats.trackVisitor", true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            while (!isInterrupted()) {
-                processLongPollMessage();
-            }
-            UserDB.saveThread.interrupt();
-        } catch (JSONException e) {
+            Net.processRequest("stats.trackVisitor", true);
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+        while (!isInterrupted()) {
+            try {
+                processLongPollMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        UserDB.saveThread.interrupt();
     }
 
     private void processLongPollMessage() throws JSONException {

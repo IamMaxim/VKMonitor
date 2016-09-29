@@ -43,6 +43,10 @@
             android:name=".Activities.AccessTokenManagerActivity"
             android:label="@string/title_activity_access_token_manager"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.UserActivity"
+            android:label="@string/title_activity_user"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

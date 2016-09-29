@@ -16,7 +16,6 @@ public class LongPollService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        messageHandler = (Messenger) intent.getExtras().get("MESSENGER");
         thread = new LongPollThread(getApplicationContext(), "LongPollThread");
         App.longPollThread = thread;
         thread.start();

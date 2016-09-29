@@ -18,8 +18,8 @@ public class Net {
             while (scanner.hasNext()) {
                 sb.append(scanner.nextLine());
             }
-            //too many requests per second, wait 1 sec and repeat
             if (sb.toString().contains("error_code")) {
+                int attempts = 5;
                 do {
                     try {
                         Thread.sleep(1000);
@@ -38,10 +38,12 @@ public class Net {
                         }
                         return processRequest(url);
                     }
-                    System.out.println(sb.toString());
-                } while (sb.toString().contains("error_code"));
+                    attempts--;
+                } while (sb.toString().contains("error_code") && attempts > 0);
             }
-        } catch (MalformedURLException e) {};
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        };
         return sb.toString();
     }
 
