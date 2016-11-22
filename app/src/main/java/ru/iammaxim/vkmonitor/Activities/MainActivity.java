@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (!started) {
             save_user_db.setEnabled(false);
-            open_log.setEnabled(false);
-            change_filter.setEnabled(false);
+//            open_log.setEnabled(false);
+//            change_filter.setEnabled(false);
             stop.setEnabled(false);
         } else start.setEnabled(false);
 

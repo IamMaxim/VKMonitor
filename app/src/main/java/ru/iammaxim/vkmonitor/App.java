@@ -17,7 +17,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +39,7 @@ public class App extends Application {
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
     public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
-    public static LongPollThread longPollThread;
+    public static LongPollService.LongPollThread longPollThread;
 
     static {
         logFile = new File(logPath);

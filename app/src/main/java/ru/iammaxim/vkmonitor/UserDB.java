@@ -69,6 +69,7 @@ public class UserDB {
 
     public static void load() {
         try {
+            userDB.clear();
             File file = new File(filepath);
             if (!file.exists()) {
                 System.out.println(filepath + " doesn't exists. Couldn't load users database");

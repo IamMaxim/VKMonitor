@@ -14,9 +14,10 @@ public class UpdateMessageHandler extends Handler {
 
     public void addCallback(Callback callback) {
         callbacks.add(callback);
-        synchronized (App.longPollThread) {
-            App.longPollThread.notify();
-        }
+        if (App.longPollThread != null)
+            synchronized (App.longPollThread) {
+                App.longPollThread.notify();
+            }
     }
 
     public void removeCallback(Callback callback) {

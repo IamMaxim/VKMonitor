@@ -1,8 +1,14 @@
 package ru.iammaxim.vkmonitor.Activities;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.App;
+import ru.iammaxim.vkmonitor.LongPollService;
 import ru.iammaxim.vkmonitor.Views.CircleTransformation;
 import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
@@ -40,11 +47,26 @@ public class LogActivity extends AppCompatActivity {
     private CircleTransformation circleTransformation = new CircleTransformation();
     private UpdateMessageHandler.Callback callback;
     private FloatingActionButton scrollDownButton;
+    private TextView connectionStatus;
+    BroadcastReceiver receiver;
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         App.updateMessageHandler.removeCallback(callback);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver), new IntentFilter(LongPollService.STATUS_CHANGED)
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
     }
 
     @Override
@@ -125,6 +147,39 @@ public class LogActivity extends AppCompatActivity {
                 }
             }
         }).start();
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int status = intent.getIntExtra(LongPollService.STATUS_VALUE, 0);
+                if (status == 1) {
+                    connectionStatus.setText(R.string.status_connected);
+                    connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                } else {
+                    connectionStatus.setText(R.string.status_not_connected);
+                    connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorErrorBG));
+                }
+            }
+        };
+
+        connectionStatus = (TextView) findViewById(R.id.connectionStatus);
+        if (isServiceRunning(LongPollService.class)) {
+            connectionStatus.setText(R.string.status_connected);
+            connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            connectionStatus.setText(R.string.status_not_connected);
+            connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorErrorBG));
+        }
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean filterAndAdd(Element e) {
