@@ -103,7 +103,7 @@ public class LongPollService extends Service {
                     sendConnectionStatus(0);
                     ctx.stopService(new Intent(ctx, LongPollService.class));
                     return;
-                };
+                }
                 UserDB.startSaveThread();
                 Net.processRequest("stats.trackVisitor", true);
             } catch (IOException | JSONException e) {
@@ -112,7 +112,7 @@ public class LongPollService extends Service {
             while (!isInterrupted()) {
                 try {
                     processLongPollMessage();
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
