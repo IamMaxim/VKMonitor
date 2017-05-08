@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
@@ -23,6 +24,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;
 
     private Button start, save_user_db, open_log, change_filter, stop, manage_tokens;
+    private TextView state;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("MainActivity onResume()");
+        setupState();
+    }
+
+    private void setupState() {
+        AccessTokenManager.Token currentToken = AccessTokenManager.getActiveToken();
+        if (currentToken != null) {
+            state.setText(getString(R.string.current_token, currentToken.name));
+            state.setBackgroundColor(getResources().getColor(R.color.colorStateBgOK));
+        } else {
+            state.setText(R.string.current_token_not_set);
+            state.setBackgroundColor(getResources().getColor(R.color.colorStateBgError));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 AccessTokenManager.load();
             }
         }).start();
+        state = (TextView) findViewById(R.id.state);
         start = (Button) findViewById(R.id.start);
         start.setOnClickListener(this);
         save_user_db = (Button) findViewById(R.id.save_user_db);
@@ -46,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stop.setOnClickListener(this);
         manage_tokens = (Button) findViewById(R.id.manage_tokens);
         manage_tokens.setOnClickListener(this);
+
+        setupState();
 
         if (!started) {
             save_user_db.setEnabled(false);

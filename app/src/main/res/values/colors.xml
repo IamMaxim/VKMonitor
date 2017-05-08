@@ -6,4 +6,6 @@
     <color name="colorAccent">#6caeec</color>
     <color name="colorFABicon">#efebe9</color>
     <color name="colorTextOnPrimary">#ffffff</color>
+    <color name="colorStateBgOK">#66bb6a</color>
+    <color name="colorStateBgError">#ff8a80</color>
 </resources>

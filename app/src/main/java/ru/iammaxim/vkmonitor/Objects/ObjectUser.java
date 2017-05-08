@@ -25,6 +25,16 @@ public class ObjectUser {
         } catch (JSONException e) {}
     }
 
+    public ObjectUser(JSONObject json) {
+        try {
+            json = json.getJSONArray("response").getJSONObject(0);
+            id = json.getInt("id");
+            first_name = json.getString("first_name");
+            last_name = json.getString("last_name");
+            photo_url = json.getString("photo_200");
+        } catch (JSONException e) {}
+    }
+
     @Override
     public String toString() {
         return first_name + " " + last_name;

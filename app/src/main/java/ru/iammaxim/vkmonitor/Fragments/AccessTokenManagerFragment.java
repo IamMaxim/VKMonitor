@@ -81,24 +81,24 @@ public class AccessTokenManagerFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        System.out.println("onDetach()");
+    public void onPause() {
+        System.out.println("onPause()");
+        AccessTokenManager.tokens.clear();
+        //add non-empty tokens
+        for (AccessTokenManager.Token e : adapter.elements) {
+            System.out.println("gonna save '" + e.name + "' '" + e.token + "' " + e.isActive);
+            if (!e.name.isEmpty() && !e.token.isEmpty())
+                AccessTokenManager.tokens.add(e);
+        }
+        if (activeToken < AccessTokenManager.tokens.size())
+            AccessTokenManager.setActiveToken(activeToken);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AccessTokenManager.tokens.clear();
-                //add non-empty tokens
-                for (AccessTokenManager.Token e : adapter.elements) {
-                    System.out.println("gonna save '" + e.name + "' '" + e.token + "' " + e.isActive);
-                    if (!e.name.isEmpty() && !e.token.isEmpty())
-                        AccessTokenManager.tokens.add(e);
-                }
-                if (activeToken < AccessTokenManager.tokens.size())
-                    AccessTokenManager.setActiveToken(activeToken);
                 AccessTokenManager.save();
             }
         }).start();
-        super.onDetach();
+        super.onPause();
     }
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {

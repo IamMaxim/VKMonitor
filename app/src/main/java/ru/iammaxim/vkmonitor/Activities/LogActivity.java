@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Stack;
 
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
@@ -39,21 +40,24 @@ import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
 import ru.iammaxim.vkmonitor.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
+import ru.iammaxim.vkmonitor.Views.WrapLinearLayoutManager;
 
 public class LogActivity extends AppCompatActivity {
     private RecyclerView log;
     private Adapter adapter;
-    private LinearLayoutManager layoutManager;
+    private WrapLinearLayoutManager layoutManager;
     private CircleTransformation circleTransformation = new CircleTransformation();
     private UpdateMessageHandler.Callback callback;
     private FloatingActionButton scrollDownButton;
     private TextView connectionStatus;
+    private Thread logLoader;
     BroadcastReceiver receiver;
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         App.updateMessageHandler.removeCallback(callback);
+        logLoader.interrupt();
     }
 
     @Override
@@ -86,9 +90,10 @@ public class LogActivity extends AppCompatActivity {
                 } catch (IllegalArgumentException e) {}
             }
         });
-        layoutManager = new LinearLayoutManager(this);
+        layoutManager = new WrapLinearLayoutManager(this);
         log.setLayoutManager(layoutManager);
         adapter = new Adapter();
+        log.setAdapter(adapter);
         callback = new UpdateMessageHandler.Callback() {
             @Override
             public void run(final int update_code, final int user_id, final String date, final String time, final int[] args) {
@@ -118,20 +123,32 @@ public class LogActivity extends AppCompatActivity {
             }
         };
         App.updateMessageHandler.addCallback(callback);
-        new Thread(new Runnable() {
+        logLoader = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Stack<String> stack = new Stack<>();
                     Scanner scanner = new Scanner(new File(App.logPath));
-                    while (scanner.hasNext()) {
-                        String s = scanner.next();
-                        JSONObject o = new JSONObject(s);
-                        filterAndAdd(new Element(o));
+                    while (!Thread.interrupted() && scanner.hasNext()) {
+                        stack.addElement(scanner.nextLine());
                     }
+
+                    while (!Thread.interrupted() && stack.size() > 0) {
+                        JSONObject o = new JSONObject(stack.pop());
+                        filterAndAddInBeginning(new Element(o));
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.notifyItemInserted(0);
+                            }
+                        });
+                    }
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            log.setAdapter(adapter);
+//                            log.swapAdapter(adapter, false);
                             final ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
                             pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(new Runnable() {
                                 @Override
@@ -142,11 +159,12 @@ public class LogActivity extends AppCompatActivity {
                             layoutManager.scrollToPosition(adapter.getItemCount() - 1);
                         }
                     });
-                } catch (FileNotFoundException | JSONException e) {
+                } catch (IndexOutOfBoundsException | FileNotFoundException | JSONException e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        logLoader.start();
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -178,6 +196,19 @@ public class LogActivity extends AppCompatActivity {
             if (serviceClass.getName().equals(service.service.getClassName())) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean filterAndAddInBeginning(Element e) {
+        if (App.useFilter) {
+            if (App.filter.contains(e.user_id)) {
+                adapter.elements.add(0, e);
+                return true;
+            }
+        } else {
+            adapter.elements.add(0, e);
+            return true;
         }
         return false;
     }

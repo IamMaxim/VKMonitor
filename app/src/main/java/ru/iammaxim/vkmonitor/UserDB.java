@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -37,6 +38,38 @@ public class UserDB {
             }
         }, "UserDBsaveThread");
         saveThread.start();
+    }
+
+    public static void update() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Integer> usersToUpdate = new ArrayList<>(1000);
+                for (Integer id : userDB.keySet()) {
+                    usersToUpdate.add(id);
+                }
+                while (usersToUpdate.size() > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
+                        sb.append(usersToUpdate.get(0));
+                        if (i < 100)
+                            sb.append(',');
+                    }
+                    try {
+                        JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
+                        sb.delete(0, sb.length());
+                        for (int i = 0; i < arr.length(); i++) {
+                            ObjectUser user = new ObjectUser(arr.getJSONObject(i));
+                            add(user);
+                        }
+
+                        Thread.sleep(500);
+                    } catch (JSONException | IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     public static ObjectUser delete(int id) {

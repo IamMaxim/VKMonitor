@@ -27,6 +27,10 @@ public class AccessTokenManager {
         return activeToken.token;
     }
 
+    public static Token getActiveToken() {
+        return activeToken;
+    }
+
     public static void setActiveToken(int index) {
         activeTokenIndex = index;
         activeToken = tokens.get(index);
