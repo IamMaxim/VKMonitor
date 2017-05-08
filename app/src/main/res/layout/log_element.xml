@@ -40,26 +40,26 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:layout_width="2dp"
-                android:layout_height="0dp"
                 android:id="@+id/upperConnector"
+                android:layout_width="3dp"
+                android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
-                android:background="#00ff00"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:background="#00ff00" />
 
             <ImageView
-                android:layout_width="2dp"
-                android:layout_height="0dp"
                 android:id="@+id/lowerConnector"
+                android:layout_width="3dp"
+                android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
                 android:background="#ff0000" />
         </LinearLayout>
 
         <ru.iammaxim.vkmonitor.Views.PhotoBgView
-            android:layout_width="54dp"
-            android:layout_height="54dp"
             android:id="@+id/photo_bg"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_gravity="center" />
 
         <ImageView

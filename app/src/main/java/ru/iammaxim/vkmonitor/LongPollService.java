@@ -42,7 +42,7 @@ public class LongPollService extends Service {
         thread.start();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setContentTitle("VK Monitor")
-                .setContentText("running")
+                .setContentText("Running")
                 .setSmallIcon(R.mipmap.icon)
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
@@ -122,14 +122,13 @@ public class LongPollService extends Service {
         private void processLongPollMessage() throws JSONException {
             try {
                 String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=2");
+                System.out.println(json);
                 if (isInterrupted()) return;
                 JSONObject o = new JSONObject(json);
                 if (!o.isNull("failed")) {
                     int code = o.getInt("failed");
                     if (code == 2 || code == 3) {
-                        System.out.println("Detected expired long poll token.");
                         currentLongPollServer = new ObjectLongPollServer(Net.processRequest("messages.getLongPollServer", true, "use_ssl=1", "need_pts=1"));
-                        System.out.println("Server data updated.");
                         return;
                     }
                 }
@@ -159,7 +158,7 @@ public class LongPollService extends Service {
                     }
                 }
                 currentLongPollServer.update(o.getLong("ts"));
-                if (App.updateMessageHandler.getCallbacksSize() == 0) {
+/*                if (App.updateMessageHandler.getCallbacksSize() == 0) {
                     synchronized (this) {
                         try {
                             wait(300000);
@@ -167,7 +166,7 @@ public class LongPollService extends Service {
                             e.printStackTrace();
                         }
                     }
-                }
+                }*/
             } catch (IOException e) {
                 e.printStackTrace();
             }

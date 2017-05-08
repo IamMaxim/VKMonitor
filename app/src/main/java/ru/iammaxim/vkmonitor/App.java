@@ -30,8 +30,7 @@ import ru.iammaxim.vkmonitor.Activities.MainActivity;
 public class App extends Application {
     public static String logPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.log";
     public static String filterPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.filter";
-    public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
-    private static String access_token;
+//    private static String access_token;
     private static File logFile;
     private static FileOutputStream logFos;
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
@@ -87,12 +86,12 @@ public class App extends Application {
         }
     }
 
-    public static void setAccessToken(String s) {
+/*    public static void setAccessToken(String s) {
         access_token = s;
-    }
+    }*/
 
     public static String getAccessToken() {
-        return access_token;
+        return AccessTokenManager.getAccessToken();
     }
 
     public static void addToLog(int user_id, int update_code, int... args) {

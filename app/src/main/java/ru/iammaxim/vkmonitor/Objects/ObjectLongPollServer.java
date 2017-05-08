@@ -8,6 +8,7 @@ public class ObjectLongPollServer {
     public long ts;
 
     public ObjectLongPollServer(String json) throws JSONException {
+        System.out.println(json);
         JSONObject o = new JSONObject(json).getJSONObject("response");
         key = o.getString("key");
         server = o.getString("server");

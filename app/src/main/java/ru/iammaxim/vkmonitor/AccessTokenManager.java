@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -16,17 +17,26 @@ import java.util.Scanner;
  * Created by maxim on 15.09.2016.
  */
 public class AccessTokenManager {
-    public static HashMap<String, Token> tokens = new HashMap<>();
+    public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
+    public static ArrayList<Token> tokens = new ArrayList<>();
     private static Token activeToken;
+    private static int activeTokenIndex;
 
     public static String getAccessToken() {
         if (activeToken == null) return "";
         return activeToken.token;
     }
 
-    static {
+    public static void setActiveToken(int index) {
+        activeTokenIndex = index;
+        activeToken = tokens.get(index);
+    }
+
+    public static void load() {
+        tokens.clear();
+        System.out.println("Loading tokens...");
         try {
-            File file = new File(App.tokensPath);
+            File file = new File(tokensPath);
             if (!file.exists())
                 file.createNewFile();
             else {
@@ -38,33 +48,39 @@ public class AccessTokenManager {
                     String token = o.getString("token");
                     boolean isActive = o.getBoolean("active");
                     Token t = new Token(name, token, isActive);
-                    tokens.put(name, t);
-                    if (isActive) activeToken = t;
+                    System.out.println("loaded token " + name + " " + token);
+                    tokens.add(t);
+                    if (isActive) setActiveToken(tokens.size() - 1);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
 
     public static void add(String name, String token) {
-        tokens.put(name, new Token(name, token, false));
+        tokens.add(new Token(name, token, false));
     }
 
     public static void save() {
+        System.out.println("Saving tokens...");
         try {
-            File file = new File(App.tokensPath);
+            File file = new File(tokensPath);
             if (!file.exists())
                 file.createNewFile();
             FileOutputStream fos = new FileOutputStream(file);
-            for (Map.Entry<String, Token> entry : tokens.entrySet()) {
-                fos.write((new JSONObject().put("name", entry.getValue().name).put("token", entry.getValue().token).put("active", entry.getValue().isActive).toString() + '\n').getBytes());
+            for (Token t : tokens) {
+                if (!t.name.isEmpty() && !t.token.isEmpty()) {
+                    fos.write((new JSONObject().put("name", t.name).put("token", t.token).put("active", t.isActive).toString() + '\n').getBytes());
+                }
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public static int getActiveTokenIndex() {
+        return activeTokenIndex;
     }
 
     public static class Token {
@@ -75,6 +91,11 @@ public class AccessTokenManager {
             this.name = name;
             this.token = token;
             this.isActive = isActive;
+        }
+
+        @Override
+        public String toString() {
+            return name + " " + token + " " + isActive;
         }
     }
 }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
 import ru.iammaxim.vkmonitor.R;
@@ -21,12 +22,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean started = false;
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;
 
-    private Button start, save_user_db, open_log, change_filter, stop;
+    private Button start, save_user_db, open_log, change_filter, stop, manage_tokens;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AccessTokenManager.load();
+            }
+        }).start();
         start = (Button) findViewById(R.id.start);
         start.setOnClickListener(this);
         save_user_db = (Button) findViewById(R.id.save_user_db);
@@ -37,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         change_filter.setOnClickListener(this);
         stop = (Button) findViewById(R.id.stop);
         stop.setOnClickListener(this);
+        manage_tokens = (Button) findViewById(R.id.manage_tokens);
+        manage_tokens.setOnClickListener(this);
 
         if (!started) {
             save_user_db.setEnabled(false);
@@ -51,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onClickStart() {
-        App.setAccessToken(((EditText) findViewById(R.id.at)).getEditableText().toString());
+        //App.setAccessToken(((EditText) findViewById(R.id.at)).getEditableText().toString());
         startService(new Intent(this, LongPollService.class).putExtra("MESSENGER", new Messenger(App.updateMessageHandler)));
     }
 
@@ -85,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 stop.setEnabled(false);
                 start.setEnabled(true);
                 started = false;
+                break;
+            case R.id.manage_tokens:
+                startActivity(new Intent(this, AccessTokenManagerActivity.class));
                 break;
         }
     }

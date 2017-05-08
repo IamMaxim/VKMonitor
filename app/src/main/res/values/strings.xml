@@ -8,4 +8,9 @@
     <string name="loading_status">Loading status...</string>
     <string name="status_connected">Connected to VK</string>
     <string name="status_not_connected">Not connected to VK</string>
+    <string name="set_active">Set active</string>
+    <string name="save">Save</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
