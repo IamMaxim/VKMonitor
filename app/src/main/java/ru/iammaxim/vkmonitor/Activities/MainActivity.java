@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AccessTokenManager.load();
         if (!UserDB.isLoaded())
             UserDB.load();
+        App.updateShortcuts(this);
         setContentView(R.layout.activity_main);
         state = (TextView) findViewById(R.id.state);
         start = findViewById(R.id.start);

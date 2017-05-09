@@ -1,11 +1,16 @@
 package ru.iammaxim.vkmonitor;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
@@ -19,9 +24,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.Activities.LogActivity;
 import ru.iammaxim.vkmonitor.Activities.MainActivity;
 
 /**
@@ -90,6 +97,27 @@ public class App extends Application {
 
     public static String getAccessToken() {
         return AccessTokenManager.getAccessToken();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @SuppressLint("NewApi")
+    public static void updateShortcuts(Context context) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+
+            ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "log")
+                    .setShortLabel("Open log")
+                    .setLongLabel("Open log")
+                    .setIcon(Icon.createWithResource(context, R.drawable.ic_log_black_24dp))
+                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.EMPTY, context, LogActivity.class))
+                    .build();
+
+            shortcutManager.setDynamicShortcuts(Collections.singletonList(shortcut));
+        }
     }
 
     public static void addToLog(int user_id, int update_code, int... args) {

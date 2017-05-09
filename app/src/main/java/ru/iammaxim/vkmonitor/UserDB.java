@@ -23,7 +23,7 @@ import ru.iammaxim.vkmonitor.Objects.ObjectUser;
  */
 public class UserDB {
     private static final String filepath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.users";
-    private static HashMap<Integer, ObjectUser> userDB = new HashMap<>();
+    private static final HashMap<Integer, ObjectUser> userDB = new HashMap<>();
     public static Thread saveThread;
     private static boolean loaded = false;
 
@@ -48,27 +48,29 @@ public class UserDB {
             @Override
             public void run() {
                 ArrayList<Integer> usersToUpdate = new ArrayList<>(1000);
-                for (Integer id : userDB.keySet()) {
-                    usersToUpdate.add(id);
-                }
-                while (usersToUpdate.size() > 0) {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
-                        sb.append(usersToUpdate.get(0));
-                        if (i < 100)
-                            sb.append(',');
+                synchronized (userDB) {
+                    for (Integer id : userDB.keySet()) {
+                        usersToUpdate.add(id);
                     }
-                    try {
-                        JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
-                        sb.delete(0, sb.length());
-                        for (int i = 0; i < arr.length(); i++) {
-                            ObjectUser user = new ObjectUser(arr.getJSONObject(i));
-                            add(user);
+                    while (usersToUpdate.size() > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
+                            sb.append(usersToUpdate.get(0));
+                            if (i < 100)
+                                sb.append(',');
                         }
+                        try {
+                            JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
+                            sb.delete(0, sb.length());
+                            for (int i = 0; i < arr.length(); i++) {
+                                ObjectUser user = new ObjectUser(arr.getJSONObject(i));
+                                add(user);
+                            }
 
-                        Thread.sleep(500);
-                    } catch (JSONException | IOException | InterruptedException e) {
-                        e.printStackTrace();
+                            Thread.sleep(500);
+                        } catch (JSONException | IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -89,15 +91,17 @@ public class UserDB {
 
     public static void save() {
         try {
-            File file = new File(filepath);
-            if (!file.exists())
-                file.createNewFile();
-            FileOutputStream fos = new FileOutputStream(file);
-            JSONArray json = new JSONArray();
-            for (ObjectUser user : userDB.values()) {
-                json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_url", user.photo_url));
+            synchronized (userDB) {
+                File file = new File(filepath);
+                if (!file.exists())
+                    file.createNewFile();
+                FileOutputStream fos = new FileOutputStream(file);
+                JSONArray json = new JSONArray();
+                for (ObjectUser user : userDB.values()) {
+                    json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_url", user.photo_url));
+                }
+                fos.write(json.toString().getBytes());
             }
-            fos.write(json.toString().getBytes());
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
@@ -109,22 +113,24 @@ public class UserDB {
             @Override
             public void run() {
                 try {
-                    userDB.clear();
-                    File file = new File(filepath);
-                    if (!file.exists()) {
-                        System.out.println(filepath + " doesn't exists. Couldn't load users database");
-                        return;
-                    }
-                    JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
-                    for (int i = 0; i < arr.length(); i++) {
-                        JSONObject obj = arr.getJSONObject(i);
-                        ObjectUser user = new ObjectUser();
-                        user.id = obj.getInt("id");
-                        user.first_name = obj.getString("first_name");
-                        user.last_name = obj.getString("last_name");
-                        if (obj.has("photo_url"))
-                            user.photo_url = obj.getString("photo_url");
-                        add(user);
+                    synchronized (userDB) {
+                        userDB.clear();
+                        File file = new File(filepath);
+                        if (!file.exists()) {
+                            System.out.println(filepath + " doesn't exists. Couldn't load users database");
+                            return;
+                        }
+                        JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject obj = arr.getJSONObject(i);
+                            ObjectUser user = new ObjectUser();
+                            user.id = obj.getInt("id");
+                            user.first_name = obj.getString("first_name");
+                            user.last_name = obj.getString("last_name");
+                            if (obj.has("photo_url"))
+                                user.photo_url = obj.getString("photo_url");
+                            add(user);
+                        }
                     }
                 } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
                     e.printStackTrace();
