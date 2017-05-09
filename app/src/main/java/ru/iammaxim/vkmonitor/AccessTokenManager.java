@@ -52,7 +52,6 @@ public class AccessTokenManager {
                     String token = o.getString("token");
                     boolean isActive = o.getBoolean("active");
                     Token t = new Token(name, token, isActive);
-                    System.out.println("loaded token " + name + " " + token);
                     tokens.add(t);
                     if (isActive) setActiveToken(tokens.size() - 1);
                 }

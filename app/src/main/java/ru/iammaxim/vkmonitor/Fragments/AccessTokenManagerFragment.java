@@ -30,15 +30,8 @@ public class AccessTokenManagerFragment extends Fragment {
     private int activeToken = AccessTokenManager.getActiveTokenIndex();
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        System.out.println("onDestroy()");
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("onCreate()");
         setRetainInstance(true);
 
         //init tokens
@@ -75,18 +68,10 @@ public class AccessTokenManagerFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        System.out.println("onAttach()");
-    }
-
-    @Override
     public void onPause() {
-        System.out.println("onPause()");
         AccessTokenManager.tokens.clear();
         //add non-empty tokens
         for (AccessTokenManager.Token e : adapter.elements) {
-            System.out.println("gonna save '" + e.name + "' '" + e.token + "' " + e.isActive);
             if (!e.name.isEmpty() && !e.token.isEmpty())
                 AccessTokenManager.tokens.add(e);
         }
@@ -103,10 +88,6 @@ public class AccessTokenManagerFragment extends Fragment {
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         public ArrayList<AccessTokenManager.Token> elements = new ArrayList<>();
-
-        public Adapter() {
-            System.out.println("creating Adapter");
-        }
 
         private Button.OnClickListener setActiveListener = new View.OnClickListener() {
             @Override

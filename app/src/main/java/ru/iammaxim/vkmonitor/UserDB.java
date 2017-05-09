@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.Objects.ObjectUser;
@@ -33,7 +34,8 @@ public class UserDB {
                     try {
                         Thread.sleep(60000);
                         save();
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }, "UserDBsaveThread");
@@ -101,26 +103,32 @@ public class UserDB {
     }
 
     public static void load() {
-        try {
-            userDB.clear();
-            File file = new File(filepath);
-            if (!file.exists()) {
-                System.out.println(filepath + " doesn't exists. Couldn't load users database");
-                return;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    userDB.clear();
+                    File file = new File(filepath);
+                    if (!file.exists()) {
+                        System.out.println(filepath + " doesn't exists. Couldn't load users database");
+                        return;
+                    }
+                    JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject obj = arr.getJSONObject(i);
+                        ObjectUser user = new ObjectUser();
+                        user.id = obj.getInt("id");
+                        user.first_name = obj.getString("first_name");
+                        user.last_name = obj.getString("last_name");
+                        if (obj.has("photo_url"))
+                            user.photo_url = obj.getString("photo_url");
+                        add(user);
+                    }
+                } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
+                    e.printStackTrace();
+                }
             }
-            JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject obj = arr.getJSONObject(i);
-                ObjectUser user = new ObjectUser();
-                user.id = obj.getInt("id");
-                user.first_name = obj.getString("first_name");
-                user.last_name = obj.getString("last_name");
-                user.photo_url = obj.getString("photo_url");
-                add(user);
-            }
-        } catch (FileNotFoundException | JSONException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     public static ObjectUser get(int id) {

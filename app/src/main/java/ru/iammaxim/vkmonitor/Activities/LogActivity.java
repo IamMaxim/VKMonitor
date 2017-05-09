@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -87,13 +88,15 @@ public class LogActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
-                } catch (IllegalArgumentException e) {}
+                } catch (IllegalArgumentException e) {
+                }
             }
         });
         layoutManager = new WrapLinearLayoutManager(this);
         log.setLayoutManager(layoutManager);
         adapter = new Adapter();
         log.setAdapter(adapter);
+
         callback = new UpdateMessageHandler.Callback() {
             @Override
             public void run(final int update_code, final int user_id, final String date, final String time, final int[] args) {
@@ -105,6 +108,7 @@ public class LogActivity extends AppCompatActivity {
                         added = filterAndAdd(new Element(update_code, user_id, date, time, args));
                         return null;
                     }
+
                     @Override
                     protected void onPostExecute(Object o) {
                         if (added) {
@@ -116,7 +120,8 @@ public class LogActivity extends AppCompatActivity {
                                 View v2 = v.findViewById(R.id.lowerConnector);
                                 v2.setVisibility(View.VISIBLE);
                                 v2.setBackgroundColor(((PhotoBgView) v.findViewById(R.id.photo_bg)).getColor());
-                            } catch (NullPointerException e) {}
+                            } catch (NullPointerException e) {
+                            }
                         }
                     }
                 }.execute();
@@ -134,13 +139,18 @@ public class LogActivity extends AppCompatActivity {
                     }
 
                     while (!Thread.interrupted() && stack.size() > 0) {
-                        JSONObject o = new JSONObject(stack.pop());
-                        filterAndAddInBeginning(new Element(o));
+                        int processed = 0;
+                        for (int i = 0; i < 50 && stack.size() > 0; i++) {
+                            JSONObject o = new JSONObject(stack.pop());
+                            filterAndAddInBeginning(new Element(o));
+                            processed++;
+                        }
 
+                        final int finalProcessed = processed;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.notifyItemInserted(0);
+                                adapter.notifyItemRangeInserted(0, finalProcessed);
                             }
                         });
                     }
@@ -280,7 +290,7 @@ public class LogActivity extends AppCompatActivity {
              * Пользователь $user_id начал набирать текст в беседе $chat_id.
              */
             case 62:
-                return  "Started typing in chat #" + args[0];
+                return "Started typing in chat #" + args[0];
             default:
                 return "cannot get description";
         }
@@ -308,7 +318,7 @@ public class LogActivity extends AppCompatActivity {
                 holder.upperConnector.setVisibility(View.VISIBLE);
                 holder.upperConnector.setBackgroundColor(color);
             }
-            if (position == elements.size()-1) {
+            if (position == elements.size() - 1) {
                 holder.lowerConnector.setVisibility(View.INVISIBLE);
             } else {
                 holder.lowerConnector.setVisibility(View.VISIBLE);

@@ -97,7 +97,6 @@ public class LongPollService extends Service {
         @Override
         public void run() {
             try {
-                UserDB.load();
                 if (!init()) {
                     log("Couldn't connect to VK. Does access token work?");
                     sendConnectionStatus(0);

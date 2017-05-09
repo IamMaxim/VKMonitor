@@ -23,13 +23,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean started = false;
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;
 
-    private Button start, save_user_db, open_log, change_filter, stop, manage_tokens;
+    private View start, open_log, change_filter, stop, manage_tokens;
     private TextView state;
 
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("MainActivity onResume()");
         setupState();
     }
 
@@ -47,35 +46,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AccessTokenManager.load();
+        UserDB.load();
         setContentView(R.layout.activity_main);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                AccessTokenManager.load();
-            }
-        }).start();
         state = (TextView) findViewById(R.id.state);
-        start = (Button) findViewById(R.id.start);
+        start = findViewById(R.id.start);
         start.setOnClickListener(this);
-        save_user_db = (Button) findViewById(R.id.save_user_db);
-        save_user_db.setOnClickListener(this);
-        open_log = (Button) findViewById(R.id.open_log);
+        open_log = findViewById(R.id.open_log);
         open_log.setOnClickListener(this);
-        change_filter = (Button) findViewById(R.id.change_filter);
+        change_filter = findViewById(R.id.change_filter);
         change_filter.setOnClickListener(this);
-        stop = (Button) findViewById(R.id.stop);
+        stop = findViewById(R.id.stop);
         stop.setOnClickListener(this);
-        manage_tokens = (Button) findViewById(R.id.manage_tokens);
+        manage_tokens = findViewById(R.id.manage_tokens);
         manage_tokens.setOnClickListener(this);
 
         setupState();
 
         if (!started) {
-            save_user_db.setEnabled(false);
-//            open_log.setEnabled(false);
-//            change_filter.setEnabled(false);
             stop.setEnabled(false);
-        } else start.setEnabled(false);
+            stop.setAlpha(0.5f);
+        } else {
+            start.setEnabled(false);
+            start.setAlpha(0.5f);
+        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
@@ -83,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onClickStart() {
-        //App.setAccessToken(((EditText) findViewById(R.id.at)).getEditableText().toString());
         startService(new Intent(this, LongPollService.class).putExtra("MESSENGER", new Messenger(App.updateMessageHandler)));
     }
 
@@ -94,14 +87,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.start:
                 onClickStart();
                 v.setEnabled(false);
-                save_user_db.setEnabled(true);
+                v.setAlpha(0.5f);
                 open_log.setEnabled(true);
                 change_filter.setEnabled(true);
                 stop.setEnabled(true);
+                stop.setAlpha(1);
                 started = true;
-                break;
-            case R.id.save_user_db:
-                UserDB.save();
                 break;
             case R.id.open_log:
                 startActivity(new Intent(this, LogActivity.class));
@@ -111,11 +102,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.stop:
                 stopService(new Intent(this, LongPollService.class));
-                save_user_db.setEnabled(false);
                 open_log.setEnabled(false);
                 change_filter.setEnabled(false);
                 stop.setEnabled(false);
+                stop.setAlpha(0.5f);
                 start.setEnabled(true);
+                start.setAlpha(1);
                 started = false;
                 break;
             case R.id.manage_tokens:
