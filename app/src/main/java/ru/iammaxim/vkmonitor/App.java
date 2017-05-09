@@ -139,4 +139,14 @@ public class App extends Application {
         NotificationManager notificationManager = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(5246451, notification);
     }
+
+    public static void clearFilter() {
+        filter.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                saveFilter();
+            }
+        }).start();
+    }
 }

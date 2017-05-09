@@ -1,17 +1,20 @@
 package ru.iammaxim.vkmonitor.Activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Messenger;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean started = false;
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;
 
-    private View start, open_log, change_filter, stop, manage_tokens;
+    private View start, stop;
     private TextView state;
 
     @Override
@@ -47,19 +50,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AccessTokenManager.load();
-        UserDB.load();
+        if (!UserDB.isLoaded())
+            UserDB.load();
         setContentView(R.layout.activity_main);
         state = (TextView) findViewById(R.id.state);
         start = findViewById(R.id.start);
-        start.setOnClickListener(this);
-        open_log = findViewById(R.id.open_log);
-        open_log.setOnClickListener(this);
-        change_filter = findViewById(R.id.change_filter);
-        change_filter.setOnClickListener(this);
         stop = findViewById(R.id.stop);
-        stop.setOnClickListener(this);
-        manage_tokens = findViewById(R.id.manage_tokens);
-        manage_tokens.setOnClickListener(this);
 
         setupState();
 
@@ -88,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 onClickStart();
                 v.setEnabled(false);
                 v.setAlpha(0.5f);
-                open_log.setEnabled(true);
-                change_filter.setEnabled(true);
                 stop.setEnabled(true);
                 stop.setAlpha(1);
                 started = true;
@@ -102,8 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.stop:
                 stopService(new Intent(this, LongPollService.class));
-                open_log.setEnabled(false);
-                change_filter.setEnabled(false);
                 stop.setEnabled(false);
                 stop.setAlpha(0.5f);
                 start.setEnabled(true);
@@ -112,6 +104,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.manage_tokens:
                 startActivity(new Intent(this, AccessTokenManagerActivity.class));
+                break;
+            case R.id.clear_filter:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Clear filter");
+                builder.setMessage("Are you sure you want to clear filter?");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        App.clearFilter();
+                        Toast.makeText(MainActivity.this, "Filter cleared", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
                 break;
         }
     }

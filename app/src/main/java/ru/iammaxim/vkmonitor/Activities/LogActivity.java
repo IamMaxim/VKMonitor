@@ -41,12 +41,11 @@ import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
 import ru.iammaxim.vkmonitor.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
+import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 import ru.iammaxim.vkmonitor.Views.WrapLinearLayoutManager;
 
 public class LogActivity extends AppCompatActivity {
-    private RecyclerView log;
-    private Adapter adapter;
-    private WrapLinearLayoutManager layoutManager;
+    private RecyclerViewWrapper log;
     private CircleTransformation circleTransformation = new CircleTransformation();
     private UpdateMessageHandler.Callback callback;
     private FloatingActionButton scrollDownButton;
@@ -81,21 +80,15 @@ public class LogActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        log = (RecyclerView) findViewById(R.id.rv);
+        log = (RecyclerViewWrapper) findViewById(R.id.rv);
+        log.setAdapter(new Adapter());
         scrollDownButton = (FloatingActionButton) findViewById(R.id.scroll_down);
         scrollDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    layoutManager.smoothScrollToPosition(log, null, adapter.elements.size() - 1);
-                } catch (IllegalArgumentException e) {
-                }
+                log.smoothScrollToBottom();
             }
         });
-        layoutManager = new WrapLinearLayoutManager(this);
-        log.setLayoutManager(layoutManager);
-        adapter = new Adapter();
-        log.setAdapter(adapter);
 
         callback = new UpdateMessageHandler.Callback() {
             @Override
@@ -113,10 +106,10 @@ public class LogActivity extends AppCompatActivity {
                     protected void onPostExecute(Object o) {
                         if (added) {
                             try {
-                                adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                                if (layoutManager.findLastVisibleItemPosition() == adapter.getItemCount() - 2)
-                                    layoutManager.smoothScrollToPosition(log, null, adapter.getItemCount() - 1);
-                                View v = layoutManager.findViewByPosition(adapter.getItemCount() - 2);
+                                log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
+                                if (log.layoutManager.findLastVisibleItemPosition() == log.adapter.getItemCount() - 2)
+                                    log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
+                                View v = log.layoutManager.findViewByPosition(log.adapter.getItemCount() - 2);
                                 View v2 = v.findViewById(R.id.lowerConnector);
                                 v2.setVisibility(View.VISIBLE);
                                 v2.setBackgroundColor(((PhotoBgView) v.findViewById(R.id.photo_bg)).getColor());
@@ -150,7 +143,7 @@ public class LogActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.notifyItemRangeInserted(0, finalProcessed);
+                                log.adapter.notifyItemRangeInserted(0, finalProcessed);
                             }
                         });
                     }
@@ -158,7 +151,6 @@ public class LogActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-//                            log.swapAdapter(adapter, false);
                             final ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
                             pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(new Runnable() {
                                 @Override
@@ -166,7 +158,7 @@ public class LogActivity extends AppCompatActivity {
                                     pb.setVisibility(View.GONE);
                                 }
                             }).start();
-                            layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+                            log.scrollToBottom();
                         }
                     });
                 } catch (IndexOutOfBoundsException | FileNotFoundException | JSONException e) {
@@ -213,11 +205,11 @@ public class LogActivity extends AppCompatActivity {
     private boolean filterAndAddInBeginning(Element e) {
         if (App.useFilter) {
             if (App.filter.contains(e.user_id)) {
-                adapter.elements.add(0, e);
+                ((Adapter) log.adapter).elements.add(0, e);
                 return true;
             }
         } else {
-            adapter.elements.add(0, e);
+            ((Adapter) log.adapter).elements.add(0, e);
             return true;
         }
         return false;
@@ -226,11 +218,11 @@ public class LogActivity extends AppCompatActivity {
     private boolean filterAndAdd(Element e) {
         if (App.useFilter) {
             if (App.filter.contains(e.user_id)) {
-                adapter.elements.add(e);
+                ((Adapter) log.adapter).elements.add(e);
                 return true;
             }
         } else {
-            adapter.elements.add(e);
+            ((Adapter) log.adapter).elements.add(e);
             return true;
         }
         return false;
@@ -253,6 +245,27 @@ public class LogActivity extends AppCompatActivity {
         }
     }
 
+    private String getPlatformName(int id) {
+        switch (id) {
+            case 1:
+                return "mobile";
+            case 2:
+                return "iphone";
+            case 3:
+                return "ipad";
+            case 4:
+                return "android";
+            case 5:
+                return "wphone";
+            case 6:
+                return "windows";
+            case 7:
+                return "web";
+            default:
+                return String.valueOf(id);
+        }
+    }
+
     private String getDescription(int action, int user_id, int[] args) {
         switch (action) {
             /**
@@ -272,7 +285,10 @@ public class LogActivity extends AppCompatActivity {
              * Друг $user_id стал онлайн. $extra не равен 0, если в mode был передан флаг 64. В младшем байте (остаток от деления на 256) числа extra лежит идентификатор платформы.
              */
             case 8:
-                return "Became online";
+                if (args.length >= 1)
+                    return "Became online (" + getPlatformName(args[0] & 0xFF) + ")";
+                else
+                    return "Became online";
             /**
              * -$user_id (integer) $flags (integer)
              * Друг $user_id стал оффлайн ($flags равен 0, если пользователь покинул сайт (например, нажал выход) и 1, если оффлайн по таймауту (например, статус away)) .

@@ -120,7 +120,7 @@ public class LongPollService extends Service {
 
         private void processLongPollMessage() throws JSONException {
             try {
-                String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=2");
+                String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=66");
                 System.out.println(json);
                 if (isInterrupted()) return;
                 JSONObject o = new JSONObject(json);
@@ -143,7 +143,7 @@ public class LongPollService extends Service {
                             App.addToLog(obj.getInt(1), 7, obj.getInt(2));
                             break;
                         case 8:
-                            App.addToLog(-obj.getInt(1), 8);
+                            App.addToLog(-obj.getInt(1), 8, obj.getInt(2));
                             break;
                         case 9:
                             App.addToLog(-obj.getInt(1), 9, obj.getInt(2));

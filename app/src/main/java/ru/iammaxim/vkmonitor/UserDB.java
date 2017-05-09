@@ -25,6 +25,7 @@ public class UserDB {
     private static final String filepath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.users";
     private static HashMap<Integer, ObjectUser> userDB = new HashMap<>();
     public static Thread saveThread;
+    private static boolean loaded = false;
 
     public static void startSaveThread() {
         saveThread = new Thread(new Runnable() {
@@ -103,6 +104,7 @@ public class UserDB {
     }
 
     public static void load() {
+        loaded = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -141,5 +143,9 @@ public class UserDB {
 
     public static void add(ObjectUser user) {
         userDB.put(user.id, user);
+    }
+
+    public static boolean isLoaded() {
+        return loaded;
     }
 }

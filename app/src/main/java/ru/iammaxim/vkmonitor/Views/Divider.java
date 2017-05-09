@@ -30,7 +30,7 @@ public class Divider extends View {
         super(context, attrs);
         p = new Paint();
         p.setStyle(Paint.Style.FILL);
-        p.setColor(0x1E000000);
+        p.setColor(0x1F000000);
     }
 
     @Override
