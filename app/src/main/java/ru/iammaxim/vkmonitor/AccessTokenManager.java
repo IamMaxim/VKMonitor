@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+
 /**
  * Created by maxim on 15.09.2016.
  */
@@ -20,7 +22,9 @@ public class AccessTokenManager {
     public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
     public static ArrayList<Token> tokens = new ArrayList<>();
     private static Token activeToken;
+    public static ObjectUser currentUser;
     private static int activeTokenIndex;
+    private static boolean loaded = false;
 
     public static String getAccessToken() {
         if (activeToken == null) return "";
@@ -34,9 +38,12 @@ public class AccessTokenManager {
     public static void setActiveToken(int index) {
         activeTokenIndex = index;
         activeToken = tokens.get(index);
+        currentUser = Users.get();
     }
 
     public static void load() {
+        if (loaded)
+            return;
         tokens.clear();
         System.out.println("Loading tokens...");
         try {
@@ -56,6 +63,7 @@ public class AccessTokenManager {
                     if (isActive) setActiveToken(tokens.size() - 1);
                 }
             }
+            loaded = true;
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

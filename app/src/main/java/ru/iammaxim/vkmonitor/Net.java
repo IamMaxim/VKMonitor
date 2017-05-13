@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class Net {
-    private static final String version = "?v=5.52";
+    private static final String version = "?v=5.64";
 
     public static String processRequest(String url) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -41,9 +41,9 @@ public class Net {
                     attempts--;
                 } while (sb.toString().contains("error_code") && attempts > 0);
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        };
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         return sb.toString();
     }
 

@@ -39,4 +39,8 @@ public class ObjectUser {
     public String toString() {
         return first_name + " " + last_name;
     }
+
+    public String getTitle() {
+        return first_name + " " + last_name;
+    }
 }

@@ -20,6 +20,7 @@ import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
 import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.RequestGenerator.RequestGeneratorMain;
 import ru.iammaxim.vkmonitor.UserDB;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -119,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 builder.setNegativeButton("Cancel", null);
                 builder.show();
+                break;
+            case R.id.request_generator:
+                startActivity(new Intent(this, RequestGeneratorMain.class));
                 break;
         }
     }

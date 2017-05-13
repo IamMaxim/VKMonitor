@@ -14,5 +14,6 @@ public class AccessTokenManagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_access_token_manager);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

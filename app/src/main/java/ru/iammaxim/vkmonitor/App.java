@@ -39,8 +39,8 @@ public class App extends Application {
     public static String filterPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.filter";
     private static File logFile;
     private static FileOutputStream logFos;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
-    private static SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+    public static SimpleDateFormat dateSDF = new SimpleDateFormat("dd.MM.yy");
+    public static SimpleDateFormat timeSDF = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
     public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
@@ -123,8 +123,8 @@ public class App extends Application {
     public static void addToLog(int user_id, int update_code, int... args) {
         try {
             Date date = new Date(System.currentTimeMillis());
-            String dateStr = sdf.format(date);
-            String timeStr = sdf2.format(date);
+            String dateStr = dateSDF.format(date);
+            String timeStr = timeSDF.format(date);
             JSONObject o = new JSONObject();
             o.put("date", dateStr);
             o.put("time", timeStr);

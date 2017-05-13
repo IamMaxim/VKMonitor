@@ -10,7 +10,7 @@ import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 public class Users {
     public static ObjectUser get() {
         try {
-            return new ObjectUser(Net.processRequest("users.get", true));
+            return new ObjectUser(Net.processRequest("users.get", true, "fields=photo_200"));
         } catch (IOException e) {
             e.printStackTrace();
         }
