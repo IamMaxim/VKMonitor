@@ -10,7 +10,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
-import ru.iammaxim.vkmonitor.Activities.LogActivity;
+import ru.iammaxim.vkmonitor.Fragments.LogFragment;
 import ru.iammaxim.vkmonitor.R;
 
 /**
@@ -19,7 +19,7 @@ import ru.iammaxim.vkmonitor.R;
 public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
     private LinearInterpolator linearInterpolator = new LinearInterpolator();
     LinearLayoutManager rvLayoutManager;
-    LogActivity.Adapter rvAdapter;
+    LogFragment.Adapter rvAdapter;
 
     public FABHideOnScrollBehavior(Context context, AttributeSet attrs) {
         super();
@@ -30,7 +30,7 @@ public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
         if (rvLayoutManager == null) {
             RecyclerView rv = (RecyclerView)coordinatorLayout.findViewById(R.id.rv);
             rvLayoutManager = ((LinearLayoutManager)rv.getLayoutManager());
-            rvAdapter = (LogActivity.Adapter) rv.getAdapter();
+            rvAdapter = (LogFragment.Adapter) rv.getAdapter();
         }
 
         if (dyConsumed > 0) {

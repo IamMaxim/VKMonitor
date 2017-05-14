@@ -38,7 +38,12 @@ public class AccessTokenManager {
     public static void setActiveToken(int index) {
         activeTokenIndex = index;
         activeToken = tokens.get(index);
-        currentUser = Users.get();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                currentUser = Users.get();
+            }
+        }).start();
     }
 
     public static void load() {

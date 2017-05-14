@@ -42,7 +42,7 @@ public class Net {
                 } while (sb.toString().contains("error_code") && attempts > 0);
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         return sb.toString();
     }

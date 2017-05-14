@@ -20,7 +20,6 @@ import ru.iammaxim.vkmonitor.Objects.ObjectLongPollServer;
 
 public class LongPollService extends Service {
     private LongPollThread thread;
-    //    Messenger messageHandler;
     private static final int NOTIFICATION_ID = 124678;
     private LocalBroadcastManager broadcaster;
     public static final String STATUS_CHANGED = "ru.iammaxim.vkmonitor.LongPollService.STATUS_CHANGED";
@@ -62,7 +61,6 @@ public class LongPollService extends Service {
     public void onDestroy() {
         thread.interrupt();
         stopForeground(true);
-        App.showNotification(getApplicationContext(), "Service killed");
         stopSelf();
     }
 

@@ -46,6 +46,10 @@ public class App extends Application {
     public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
     public static LongPollService.LongPollThread longPollThread;
 
+    // should be called first from UI thread
+    // because UpdateMessageHandler should only be created from UI thread
+    public static void init() {}
+
     static {
         logFile = new File(logPath);
         try {

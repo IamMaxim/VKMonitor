@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="ru.iammaxim.vkmonitor.Activities.LogActivity"
-    tools:showIn="@layout/activity_log">
+    tools:showIn="@layout/fragment_log">
 
     <TextView
         android:id="@+id/connectionStatus"

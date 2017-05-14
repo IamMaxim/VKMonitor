@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="ru.iammaxim.vkmonitor.Activities.AccessTokenManagerActivity">
+    tools:context="ru.iammaxim.vkmonitor.Activities.LogActivity"
+    android:id="@+id/layout">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -18,17 +19,16 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
-
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_access_token_manager" />
+    <include layout="@layout/content_log"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/scroll_down"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add" />
-
+        android:layout_margin="16dp"
+        app:layout_behavior="ru.iammaxim.vkmonitor.Views.FABHideOnScrollBehavior"
+        app:srcCompat="@drawable/scroll_down_arrow" />
 </android.support.design.widget.CoordinatorLayout>

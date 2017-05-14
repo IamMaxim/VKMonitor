@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-import ru.iammaxim.vkmonitor.Activities.LogActivity;
-
 /**
  * Created by maxim on 5/9/17.
  */
