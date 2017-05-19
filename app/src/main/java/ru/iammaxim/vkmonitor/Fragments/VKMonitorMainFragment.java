@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
-import ru.iammaxim.vkmonitor.Activities.ChangeFilterActivity;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
 import ru.iammaxim.vkmonitor.R;
@@ -101,7 +100,7 @@ public class VKMonitorMainFragment extends Fragment implements View.OnClickListe
                 addFragment(new LogFragment());
                 break;
             case R.id.change_filter:
-                startActivity(new Intent(getContext(), ChangeFilterActivity.class));
+                addFragment(new ChangeFilterFragment());
                 break;
             case R.id.stop:
                 getContext().stopService(new Intent(getContext(), LongPollService.class));

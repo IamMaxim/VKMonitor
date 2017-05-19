@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
+import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
 
 public class AccessTokenManagerFragment extends Fragment {
@@ -56,6 +57,12 @@ public class AccessTokenManagerFragment extends Fragment {
                 adapter.notifyItemInserted(adapter.getItemCount() - 1);
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        App.saveFilter();
     }
 
     @Override
