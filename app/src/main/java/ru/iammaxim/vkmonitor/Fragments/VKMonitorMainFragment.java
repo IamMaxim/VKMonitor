@@ -127,6 +127,20 @@ public class VKMonitorMainFragment extends Fragment implements View.OnClickListe
             case R.id.request_generator:
                 startActivity(new Intent(getContext(), RequestGeneratorMain.class));
                 break;
+            case R.id.clear_log:
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext());
+                builder1.setTitle("Clear log");
+                builder1.setMessage("Are you sure you want to clear log?");
+                builder1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        App.clearLog();
+                        Toast.makeText(getContext(), "Log cleared", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder1.setNegativeButton("Cancel", null);
+                builder1.show();
+                break;
         }
     }
 

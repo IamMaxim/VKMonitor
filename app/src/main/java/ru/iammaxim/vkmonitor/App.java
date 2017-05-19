@@ -99,6 +99,16 @@ public class App extends Application {
         }
     }
 
+    public static void clearLog() {
+        try {
+            logFos.close();
+            logFile.createNewFile();
+            logFos = new FileOutputStream(logFile, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String getAccessToken() {
         return AccessTokenManager.getAccessToken();
     }
