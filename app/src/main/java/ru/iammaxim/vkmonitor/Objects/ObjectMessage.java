@@ -12,7 +12,7 @@ public class ObjectMessage {
     public String title, body, photo;
     public JSONObject json;
     public long date;
-    public boolean out, read_state;
+    public boolean out, read_state, muted = false;
 
     private static final int OUT_FLAG_OFFSET = 1;
 
@@ -33,8 +33,13 @@ public class ObjectMessage {
                 user_id = object.getInt("user_id");
             if (object.has("from_id"))
                 from_id = object.getInt("from_id");
+            else if (object.has("chat_id"))
+                from_id = 2000000000 + object.getInt("chat_id");
+            else if (out)
+                from_id = Users.get().id;
             else
                 from_id = user_id;
+
             if (title == null || title.equals(" ... "))
                 title = Users.get(user_id).getTitle();
             date = object.getLong("date") * 1000;
@@ -44,6 +49,9 @@ public class ObjectMessage {
                 photo = object.getString("photo_200");
             else if (!object.has("chat_id"))
                 photo = Users.get(user_id).photo_url;
+            if (object.has("push_settings")) {
+                muted = object.getJSONObject("push_settings").getInt("sound") == 1;
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

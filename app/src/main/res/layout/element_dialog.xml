@@ -75,6 +75,13 @@
                 android:orientation="horizontal"
                 android:paddingRight="4dp">
 
+                <ImageView
+                    android:id="@+id/from_photo"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_margin="4dp"
+                    android:layout_gravity="center_vertical"/>
+
                 <TextView
                     android:id="@+id/body"
                     android:layout_width="match_parent"
@@ -82,6 +89,8 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:maxLines="1"
+                    android:layout_marginRight="8dp"
+                    android:padding="4dp"
                     android:text="body" />
 
                 <TextView
@@ -89,7 +98,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:background="@drawable/unread_bg"
                     android:text="Unread"
                     android:textColor="@color/colorTextOnAccent" />
             </LinearLayout>

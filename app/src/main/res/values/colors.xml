@@ -9,4 +9,6 @@
     <color name="colorStateBgOK">#66bb6a</color>
     <color name="colorStateBgError">#ff8a80</color>
     <color name="colorTextOnAccent">#FFFFFF</color>
+    <color name="colorUnreadMessageBg">#3c6caeec</color>
+    <color name="colorMutedUnreadMessageBg">#3cc2c2c2</color>
 </resources>

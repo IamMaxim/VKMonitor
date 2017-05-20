@@ -24,6 +24,7 @@ import ru.iammaxim.vkmonitor.Objects.ObjectUser;
 public class UserDB {
     private static final String filepath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.users";
     private static final HashMap<Integer, ObjectUser> userDB = new HashMap<>();
+    private static ObjectUser me;
     public static Thread saveThread;
     private static boolean loaded = false;
 
@@ -114,6 +115,11 @@ public class UserDB {
             @Override
             public void run() {
                 try {
+                    try {
+                        me = new ObjectUser(Net.processRequest("users.get", true, "fields=photo_200"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     synchronized (userDB) {
                         userDB.clear();
                         File file = new File(filepath);
@@ -142,6 +148,10 @@ public class UserDB {
 
     public static ObjectUser get(int id) {
         return userDB.get(id);
+    }
+
+    public static ObjectUser get() {
+        return me;
     }
 
     public static void add(int id, ObjectUser user) {
