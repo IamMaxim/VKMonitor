@@ -14,10 +14,5 @@ public class WrapLinearLayoutManager extends LinearLayoutManager {
         super(context);
     }
 
-    @Override
-    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        try {
-            super.onLayoutChildren(recycler, state);
-        } catch (IndexOutOfBoundsException e) {}
-    }
+
 }

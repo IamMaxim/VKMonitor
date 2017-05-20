@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -27,7 +28,7 @@ import ru.iammaxim.vkmonitor.RequestGenerator.RequestGeneratorMain;
  * Created by maxim on 5/14/17.
  */
 
-public class VKMonitorMainFragment extends Fragment implements View.OnClickListener {
+public class MainFragment extends Fragment implements View.OnClickListener {
     private static boolean started = false;
     private View start, stop;
     private TextView state;
@@ -141,10 +142,13 @@ public class VKMonitorMainFragment extends Fragment implements View.OnClickListe
                 builder1.setNegativeButton("Cancel", null);
                 builder1.show();
                 break;
+            case R.id.open_dialogs:
+                addFragment(new DialogsFragment());
+                break;
         }
     }
 
     private void onClickStart() {
-        getContext().startService(new Intent(getContext(), LongPollService.class).putExtra("MESSENGER", new Messenger(App.updateMessageHandler)));
+        getContext().startService(new Intent(getContext(), LongPollService.class).putExtra("MESSENGER", new Messenger(App.handler)));
     }
 }

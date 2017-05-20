@@ -9,16 +9,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -53,7 +49,7 @@ import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
 public class LogFragment extends Fragment {
     private RecyclerViewWrapper log;
-    private CircleTransformation circleTransformation = new CircleTransformation();
+
     private UpdateMessageHandler.Callback callback;
     private TextView connectionStatus;
     private Thread logLoader;
@@ -72,7 +68,7 @@ public class LogFragment extends Fragment {
         scrollDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                log.smoothScrollToBottom();
+                log.scrollToBottom();
             }
         });
         connectionStatus = (TextView) v.findViewById(R.id.connectionStatus);
@@ -154,7 +150,7 @@ public class LogFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        App.updateMessageHandler.removeCallback(callback);
+        App.handler.removeCallback(callback);
         logLoader.interrupt();
     }
 
@@ -194,7 +190,7 @@ public class LogFragment extends Fragment {
                 }.execute();
             }
         };
-        App.updateMessageHandler.addCallback(callback);
+        App.handler.addCallback(callback);
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -336,7 +332,7 @@ public class LogFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(View.inflate(parent.getContext(), R.layout.log_element, null));
+            return new ViewHolder(View.inflate(parent.getContext(), R.layout.element_log, null));
         }
 
         @Override
@@ -360,7 +356,7 @@ public class LogFragment extends Fragment {
                 holder.lowerConnector.setBackgroundColor(color);
             }
             holder.photoBg.setColor(color);
-            Picasso.with(holder.photo.getContext()).load(element.photo_url).transform(circleTransformation).into(holder.photo);
+            Picasso.with(holder.photo.getContext()).load(element.photo_url).transform(App.circleTransformation).into(holder.photo);
         }
 
         @Override

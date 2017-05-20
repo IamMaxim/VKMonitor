@@ -1,10 +1,13 @@
 package ru.iammaxim.vkmonitor.Views;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
+
+import ru.iammaxim.vkmonitor.R;
 
 /**
  * Created by maxim on 11.09.2016.
@@ -23,7 +26,12 @@ public class PhotoBgView extends View {
     public PhotoBgView(Context context, AttributeSet attrs) {
         super(context, attrs);
         bgPaint.setAntiAlias(true);
-        bgPaint.setColor(0xff000000);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PhotoBgView, 0, 0);
+        try {
+            bgPaint.setColor(a.getColor(R.styleable.PhotoBgView_color, 0xff000000));
+        } finally {
+            a.recycle();
+        }
     }
 
     @Override

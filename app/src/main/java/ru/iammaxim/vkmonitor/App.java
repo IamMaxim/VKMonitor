@@ -24,12 +24,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
 import ru.iammaxim.vkmonitor.Activities.MainActivity;
+import ru.iammaxim.vkmonitor.Views.CircleTransformation;
 
 /**
  * Created by maxim on 10.09.2016.
@@ -40,15 +42,18 @@ public class App extends Application {
     private static File logFile;
     private static FileOutputStream logFos;
     public static SimpleDateFormat dateSDF = new SimpleDateFormat("dd.MM.yy");
+    public static SimpleDateFormat dateSDF2 = new SimpleDateFormat("dd MMM");
     public static SimpleDateFormat timeSDF = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
-    public static UpdateMessageHandler updateMessageHandler = new UpdateMessageHandler();
+    public static UpdateMessageHandler handler = new UpdateMessageHandler();
     public static LongPollService.LongPollThread longPollThread;
+    public static CircleTransformation circleTransformation = new CircleTransformation();
 
-    // should be called first from UI thread
+    // should be called on app launch from UI thread
     // because UpdateMessageHandler should only be created from UI thread
-    public static void init() {}
+    public static void init() {
+    }
 
     static {
         logFile = new File(logPath);
@@ -80,6 +85,10 @@ public class App extends Application {
 
     public static void saveFilter() {
         try {
+            if (filter.size() == 0)
+                useFilter = false;
+            else
+                useFilter = true;
             File filterFile = new File(filterPath);
             if (!filterFile.exists())
                 filterFile.createNewFile();
@@ -88,10 +97,6 @@ public class App extends Application {
             for (Integer integer : filter) {
                 arr.put(integer);
             }
-            if (filter.size() == 0)
-                useFilter = false;
-            else
-                useFilter = true;
             fos.write(arr.toString().getBytes());
             fos.close();
         } catch (IOException e) {
@@ -145,8 +150,8 @@ public class App extends Application {
             o.put("user_id", user_id);
             o.put("action", update_code);
             JSONArray arr = new JSONArray();
-            for (int i = 0; i < args.length; i++) {
-                arr.put(args[i]);
+            for (int arg : args) {
+                arr.put(arg);
             }
             o.put("args", arr);
             byte[] bytes = (o.toString() + '\n').getBytes();
@@ -159,7 +164,7 @@ public class App extends Application {
             data.putString("time", timeStr);
             data.putIntArray("args", args);
             msg.setData(data);
-            updateMessageHandler.sendMessage(msg);
+            handler.sendMessage(msg);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
@@ -190,5 +195,22 @@ public class App extends Application {
                 saveFilter();
             }
         }).start();
+    }
+
+    public static String formatDate(long date_long) {
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date(date_long);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        if (date.before(calendar.getTime())) {
+            calendar.add(Calendar.DATE, -1);
+            if (date.after(calendar.getTime())) {
+                return "Yesterday";
+            } else
+                return dateSDF2.format(date);
+        } else {
+            return timeSDF.format(date);
+        }
     }
 }

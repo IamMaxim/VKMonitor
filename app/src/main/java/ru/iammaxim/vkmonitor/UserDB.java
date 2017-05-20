@@ -101,6 +101,7 @@ public class UserDB {
                     json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_url", user.photo_url));
                 }
                 fos.write(json.toString().getBytes());
+                fos.close();
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();

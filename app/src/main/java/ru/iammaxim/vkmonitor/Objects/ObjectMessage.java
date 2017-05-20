@@ -9,10 +9,10 @@ import ru.iammaxim.vkmonitor.Users;
 
 public class ObjectMessage {
     public int id, from_id, user_id;
-    public String title, body;
+    public String title, body, photo;
     public JSONObject json;
     public long date;
-    public boolean out;
+    public boolean out, read_state;
 
     private static final int OUT_FLAG_OFFSET = 1;
 
@@ -37,7 +37,13 @@ public class ObjectMessage {
                 from_id = user_id;
             if (title == null || title.equals(" ... "))
                 title = Users.get(user_id).getTitle();
-            date = object.getLong("date");
+            date = object.getLong("date") * 1000;
+            if (object.has("read_state"))
+                read_state = object.getInt("read_state") == 1;
+            if (object.has("photo_200"))
+                photo = object.getString("photo_200");
+            else if (!object.has("chat_id"))
+                photo = Users.get(user_id).photo_url;
         } catch (JSONException e) {
             e.printStackTrace();
         }

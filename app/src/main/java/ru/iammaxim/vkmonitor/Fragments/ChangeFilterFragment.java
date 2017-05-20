@@ -46,6 +46,17 @@ public class ChangeFilterFragment extends Fragment {
         Collections.sort(adapter.elements);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                App.saveFilter();
+            }
+        }).start();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -64,8 +75,8 @@ public class ChangeFilterFragment extends Fragment {
         private CompoundButton.OnCheckedChangeListener checkboxListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                UserElement element = elements.get(buttonView.getId());
                 if (!buttonView.isPressed()) return;
+                UserElement element = elements.get(buttonView.getId());
                 if (isChecked) App.filter.add(element.user_id);
                 else App.filter.remove((Integer) element.user_id);
                 element.enabled = !element.enabled;
@@ -74,7 +85,7 @@ public class ChangeFilterFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(View.inflate(parent.getContext(), R.layout.filter_element, null));
+            return new ViewHolder(View.inflate(parent.getContext(), R.layout.element_filter, null));
         }
 
         @Override

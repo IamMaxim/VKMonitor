@@ -1,6 +1,5 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
-import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -126,7 +125,7 @@ public class AccessTokenManagerFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.access_token_element, parent, false));
+            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.element_access_token, parent, false));
         }
 
         @Override

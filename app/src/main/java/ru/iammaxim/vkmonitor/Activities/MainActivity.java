@@ -12,11 +12,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.List;
-
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.Fragments.VKMonitorMainFragment;
+import ru.iammaxim.vkmonitor.Fragments.MainFragment;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UserDB;
 
@@ -42,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         container = findViewById(R.id.container);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
-        transaction.add(R.id.container, new VKMonitorMainFragment());
+        transaction.add(R.id.container, new MainFragment());
         transaction.commit();
     }
 

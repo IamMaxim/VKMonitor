@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 
 public class RecyclerViewWrapper extends RecyclerView {
     public Adapter adapter;
-    public WrapLinearLayoutManager layoutManager;
+    public ImprovedLinearLayoutManager layoutManager;
 
     public RecyclerViewWrapper(Context context) {
         this(context, null);
@@ -20,13 +20,20 @@ public class RecyclerViewWrapper extends RecyclerView {
     public RecyclerViewWrapper(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        layoutManager = new WrapLinearLayoutManager(context);
+        layoutManager = new ImprovedLinearLayoutManager(context);
         setLayoutManager(layoutManager);
     }
 
     public void smoothScrollToBottom() {
         try {
             layoutManager.smoothScrollToPosition(this, null, adapter.getItemCount() - 1);
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    public void smoothScrollToTop() {
+        try {
+            layoutManager.scrollToPositionWithOffset(0, 0);
         } catch (IllegalArgumentException e) {
         }
     }

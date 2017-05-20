@@ -161,7 +161,7 @@ public class LongPollService extends Service {
             }
             currentLongPollServer.update(o.getLong("ts"));
 
-/*                if (App.updateMessageHandler.getCallbacksSize() == 0) {
+                if (App.handler.getCallbacksSize() == 0) {
                     synchronized (this) {
                         try {
                             wait(300000);
@@ -169,7 +169,7 @@ public class LongPollService extends Service {
                             e.printStackTrace();
                         }
                     }
-                }*/
+                }
         }
     }
 

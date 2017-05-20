@@ -39,7 +39,7 @@ public class RequestGeneratorMain extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.request_generator_main);
+        setContentView(R.layout.activity_request_generator);
         context = this;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

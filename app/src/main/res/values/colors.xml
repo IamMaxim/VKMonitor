@@ -8,4 +8,5 @@
     <color name="colorTextOnPrimary">#ffffff</color>
     <color name="colorStateBgOK">#66bb6a</color>
     <color name="colorStateBgError">#ff8a80</color>
+    <color name="colorTextOnAccent">#FFFFFF</color>
 </resources>

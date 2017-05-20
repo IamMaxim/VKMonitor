@@ -250,6 +250,24 @@
                     class="ru.iammaxim.vkmonitor.Views.Divider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/open_dialogs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:onClick="onClick"
+                    android:padding="16dp"
+                    android:text="Open Dialogs"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
+                    android:textColor="@color/colorPrimary" />
+
+                <view
+                    android:id="@+id/view2"
+                    class="ru.iammaxim.vkmonitor.Views.Divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </ScrollView>
 
