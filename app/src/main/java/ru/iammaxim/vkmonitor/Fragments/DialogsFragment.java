@@ -1,6 +1,7 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -39,6 +40,7 @@ public class DialogsFragment extends Fragment {
     public DialogsFragment() {
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_dialogs, container, false);
@@ -65,12 +67,8 @@ public class DialogsFragment extends Fragment {
 
                     App.handler.addCallback(callback = new UpdateMessageHandler.Callback() {
                         @Override
-                        public void run(int update_code, int user_id, String date, String time, int[] args) {
-                            switch (update_code) {
-                                case 4: // new message
+                        public void run(int update_code, boolean needToLog, int user_id, long date, JSONArray arr) {
 
-                                    break;
-                            }
                         }
                     });
                 } catch (JSONException | IOException e) {
@@ -96,6 +94,7 @@ public class DialogsFragment extends Fragment {
             return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.element_dialog, parent, false));
         }
 
+        @SuppressLint("StaticFieldLeak")
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.parent.setId(position);

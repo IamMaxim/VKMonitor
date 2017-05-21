@@ -124,7 +124,7 @@ public class LongPollService extends Service {
         }
 
         private void processLongPollMessage() throws IOException, JSONException {
-            String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=66");
+            String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=74");
             System.out.println(json);
             if (isInterrupted()) return;
             JSONObject o = new JSONObject(json);
@@ -137,40 +137,21 @@ public class LongPollService extends Service {
             }
             JSONArray arr = o.getJSONArray("updates");
             for (int i = 0; i < arr.length(); i++) {
-                JSONArray obj = (JSONArray) arr.get(i);
-                int updateCode = obj.getInt(0);
-                switch (updateCode) {
-                    case 6:
-                        App.addToLog(obj.getInt(1), 6, obj.getInt(2));
-                        break;
-                    case 7:
-                        App.addToLog(obj.getInt(1), 7, obj.getInt(2));
-                        break;
-                    case 8:
-                        App.addToLog(-obj.getInt(1), 8, obj.getInt(2));
-                        break;
-                    case 9:
-                        App.addToLog(-obj.getInt(1), 9, obj.getInt(2));
-                        break;
-                    case 61:
-                        App.addToLog(obj.getInt(1), 61);
-                        break;
-                    case 62:
-                        App.addToLog(obj.getInt(1), 62, obj.getInt(2));
-                        break;
-                }
+                JSONArray arr1 = (JSONArray) arr.get(i);
+                int updateCode = arr1.getInt(0);
+                App.addToLog(updateCode, arr1);
             }
             currentLongPollServer.update(o.getLong("ts"));
 
-                if (App.handler.getCallbacksSize() == 0) {
-                    synchronized (this) {
-                        try {
-                            wait(300000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+            if (App.handler.getCallbacksSize() == 0) {
+                synchronized (this) {
+                    try {
+                        wait(300000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
+            }
         }
     }
 

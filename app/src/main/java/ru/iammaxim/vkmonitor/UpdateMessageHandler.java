@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -31,17 +35,21 @@ public class UpdateMessageHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         Bundle bundle = msg.getData();
-        String date = bundle.getString("date");
-        String time = bundle.getString("time");
-        int update_code = bundle.getInt("update_code");
-        int user_id = bundle.getInt("user_id");
-        int[] args = bundle.getIntArray("args");
-        for (Callback callback : callbacks) {
-            callback.run(update_code, user_id, date, time, args);
+        try {
+            long date = bundle.getLong("date");
+            int peer_id = bundle.getInt("peer_id");
+            boolean needToLog = bundle.getBoolean("needToLog");
+            JSONArray arr = new JSONArray(bundle.getString("upd"));
+            int update_code = arr.getInt(0);
+            for (Callback callback : callbacks) {
+                callback.run(update_code, needToLog, peer_id, date, arr);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
     public interface Callback {
-        void run(int update_code, int user_id, String date, String time, int[] args);
+        void run(int update_code, boolean needToLog, int user_id, long date, JSONArray arr);
     }
 }

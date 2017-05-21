@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="64dp"
     android:orientation="horizontal">
 
     <LinearLayout
@@ -18,7 +19,8 @@
             android:layout_marginRight="1dp"
             android:text="date"
             android:textAlignment="viewEnd"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_gravity="end" />
 
         <TextView
             android:id="@+id/time"
@@ -28,12 +30,13 @@
             android:layout_marginRight="1dp"
             android:text="time"
             android:textAlignment="viewEnd"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_gravity="end" />
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="64dp"
-        android:layout_height="64dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -43,17 +46,15 @@
             <ImageView
                 android:id="@+id/upperConnector"
                 android:layout_width="3dp"
-                android:layout_height="0dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
                 android:background="#00ff00" />
 
             <ImageView
                 android:id="@+id/lowerConnector"
                 android:layout_width="3dp"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
                 android:background="#ff0000" />
         </LinearLayout>
 

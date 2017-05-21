@@ -140,34 +140,44 @@ public class App extends Application {
         }
     }
 
-    public static void addToLog(int user_id, int update_code, int... args) {
+    public static void addToLog(int update_code, JSONArray arr) {
         try {
-            Date date = new Date(System.currentTimeMillis());
-            String dateStr = dateSDF.format(date);
-            String timeStr = timeSDF.format(date);
-            JSONObject o = new JSONObject();
-            o.put("date", dateStr);
-            o.put("time", timeStr);
-            o.put("user_id", user_id);
-            o.put("action", update_code);
-            JSONArray arr = new JSONArray();
-            for (int arg : args) {
-                arr.put(arg);
+            long date = System.currentTimeMillis();
+            int peer_id = App.getPeerID(arr, update_code);
+            boolean needToLog = needToLog(update_code);
+            if (needToLog) {
+                JSONObject obj = new JSONObject();
+                obj.put("date", date);
+                obj.put("peer_id", peer_id);
+                obj.put("upd", arr);
+                logFos.write((obj.toString() + '\n').getBytes());
             }
-            o.put("args", arr);
-            byte[] bytes = (o.toString() + '\n').getBytes();
-            logFos.write(bytes);
             Message msg = Message.obtain();
             Bundle data = new Bundle();
-            data.putInt("update_code", update_code);
-            data.putInt("user_id", user_id);
-            data.putString("date", dateStr);
-            data.putString("time", timeStr);
-            data.putIntArray("args", args);
+            data.putInt("peer_id", peer_id);
+            data.putLong("date", date);
+            data.putString("upd", arr.toString());
+            data.putBoolean("needToLog", needToLog);
             msg.setData(data);
             handler.sendMessage(msg);
-        } catch (JSONException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean needToLog(int update_code) {
+        switch (update_code) {
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 61:
+            case 62:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -198,6 +208,7 @@ public class App extends Application {
         }).start();
     }
 
+    @SuppressLint("WrongConstant")
     public static String formatDate(long date_long) {
         Calendar calendar = Calendar.getInstance();
         Date date = new Date(date_long);
@@ -212,6 +223,39 @@ public class App extends Application {
                 return dateSDF2.format(date);
         } else {
             return timeSDF.format(date);
+        }
+    }
+
+
+    /**
+     * @param update_code update code of event
+     * @return index of peer_id in long poll update array
+     */
+    public static int getPeerID(JSONArray arr, int update_code) {
+        try {
+            switch (update_code) {
+                case 4:
+                    return arr.getInt(3);
+                case 6:
+                case 7:
+                case 10:
+                case 11:
+                case 12:
+                case 51: // chat_id here!
+                case 61:
+                case 62:
+                case 70:
+                case 114:
+                    return arr.getInt(1);
+                case 8:
+                case 9:
+                    return -arr.getInt(1);
+                default:
+                    return -1;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 }

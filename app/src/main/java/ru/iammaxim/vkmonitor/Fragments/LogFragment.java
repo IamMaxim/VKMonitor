@@ -1,5 +1,6 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -63,6 +65,7 @@ public class LogFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         log = (RecyclerViewWrapper) v.findViewById(R.id.rv);
         log.setAdapter(new Adapter());
+        log.layoutManager.setMsPerInch(150);
         FloatingActionButton scrollDownButton = (FloatingActionButton) v.findViewById(R.id.scroll_down);
         scrollDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +126,7 @@ public class LogFragment extends Fragment {
                                 }
                             }).start();
                             log.scrollToBottom();
+                            log.stopScroll();
                         }
                     });
                 } catch (IndexOutOfBoundsException | FileNotFoundException | JSONException e) {
@@ -163,30 +167,29 @@ public class LogFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         callback = new UpdateMessageHandler.Callback() {
+            @SuppressLint("StaticFieldLeak")
             @Override
-            public void run(final int update_code, final int user_id, final String date, final String time, final int[] args) {
-                new AsyncTask<Void, Void, Boolean>() {
-                    @Override
-                    protected Boolean doInBackground(Void[] params) {
-                        return filterAndAdd(new Element(update_code, user_id, date, time, args));
-                    }
+            public void run(final int update_code, boolean needToLog, final int user_id, final long date, final JSONArray arr) {
+                if (needToLog)
+                    new AsyncTask<Void, Void, Boolean>() {
+                        @Override
+                        protected Boolean doInBackground(Void[] params) {
+                            return filterAndAdd(new Element(update_code, user_id, date, arr));
+                        }
 
-                    @Override
-                    protected void onPostExecute(Boolean added) {
-                        if (added) {
-                            try {
-                                log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
-                                if (log.layoutManager.findLastVisibleItemPosition() == log.adapter.getItemCount() - 2)
-                                    log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
-                                View v = log.layoutManager.findViewByPosition(log.adapter.getItemCount() - 2);
-                                View v2 = v.findViewById(R.id.lowerConnector);
-                                v2.setVisibility(View.VISIBLE);
-                                v2.setBackgroundColor(((PhotoBgView) v.findViewById(R.id.photo_bg)).getColor());
-                            } catch (NullPointerException e) {
+                        @Override
+                        protected void onPostExecute(Boolean added) {
+                            if (added) {
+                                try {
+                                    log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
+                                    log.adapter.notifyItemChanged(log.adapter.getItemCount() - 2);
+                                    if (log.layoutManager.findLastVisibleItemPosition() >= log.adapter.getItemCount() - 3)
+                                        log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
+                                } catch (NullPointerException e) {
+                                }
                             }
                         }
-                    }
-                }.execute();
+                    }.execute();
             }
         };
         App.handler.addCallback(callback);
@@ -218,7 +221,7 @@ public class LogFragment extends Fragment {
 
     private boolean filterAndAddInBeginning(Element e) {
         if (App.useFilter) {
-            if (App.filter.contains(e.user_id)) {
+            if (App.filter.contains(e.peer_id)) {
                 ((Adapter) log.adapter).elements.add(0, e);
                 return true;
             }
@@ -231,7 +234,7 @@ public class LogFragment extends Fragment {
 
     private boolean filterAndAdd(Element e) {
         if (App.useFilter) {
-            if (App.filter.contains(e.user_id)) {
+            if (App.filter.contains(e.peer_id)) {
                 ((Adapter) log.adapter).elements.add(e);
                 return true;
             }
@@ -280,49 +283,54 @@ public class LogFragment extends Fragment {
         }
     }
 
-    private String getDescription(int action, int[] args) {
-        switch (action) {
-            /**
-             * $peer_id (integer) $local_id (integer)
-             * Прочтение всех входящих сообщений с $peer_id вплоть до $local_id включительно.
-             */
-            case 6:
-                return "You have read in messages upto message #" + args[0];
-            /**
-             * $peer_id (integer) $local_id (integer)
-             * Прочтение всех исходящих сообщений с $peer_id вплоть до $local_id включительно.
-             */
-            case 7:
-                return "Out messages have been read upto message #" + args[0];
-            /**
-             * -$user_id (integer) $extra (integer)
-             * Друг $user_id стал онлайн. $extra не равен 0, если в mode был передан флаг 64. В младшем байте (остаток от деления на 256) числа extra лежит идентификатор платформы.
-             */
-            case 8:
-                if (args.length >= 1)
-                    return "Became online (" + getPlatformName(args[0] & 0xFF) + ")";
-                else
-                    return "Became online";
+    private String getDescription(int action, JSONArray arr) {
+        try {
+            switch (action) {
                 /**
-                 * -$user_id (integer) $flags (integer)
-                 * Друг $user_id стал оффлайн ($flags равен 0, если пользователь покинул сайт (например, нажал выход) и 1, если оффлайн по таймауту (например, статус away)) .
+                 * $peer_id (integer) $local_id (integer)
+                 * Прочтение всех входящих сообщений с $peer_id вплоть до $local_id включительно.
                  */
-            case 9:
-                return "Became offine (" + (args[0] == 0 ? "force quit" : "timeout") + ")";
-            /**
-             * $user_id (integer) $flags (integer)
-             * Пользователь $user_id начал набирать текст в диалоге. Событие должно приходить раз в ~5 секунд при постоянном наборе текста. $flags = 1.
-             */
-            case 61:
-                return "Started typing message";
-            /**
-             * $user_id (integer) $chat_id (integer)
-             * Пользователь $user_id начал набирать текст в беседе $chat_id.
-             */
-            case 62:
-                return "Started typing in chat #" + args[0];
-            default:
-                return "cannot get description";
+                case 6:
+                    return "You have read in messages up to message #" + arr.getInt(2);
+                /**
+                 * $peer_id (integer) $local_id (integer)
+                 * Прочтение всех исходящих сообщений с $peer_id вплоть до $local_id включительно.
+                 */
+                case 7:
+                    return "Out messages have been read up to message #" + arr.getInt(2);
+                /**
+                 * -$peer_id (integer) $extra (integer)
+                 * Друг $peer_id стал онлайн. $extra не равен 0, если в mode был передан флаг 64. В младшем байте (остаток от деления на 256) числа extra лежит идентификатор платформы.
+                 */
+                case 8:
+                    if (arr.length() >= 3)
+                        return "Became online (" + getPlatformName(arr.getInt(2) & 0xFF) + ")";
+                    else
+                        return "Became online";
+                    /**
+                     * -$peer_id (integer) $flags (integer)
+                     * Друг $peer_id стал оффлайн ($flags равен 0, если пользователь покинул сайт (например, нажал выход) и 1, если оффлайн по таймауту (например, статус away)) .
+                     */
+                case 9:
+                    return "Became offline (" + (arr.getInt(2) == 0 ? "force quit" : "timeout") + ")";
+                /**
+                 * $peer_id (integer) $flags (integer)
+                 * Пользователь $peer_id начал набирать текст в диалоге. Событие должно приходить раз в ~5 секунд при постоянном наборе текста. $flags = 1.
+                 */
+                case 61:
+                    return "Started typing message";
+                /**
+                 * $peer_id (integer) $chat_id (integer)
+                 * Пользователь $peer_id начал набирать текст в беседе $chat_id.
+                 */
+                case 62:
+                    return "Started typing in chat #" + arr.getInt(2);
+                default:
+                    return "Couldn't get description\n" + arr.toString();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "Couldn't get description";
         }
     }
 
@@ -340,7 +348,7 @@ public class LogFragment extends Fragment {
             holder.name.setText(element.name);
             holder.date.setText(element.date);
             holder.time.setText(element.time);
-            holder.description.setText(getDescription(element.update_code, element.args));
+            holder.description.setText(getDescription(element.update_code, element.arr));
             int color = getColorForAction(element.update_code);
             if (position == 0) {
                 holder.upperConnector.setVisibility(View.INVISIBLE);
@@ -384,33 +392,33 @@ public class LogFragment extends Fragment {
 
     class Element {
         String name, photo_url, date, time;
-        int update_code, user_id;
-        int[] args;
+        int update_code, peer_id;
+        JSONArray arr;
 
         public Element(JSONObject o) {
             try {
-                date = o.getString("date");
-                time = o.getString("time");
-                user_id = o.getInt("user_id");
-                update_code = o.getInt("action");
-                ObjectUser user = Users.get(user_id);
-                name = user.toString();
+                arr = o.getJSONArray("upd");
+                update_code = arr.getInt(0);
+                peer_id = o.getInt("peer_id");
+                ObjectUser user = Users.get(peer_id);
+                name = user.getTitle();
                 photo_url = user.photo_url;
-                JSONArray arr = o.getJSONArray("args");
-                args = new int[arr.length()];
-                for (int i = 0; i < arr.length(); i++)
-                    args[i] = arr.getInt(i);
+
+                Date _date = new Date(o.getLong("date"));
+                date = App.dateSDF.format(_date);
+                time = App.timeSDF.format(_date);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        public Element(int update_code, int user_id, String date, String time, int[] args) {
+        public Element(int update_code, int user_id, long date, JSONArray arr) {
             this.update_code = update_code;
-            this.user_id = user_id;
-            this.date = date;
-            this.time = time;
-            this.args = args;
+            this.peer_id = user_id;
+            Date date1 = new Date(date);
+            this.date = App.dateSDF.format(date1);
+            this.time = App.timeSDF.format(date1);
+            this.arr = arr;
             ObjectUser user = Users.get(user_id);
             name = user.toString();
             photo_url = user.photo_url;
