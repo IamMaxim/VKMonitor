@@ -1,8 +1,9 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.API.Users;
 
 import java.io.IOException;
 
-import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.Net;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
  * Created by maxim on 18.08.2016.

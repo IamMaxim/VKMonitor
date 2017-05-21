@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.iammaxim.vkmonitor.Net;
-import ru.iammaxim.vkmonitor.Objects.ObjectMessage;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.RequestGenerator.Views.ViewObject;
 

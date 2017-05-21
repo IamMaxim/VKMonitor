@@ -16,7 +16,7 @@ import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Fragments.MainFragment;
 import ru.iammaxim.vkmonitor.R;
-import ru.iammaxim.vkmonitor.UserDB;
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;

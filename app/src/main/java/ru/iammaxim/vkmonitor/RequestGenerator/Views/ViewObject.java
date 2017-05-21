@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,10 +19,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
-import ru.iammaxim.vkmonitor.Objects.ObjectMessage;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.RequestGenerator.RequestGeneratorMain;
-import ru.iammaxim.vkmonitor.Users;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ViewObject {
     public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

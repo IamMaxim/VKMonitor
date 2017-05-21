@@ -9,11 +9,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
-import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Users.Users;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
  * Created by maxim on 15.09.2016.

@@ -15,8 +15,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
-import ru.iammaxim.vkmonitor.Objects.ObjectLongPollServer;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectLongPollServer;
 
 public class LongPollService extends Service {
     private LongPollThread thread;

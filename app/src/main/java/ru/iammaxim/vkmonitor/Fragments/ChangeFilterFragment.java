@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
-import ru.iammaxim.vkmonitor.UserDB;
-import ru.iammaxim.vkmonitor.Users;
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.CircleTransformation;
 
 /**

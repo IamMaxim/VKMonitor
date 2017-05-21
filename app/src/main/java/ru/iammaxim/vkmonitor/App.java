@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
 import ru.iammaxim.vkmonitor.Activities.MainActivity;
 import ru.iammaxim.vkmonitor.Views.CircleTransformation;

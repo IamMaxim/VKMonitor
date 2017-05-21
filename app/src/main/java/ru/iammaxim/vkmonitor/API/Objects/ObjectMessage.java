@@ -1,11 +1,11 @@
-package ru.iammaxim.vkmonitor.Objects;
+package ru.iammaxim.vkmonitor.API.Objects;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
-import ru.iammaxim.vkmonitor.Users;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ObjectMessage {
     public int id, from_id, user_id;

@@ -22,16 +22,19 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Net;
-import ru.iammaxim.vkmonitor.Objects.ObjectDialog;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectDialog;
 import ru.iammaxim.vkmonitor.R;
-import ru.iammaxim.vkmonitor.Users;
+import ru.iammaxim.vkmonitor.UpdateMessageHandler;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
 public class DialogsFragment extends Fragment {
     private RecyclerViewWrapper rv;
     private TextView count_tv;
+    private UpdateMessageHandler.Callback callback;
 
     public DialogsFragment() {
     }
@@ -59,6 +62,17 @@ public class DialogsFragment extends Fragment {
                         ObjectDialog dialog = new ObjectDialog(arr.getJSONObject(i));
                         ((DialogsAdapter) rv.adapter).elements.add(dialog);
                     }
+
+                    App.handler.addCallback(callback = new UpdateMessageHandler.Callback() {
+                        @Override
+                        public void run(int update_code, int user_id, String date, String time, int[] args) {
+                            switch (update_code) {
+                                case 4: // new message
+
+                                    break;
+                            }
+                        }
+                    });
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
@@ -83,10 +97,10 @@ public class DialogsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.parent.setId(position);
             holder.parent.setOnClickListener(this);
-            ObjectDialog dialog = elements.get(position);
+            final ObjectDialog dialog = elements.get(position);
             holder.title.setText(dialog.message.title);
             holder.body.setText(dialog.message.body);
             holder.date.setText(App.formatDate(dialog.message.date));
@@ -108,13 +122,29 @@ public class DialogsFragment extends Fragment {
                 else
                     holder.body.setBackgroundResource(R.drawable.unread_message_body_bg);
             }
-            if (dialog.message.out) {
-                Picasso.with(holder.from_photo.getContext()).load(Users.get().photo_url).transform(App.circleTransformation).into(holder.from_photo);
-            } else if (dialog.message.from_id != dialog.message.user_id)
-                Picasso.with(holder.from_photo.getContext()).load(Users.get(dialog.message.user_id).photo_url).transform(App.circleTransformation).into(holder.from_photo);
-            else
-                holder.from_photo.setVisibility(View.GONE);
 
+            new AsyncTask<Void, Void, ObjectUser>() {
+                @Override
+                protected ObjectUser doInBackground(Void[] params) {
+                    if (dialog.message.from_id != dialog.message.user_id) {
+                        if (dialog.message.out)
+                            return Users.get();
+                        else
+                            return Users.get(dialog.message.user_id);
+                    } else
+                        return null;
+                }
+
+                @Override
+                protected void onPostExecute(ObjectUser user) {
+                    if (user == null)
+                        holder.from_photo.setVisibility(View.GONE);
+                    else {
+                        holder.from_photo.setVisibility(View.VISIBLE);
+                        Picasso.with(holder.from_photo.getContext()).load(user.photo_url).transform(App.circleTransformation).into(holder.from_photo);
+                    }
+                }
+            }.execute();
             Picasso.with(holder.photo.getContext()).load(dialog.message.photo).transform(App.circleTransformation).into(holder.photo);
         }
 

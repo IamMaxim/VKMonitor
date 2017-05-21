@@ -1,4 +1,4 @@
-package ru.iammaxim.vkmonitor;
+package ru.iammaxim.vkmonitor.API.Users;
 
 import android.os.Environment;
 
@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.Net;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
  * Created by maxim on 18.08.2016.

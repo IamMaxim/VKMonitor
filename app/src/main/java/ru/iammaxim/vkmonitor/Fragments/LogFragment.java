@@ -35,11 +35,10 @@ import java.util.Stack;
 
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
-import ru.iammaxim.vkmonitor.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
-import ru.iammaxim.vkmonitor.Users;
-import ru.iammaxim.vkmonitor.Views.CircleTransformation;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
