@@ -115,12 +115,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Clear filter");
                 builder.setMessage("Are you sure you want to clear filter?");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        App.clearFilter();
-                        Toast.makeText(getContext(), "Filter cleared", Toast.LENGTH_SHORT).show();
-                    }
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    App.clearFilter();
+                    Toast.makeText(getContext(), "Filter cleared", Toast.LENGTH_SHORT).show();
                 });
                 builder.setNegativeButton("Cancel", null);
                 builder.show();
@@ -132,12 +129,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext());
                 builder1.setTitle("Clear log");
                 builder1.setMessage("Are you sure you want to clear log?");
-                builder1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        App.clearLog();
-                        Toast.makeText(getContext(), "Log cleared", Toast.LENGTH_SHORT).show();
-                    }
+                builder1.setPositiveButton("OK", (dialog, which) -> {
+                    App.clearLog();
+                    Toast.makeText(getContext(), "Log cleared", Toast.LENGTH_SHORT).show();
                 });
                 builder1.setNegativeButton("Cancel", null);
                 builder1.show();

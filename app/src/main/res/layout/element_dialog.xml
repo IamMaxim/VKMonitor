@@ -90,7 +90,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:padding="4dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
                     android:text="body" />
 
                 <TextView

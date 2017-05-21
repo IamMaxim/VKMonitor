@@ -51,12 +51,12 @@ public class App extends Application {
     public static LongPollService.LongPollThread longPollThread;
     public static CircleTransformation circleTransformation = new CircleTransformation();
 
-    // should be called on app launch from UI thread
+/*    // should be called on app launch from UI thread
     // because UpdateMessageHandler should only be created from UI thread
     public static void init() {
-    }
+    }*/
 
-    static {
+/*    static {
         logFile = new File(logPath);
         try {
             if (!logFile.exists())
@@ -82,14 +82,11 @@ public class App extends Application {
 
         if (AccessTokenManager.getActiveToken() != null)
             UserDB.update();
-    }
+    }*/
 
     public static void saveFilter() {
         try {
-            if (filter.size() == 0)
-                useFilter = false;
-            else
-                useFilter = true;
+            useFilter = filter.size() != 0;
             File filterFile = new File(filterPath);
             if (!filterFile.exists())
                 filterFile.createNewFile();
@@ -122,6 +119,31 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        logFile = new File(logPath);
+        try {
+            if (!logFile.exists())
+                logFile.createNewFile();
+            logFos = new FileOutputStream(logFile, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File filterFile = new File(filterPath);
+        try {
+            if (filterFile.exists()) {
+                Scanner scanner = new Scanner(filterFile).useDelimiter("\\A");
+                JSONArray json = new JSONArray(scanner.next());
+                if (json.length() > 0) useFilter = true;
+                for (int i = 0; i < json.length(); i++) {
+                    filter.add(json.getInt(i));
+                }
+                scanner.close();
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (AccessTokenManager.getActiveToken() != null)
+            UserDB.update();
     }
 
     @SuppressLint("NewApi")
@@ -200,12 +222,7 @@ public class App extends Application {
 
     public static void clearFilter() {
         filter.clear();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                saveFilter();
-            }
-        }).start();
+        new Thread(App::saveFilter).start();
     }
 
     @SuppressLint("WrongConstant")

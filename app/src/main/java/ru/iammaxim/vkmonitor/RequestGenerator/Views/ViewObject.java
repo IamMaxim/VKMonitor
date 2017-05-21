@@ -49,12 +49,7 @@ public class ViewObject {
         body_tv.setTextColor(Color.WHITE);
         view.addView(title_tv);
         view.addView(body_tv);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDetails();
-            }
-        });
+        view.setOnClickListener(v -> showDetails());
 
         if (msg.json.has("attachments")) {
             try {
@@ -80,14 +75,11 @@ public class ViewObject {
                             if (width != -1) {
                                 final JSONObject finalAttachment = attachment;
                                 final int finalWidth = width;
-                                ((Activity) ctx).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            Picasso.with(ctx).load(finalAttachment.getString("photo_" + finalWidth)).into(image);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+                                ((Activity) ctx).runOnUiThread(() -> {
+                                    try {
+                                        Picasso.with(ctx).load(finalAttachment.getString("photo_" + finalWidth)).into(image);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
                                 });
                             }

@@ -67,12 +67,7 @@ public class LogFragment extends Fragment {
         log.setAdapter(new Adapter());
         log.layoutManager.setMsPerInch(150);
         FloatingActionButton scrollDownButton = (FloatingActionButton) v.findViewById(R.id.scroll_down);
-        scrollDownButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                log.scrollToBottom();
-            }
-        });
+        scrollDownButton.setOnClickListener(v1 -> log.scrollToBottom());
         connectionStatus = (TextView) v.findViewById(R.id.connectionStatus);
         if (isServiceRunning(LongPollService.class)) {
             connectionStatus.setText(R.string.status_connected);
@@ -82,66 +77,45 @@ public class LogFragment extends Fragment {
             connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorErrorBG));
         }
 
-        logLoader = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Stack<String> stack = new Stack<>();
-                    Scanner scanner = new Scanner(new File(App.logPath));
-                    while (!Thread.interrupted() && scanner.hasNext()) {
-                        stack.addElement(scanner.nextLine());
+        logLoader = new Thread(() -> {
+            try {
+                Stack<String> stack = new Stack<>();
+                Scanner scanner = new Scanner(new File(App.logPath));
+                while (!Thread.interrupted() && scanner.hasNext()) {
+                    stack.addElement(scanner.nextLine());
+                }
+
+                while (!Thread.interrupted() && stack.size() > 0) {
+                    int processed = 0;
+                    for (int i = 0; i < 50 && stack.size() > 0; i++) {
+                        JSONObject o = new JSONObject(stack.pop());
+                        filterAndAddInBeginning(new Element(o));
+                        processed++;
                     }
 
-                    while (!Thread.interrupted() && stack.size() > 0) {
-                        int processed = 0;
-                        for (int i = 0; i < 50 && stack.size() > 0; i++) {
-                            JSONObject o = new JSONObject(stack.pop());
-                            filterAndAddInBeginning(new Element(o));
-                            processed++;
-                        }
-
-                        final int finalProcessed = processed;
-                        if (getActivity() == null)
-                            return;
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                log.adapter.notifyItemRangeInserted(0, finalProcessed);
-                            }
-                        });
-                    }
-
+                    final int finalProcessed = processed;
                     if (getActivity() == null)
                         return;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (getView() == null)
-                                return;
-                            final ProgressBar pb = (ProgressBar) getView().findViewById(R.id.progressBar);
-                            pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    pb.setVisibility(View.GONE);
-                                }
-                            }).start();
-                            log.scrollToBottom();
-                            log.stopScroll();
-                        }
-                    });
-                } catch (IndexOutOfBoundsException | FileNotFoundException | JSONException e) {
-                    e.printStackTrace();
+                    getActivity().runOnUiThread(() -> log.adapter.notifyItemRangeInserted(0, finalProcessed));
                 }
+
+                if (getActivity() == null)
+                    return;
+                getActivity().runOnUiThread(() -> {
+                    if (getView() == null)
+                        return;
+                    final ProgressBar pb = (ProgressBar) getView().findViewById(R.id.progressBar);
+                    pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(() -> pb.setVisibility(View.GONE)).start();
+                    log.scrollToBottom();
+                    log.stopScroll();
+                });
+            } catch (IndexOutOfBoundsException | FileNotFoundException | JSONException e) {
+                e.printStackTrace();
             }
         });
         logLoader.start();
 
         return v;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
@@ -166,31 +140,27 @@ public class LogFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        callback = new UpdateMessageHandler.Callback() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            public void run(final int update_code, boolean needToLog, final int user_id, final long date, final JSONArray arr) {
-                if (needToLog)
-                    new AsyncTask<Void, Void, Boolean>() {
-                        @Override
-                        protected Boolean doInBackground(Void[] params) {
-                            return filterAndAdd(new Element(update_code, user_id, date, arr));
-                        }
+        callback = (update_code, needToLog, user_id, date, arr) -> {
+            if (needToLog)
+                new AsyncTask<Void, Void, Boolean>() {
+                    @Override
+                    protected Boolean doInBackground(Void[] params) {
+                        return filterAndAdd(new Element(update_code, user_id, date, arr));
+                    }
 
-                        @Override
-                        protected void onPostExecute(Boolean added) {
-                            if (added) {
-                                try {
-                                    log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
-                                    log.adapter.notifyItemChanged(log.adapter.getItemCount() - 2);
-                                    if (log.layoutManager.findLastVisibleItemPosition() >= log.adapter.getItemCount() - 3)
-                                        log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
-                                } catch (NullPointerException e) {
-                                }
+                    @Override
+                    protected void onPostExecute(Boolean added) {
+                        if (added) {
+                            try {
+                                log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
+                                log.adapter.notifyItemChanged(log.adapter.getItemCount() - 2);
+                                if (log.layoutManager.findLastVisibleItemPosition() >= log.adapter.getItemCount() - 3)
+                                    log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
+                            } catch (NullPointerException e) {
                             }
                         }
-                    }.execute();
-            }
+                    }
+                }.execute();
         };
         App.handler.addCallback(callback);
 

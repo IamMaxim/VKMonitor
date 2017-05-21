@@ -57,38 +57,20 @@ public class RequestGeneratorMain extends AppCompatActivity {
         b1 = (Button) findViewById(R.id.b1);
         tv1 = (TextView) findViewById(R.id.tv1);
         b2 = (Button) findViewById(R.id.b2);
-        tv1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = new AlertDialog.Builder(RequestGeneratorMain.context).create();
-                dialog.setMessage(tv1.getText());
-                dialog.show();
-            }
+        tv1.setOnClickListener(v -> {
+            AlertDialog dialog = new AlertDialog.Builder(RequestGeneratorMain.context).create();
+            dialog.setMessage(tv1.getText());
+            dialog.show();
         });
         objs_container = (LinearLayout) findViewById(R.id.objs_container);
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new RunMethod().execute();
-            }
-        });
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                objs_container.removeAllViews();
-            }
-        });
+        b1.setOnClickListener(v -> new RunMethod().execute());
+        b2.setOnClickListener(v -> objs_container.removeAllViews());
     }
 
     String getString(final EditText et) {
         String returnText = et.getText().toString();
         if (returnText.equals("")) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    tv1.setText("One of specified parameters are invalid! Request failed! " + et.toString());
-                }
-            });
+            runOnUiThread(() -> tv1.setText("One of specified parameters are invalid! Request failed! " + et.toString()));
             return null;
         }
         return returnText;
@@ -97,20 +79,15 @@ public class RequestGeneratorMain extends AppCompatActivity {
     void sendLogMessage(final String str) {
         if (str != null)
             if (!str.equals(""))
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tv1.setText(str);
-                    }
-                });
+                runOnUiThread(() -> tv1.setText(str));
     }
 
-    private class RunMethod extends AsyncTask {
+    private class RunMethod extends AsyncTask <Void, Void, Void> {
         private String response;
 
         //noinspection ResourceType
         @Override
-        protected Object doInBackground(Object[] params) {
+        protected Void doInBackground(Void[] params) {
             arg1 = false;
             arg2 = false;
             arg3 = false;
@@ -153,7 +130,7 @@ public class RequestGeneratorMain extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Object o) {
+        protected void onPostExecute(Void o) {
             super.onPostExecute(o);
             if (response != null)
                 tv1.setText(response);
@@ -161,33 +138,27 @@ public class RequestGeneratorMain extends AppCompatActivity {
     }
 
     public void addMessages(final JSONObject msgs) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    JSONObject json_obj2 = msgs.getJSONObject("response");
-                    final JSONArray json_ar2 = json_obj2.getJSONArray("items");
-                    final int count = json_ar2.length();
-                    final List<View> messages = new ArrayList<>(count);
-                    for (int i = 0; i < count; i++) {
-                        JSONObject tmp_obj = (JSONObject) json_ar2.get(i);
-                        if (tmp_obj.has("message"))
-                            tmp_obj = tmp_obj.getJSONObject("message");
-                        messages.add(new ViewObject(context, new ObjectMessage(tmp_obj)).getView());
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (View msg : messages) {
-                                objs_container.addView(msg, 0);
-                            }
-                        }
-                    });
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    sendLogMessage(e.getMessage() + "\n" + msgs.toString());
+        new Thread(() -> {
+            try {
+                JSONObject json_obj2 = msgs.getJSONObject("response");
+                final JSONArray json_ar2 = json_obj2.getJSONArray("items");
+                final int count = json_ar2.length();
+                final List<View> messages = new ArrayList<>(count);
+                for (int i = 0; i < count; i++) {
+                    JSONObject tmp_obj = (JSONObject) json_ar2.get(i);
+                    if (tmp_obj.has("message"))
+                        tmp_obj = tmp_obj.getJSONObject("message");
+                    messages.add(new ViewObject(context, new ObjectMessage(tmp_obj)).getView());
                 }
+
+                runOnUiThread(() -> {
+                    for (View msg : messages) {
+                        objs_container.addView(msg, 0);
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+                sendLogMessage(e.getMessage() + "\n" + msgs.toString());
             }
         }
         ).start();

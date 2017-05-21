@@ -21,7 +21,6 @@ public class AccessTokenManager {
     public static final String tokensPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.tokens";
     public static ArrayList<Token> tokens = new ArrayList<>();
     private static Token activeToken;
-    public static ObjectUser currentUser;
     private static int activeTokenIndex;
     private static boolean loaded = false;
 
@@ -37,12 +36,6 @@ public class AccessTokenManager {
     public static void setActiveToken(int index) {
         activeTokenIndex = index;
         activeToken = tokens.get(index);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                currentUser = Users.get();
-            }
-        }).start();
     }
 
     public static void load() {

@@ -48,13 +48,10 @@ public class AccessTokenManagerFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //setup FAB
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AccessTokenManager.Token token = new AccessTokenManager.Token("", "", false);
-                adapter.elements.add(token);
-                adapter.notifyItemInserted(adapter.getItemCount() - 1);
-            }
+        fab.setOnClickListener(view -> {
+            AccessTokenManager.Token token = new AccessTokenManager.Token("", "", false);
+            adapter.elements.add(token);
+            adapter.notifyItemInserted(adapter.getItemCount() - 1);
         });
     }
 
@@ -88,38 +85,30 @@ public class AccessTokenManagerFragment extends Fragment {
         }
         if (activeToken < AccessTokenManager.tokens.size())
             AccessTokenManager.setActiveToken(activeToken);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                AccessTokenManager.save();
-            }
-        }).start();
+        new Thread(AccessTokenManager::save).start();
         super.onPause();
     }
 
     public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         public ArrayList<AccessTokenManager.Token> elements = new ArrayList<>();
 
-        private Button.OnClickListener setActiveListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = v.getId();
+        private Button.OnClickListener setActiveListener = v -> {
+            int position = v.getId();
 
-                AccessTokenManager.Token token = elements.get(position);
-                if (!token.isActive) {
-                    //deactivate all other tokens
-                    for (int i = 0; i < elements.size(); i++) {
-                        boolean b = elements.get(i).isActive;
-                        if (b && position != i) {
-                            elements.get(i).isActive = false;
-                            notifyItemChanged(i);
-                        }
+            AccessTokenManager.Token token = elements.get(position);
+            if (!token.isActive) {
+                //deactivate all other tokens
+                for (int i = 0; i < elements.size(); i++) {
+                    boolean b = elements.get(i).isActive;
+                    if (b && position != i) {
+                        elements.get(i).isActive = false;
+                        notifyItemChanged(i);
                     }
-                    //activate selected token
-                    token.isActive = true;
-                    notifyItemChanged(position);
-                    activeToken = position;
                 }
+                //activate selected token
+                token.isActive = true;
+                notifyItemChanged(position);
+                activeToken = position;
             }
         };
 

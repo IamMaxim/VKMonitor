@@ -23,6 +23,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Net;
@@ -38,6 +40,12 @@ public class DialogsFragment extends Fragment {
     private UpdateMessageHandler.Callback callback;
 
     public DialogsFragment() {
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        App.handler.removeCallback(callback);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -65,10 +73,104 @@ public class DialogsFragment extends Fragment {
                         ((DialogsAdapter) rv.adapter).elements.add(dialog);
                     }
 
-                    App.handler.addCallback(callback = new UpdateMessageHandler.Callback() {
-                        @Override
-                        public void run(int update_code, boolean needToLog, int user_id, long date, JSONArray arr) {
+                    App.handler.addCallback(callback = (update_code, needToLog, peer_id, date, arr1) -> {
+                        switch (update_code) {
+                            case 1:
+                                try {
+                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
+                                    if (index != -1) {
+                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                        dialog.message.flags = arr1.getInt(2);
+                                        dialog.message.processFlags();
+                                        if (dialog.message.read_state)
+                                            dialog.updateUnread();
+                                        rv.adapter.notifyItemChanged(index);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case 2:
+                                try {
+                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
+                                    if (index != -1) {
+                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                        dialog.message.flags |= ~arr1.getInt(2);
+                                        dialog.message.processFlags();
+                                        if (dialog.message.read_state)
+                                            dialog.updateUnread();
+                                        rv.adapter.notifyItemChanged(index);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case 3:
+                                try {
+                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
+                                    if (index != -1) {
+                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                        dialog.message.flags &= ~arr1.getInt(2);
+                                        dialog.message.processFlags();
+                                        if (dialog.message.read_state)
+                                            dialog.updateUnread();
+                                        rv.adapter.notifyItemChanged(index);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case 4:
+                                int index = ((DialogsAdapter) rv.adapter).getDialogIndexByPeerID(peer_id);
+                                if (index != -1) {
+                                    ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.remove(index);
+                                    try {
+                                        dialog.message.id = arr1.getInt(1);
+                                        dialog.message.flags = arr1.getInt(2);
+                                        dialog.message.processFlags();
+                                        dialog.updateUnread();
+                                        dialog.message.date = arr1.getLong(4) * 1000;
+                                        dialog.message.body = arr1.getString(6);
+                                        JSONObject attachments = arr1.getJSONObject(7);
+                                        if (attachments.has("from"))
+                                            dialog.message.from_id = attachments.getInt("from");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                        dialog.message.body = "Error";
+                                    }
+                                    ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
+                                    if (index == 0)
+                                        rv.adapter.notifyItemChanged(0);
+                                    else {
+                                        rv.adapter.notifyItemMoved(index, 0);
+                                        rv.adapter.notifyItemChanged(0);
+                                        if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
+                                            rv.smoothScrollToTop();
+                                    }
+                                } else {
+                                    new AsyncTask<Void, Void, ObjectDialog>() {
+                                        @Override
+                                        protected ObjectDialog doInBackground(Void... voids) {
+                                            try {
+                                                return Messages.getDialogByMessageID(arr1.getInt(1));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                            return null;
+                                        }
 
+                                        @Override
+                                        protected void onPostExecute(ObjectDialog dialog) {
+                                            ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
+                                            rv.adapter.notifyItemInserted(0);
+                                            if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
+                                                rv.smoothScrollToTop();
+                                        }
+                                    }.execute();
+                                }
+                                break;
                         }
                     });
                 } catch (JSONException | IOException e) {
@@ -79,7 +181,7 @@ public class DialogsFragment extends Fragment {
 
             @Override
             protected void onPostExecute(Integer count) {
-                count_tv.setText("Count: " + count);
+                count_tv.setText(getString(R.string.message_count, count));
                 rv.adapter.notifyDataSetChanged();
             }
         }.execute();
@@ -88,6 +190,32 @@ public class DialogsFragment extends Fragment {
 
     class DialogsAdapter extends RecyclerView.Adapter<ViewHolder> implements View.OnClickListener {
         public ArrayList<ObjectDialog> elements = new ArrayList<>();
+
+
+        /**
+         * @param peer_id peer_id of needed dialog
+         * @return index of dialog or
+         * -1 if no such dialog found
+         */
+        public int getDialogIndexByPeerID(int peer_id) {
+            for (int i = 0; i < elements.size(); i++)
+                if (elements.get(i).message.peer_id == peer_id)
+                    return i;
+            return -1;
+        }
+
+        /**
+         * @param message_id ID of message
+         * @return index of dialog which has last message with ID == message_id
+         * or -1 if no such dialogs
+         */
+        public int getDialogByMessageID(int message_id) {
+            for (int i = 0; i < elements.size(); i++) {
+                if (elements.get(i).message.id == message_id)
+                    return i;
+            }
+            return -1;
+        }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -125,11 +253,11 @@ public class DialogsFragment extends Fragment {
             new AsyncTask<Void, Void, ObjectUser>() {
                 @Override
                 protected ObjectUser doInBackground(Void[] params) {
-                    if (dialog.message.from_id != dialog.message.user_id) {
-                        if (dialog.message.out)
+                    if (dialog.message.from_id != dialog.message.peer_id) {
+/*                        if (dialog.message.out)
                             return Users.get();
-                        else
-                            return Users.get(dialog.message.user_id);
+                        else*/
+                        return Users.get(dialog.message.from_id);
                     } else
                         return null;
                 }
@@ -154,11 +282,11 @@ public class DialogsFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            int position = v.getId();
+/*            int position = v.getId();
             elements.add(0, elements.remove(position));
             notifyItemMoved(position, 0);
             if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
-                rv.smoothScrollToTop();
+                rv.smoothScrollToTop();*/
         }
     }
 

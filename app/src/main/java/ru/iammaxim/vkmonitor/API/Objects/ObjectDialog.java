@@ -18,4 +18,11 @@ public class ObjectDialog {
             unread = obj.getInt("unread");
         message = new ObjectMessage(obj.getJSONObject("message"));
     }
+
+    public void updateUnread() {
+        if (message.out || message.read_state)
+            unread = 0;
+        else
+            unread++;
+    }
 }

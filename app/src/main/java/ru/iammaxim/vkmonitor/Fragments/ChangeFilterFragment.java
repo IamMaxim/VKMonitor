@@ -49,12 +49,7 @@ public class ChangeFilterFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                App.saveFilter();
-            }
-        }).start();
+        new Thread(App::saveFilter).start();
     }
 
     @Nullable
@@ -72,15 +67,12 @@ public class ChangeFilterFragment extends Fragment {
 
     class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ViewHolder> {
         ArrayList<UserElement> elements = new ArrayList<>();
-        private CompoundButton.OnCheckedChangeListener checkboxListener = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!buttonView.isPressed()) return;
-                UserElement element = elements.get(buttonView.getId());
-                if (isChecked) App.filter.add(element.user_id);
-                else App.filter.remove((Integer) element.user_id);
-                element.enabled = !element.enabled;
-            }
+        private CompoundButton.OnCheckedChangeListener checkboxListener = (buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) return;
+            UserElement element = elements.get(buttonView.getId());
+            if (isChecked) App.filter.add(element.user_id);
+            else App.filter.remove((Integer) element.user_id);
+            element.enabled = !element.enabled;
         };
 
         @Override

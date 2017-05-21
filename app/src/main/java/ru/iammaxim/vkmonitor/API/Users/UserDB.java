@@ -30,15 +30,12 @@ public class UserDB {
     private static boolean loaded = false;
 
     public static void startSaveThread() {
-        saveThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!saveThread.isInterrupted()) {
-                    try {
-                        Thread.sleep(60000);
-                        save();
-                    } catch (InterruptedException e) {
-                    }
+        saveThread = new Thread(() -> {
+            while (!saveThread.isInterrupted()) {
+                try {
+                    Thread.sleep(60000);
+                    save();
+                } catch (InterruptedException e) {
                 }
             }
         }, "UserDBsaveThread");
@@ -46,33 +43,28 @@ public class UserDB {
     }
 
     public static void update() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<Integer> usersToUpdate = new ArrayList<>(1000);
-                synchronized (userDB) {
-                    for (Integer id : userDB.keySet()) {
-                        usersToUpdate.add(id);
+        new Thread(() -> {
+            ArrayList<Integer> usersToUpdate = new ArrayList<>(1000);
+            synchronized (userDB) {
+                usersToUpdate.addAll(userDB.keySet());
+                while (usersToUpdate.size() > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
+                        sb.append(usersToUpdate.get(0));
+                        if (i < 100)
+                            sb.append(',');
                     }
-                    while (usersToUpdate.size() > 0) {
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
-                            sb.append(usersToUpdate.get(0));
-                            if (i < 100)
-                                sb.append(',');
+                    try {
+                        JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
+                        sb.delete(0, sb.length());
+                        for (int i = 0; i < arr.length(); i++) {
+                            ObjectUser user = new ObjectUser(arr.getJSONObject(i));
+                            add(user);
                         }
-                        try {
-                            JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
-                            sb.delete(0, sb.length());
-                            for (int i = 0; i < arr.length(); i++) {
-                                ObjectUser user = new ObjectUser(arr.getJSONObject(i));
-                                add(user);
-                            }
 
-                            Thread.sleep(500);
-                        } catch (JSONException | IOException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        Thread.sleep(500);
+                    } catch (JSONException | IOException | InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -112,37 +104,34 @@ public class UserDB {
 
     public static void load() {
         loaded = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        new Thread(() -> {
+            try {
                 try {
-                    try {
-                        me = new ObjectUser(Net.processRequest("users.get", true, "fields=photo_200"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    synchronized (userDB) {
-                        userDB.clear();
-                        File file = new File(filepath);
-                        if (!file.exists()) {
-                            System.out.println(filepath + " doesn't exists. Couldn't load users database");
-                            return;
-                        }
-                        JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject obj = arr.getJSONObject(i);
-                            ObjectUser user = new ObjectUser();
-                            user.id = obj.getInt("id");
-                            user.first_name = obj.getString("first_name");
-                            user.last_name = obj.getString("last_name");
-                            if (obj.has("photo_url"))
-                                user.photo_url = obj.getString("photo_url");
-                            add(user);
-                        }
-                    }
-                } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
+                    me = new ObjectUser(Net.processRequest("users.get", true, "fields=photo_200"));
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+                synchronized (userDB) {
+                    userDB.clear();
+                    File file = new File(filepath);
+                    if (!file.exists()) {
+                        System.out.println(filepath + " doesn't exists. Couldn't load users database");
+                        return;
+                    }
+                    JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject obj = arr.getJSONObject(i);
+                        ObjectUser user = new ObjectUser();
+                        user.id = obj.getInt("id");
+                        user.first_name = obj.getString("first_name");
+                        user.last_name = obj.getString("last_name");
+                        if (obj.has("photo_url"))
+                            user.photo_url = obj.getString("photo_url");
+                        add(user);
+                    }
+                }
+            } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
+                e.printStackTrace();
             }
         }).start();
     }

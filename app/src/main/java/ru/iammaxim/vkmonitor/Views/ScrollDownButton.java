@@ -10,20 +10,12 @@ import ru.iammaxim.vkmonitor.R;
 /**
  * Created by maxim on 14.09.2016.
  */
-public class ScrollDownButton extends ImageButton {
+public class ScrollDownButton extends android.support.v7.widget.AppCompatImageButton {
     public boolean isShown = true;
 
-    private Runnable hideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            setVisibility(INVISIBLE);
-        }
-    }, showRunnable = new Runnable() {
-        @Override
-        public void run() {
-            setVisibility(VISIBLE);
-        }
-    };
+    private Runnable
+            hideRunnable = () -> setVisibility(INVISIBLE),
+            showRunnable = () -> setVisibility(VISIBLE);
 
     public ScrollDownButton(Context context) {
         this(context, null);
@@ -35,10 +27,6 @@ public class ScrollDownButton extends ImageButton {
 
     public ScrollDownButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public ScrollDownButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     public void hide() {

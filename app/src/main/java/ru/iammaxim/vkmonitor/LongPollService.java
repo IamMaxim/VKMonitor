@@ -37,7 +37,7 @@ public class LongPollService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        thread = new LongPollThread(getApplicationContext(), "LongPollThread");
+        thread = new LongPollThread(getApplicationContext());
         App.longPollThread = thread;
         thread.start();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
@@ -84,8 +84,8 @@ public class LongPollService extends Service {
             return true;
         }
 
-        public LongPollThread(Context ctx, String name) {
-            super(name);
+        public LongPollThread(Context ctx) {
+            super("LongPollThread");
             this.ctx = ctx;
         }
 
