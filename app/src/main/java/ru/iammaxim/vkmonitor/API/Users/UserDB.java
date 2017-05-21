@@ -131,7 +131,7 @@ public class UserDB {
                     }
                 }
             } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
             }
         }).start();
     }

@@ -34,8 +34,9 @@ public class ObjectMessage {
             if (object.has("id"))
                 id = object.getInt("id");
             body = object.getString("body");
-            if (object.has("title"))
+            if (object.has("title")) {
                 title = object.getString("title");
+            }
             if (object.has("out"))
                 out = object.getInt("out") == 1;
 
@@ -50,8 +51,9 @@ public class ObjectMessage {
                     from_id = peer_id;
             }
 
-            if (title == null || title.equals(" ... "))
+            if (title == null || title.equals(" ... ") || title.equals("")) {
                 title = Users.get(peer_id).getTitle();
+            }
             date = object.getLong("date") * 1000;
             if (object.has("read_state"))
                 read_state = object.getInt("read_state") == 1;
@@ -94,10 +96,6 @@ public class ObjectMessage {
     public void processFlags() {
         read_state = !getFlag(flags, READ_STATE_FLAG);
         out = getFlag(flags, OUT_FLAG);
-
-        System.out.println("Processing flags: " + flags);
-        System.out.println("read state: " + read_state);
-        System.out.println("out: " + out);
     }
 
     private boolean getFlag(int flags, int flag) {

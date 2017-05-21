@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectLongPollServer;
@@ -138,8 +139,9 @@ public class LongPollService extends Service {
             JSONArray arr = o.getJSONArray("updates");
             for (int i = 0; i < arr.length(); i++) {
                 JSONArray arr1 = (JSONArray) arr.get(i);
-                int updateCode = arr1.getInt(0);
-                App.addToLog(updateCode, arr1);
+                int update_code = arr1.getInt(0);
+                Messages.processLongPollMessage(update_code, arr1);
+                App.addToLog(update_code, arr1);
             }
             currentLongPollServer.update(o.getLong("ts"));
 

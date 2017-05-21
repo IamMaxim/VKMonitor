@@ -263,7 +263,7 @@ public class App extends Application {
                 case 62:
                 case 70:
                 case 114:
-                    return arr.getInt(1);
+                    return arr.getJSONObject(1).getInt("peer_id");
                 case 8:
                 case 9:
                     return -arr.getInt(1);
@@ -271,7 +271,6 @@ public class App extends Application {
                     return -1;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
             return -1;
         }
     }

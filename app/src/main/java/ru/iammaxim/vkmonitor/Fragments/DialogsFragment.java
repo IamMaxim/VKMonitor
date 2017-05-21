@@ -38,6 +38,7 @@ public class DialogsFragment extends Fragment {
     private RecyclerViewWrapper rv;
     private TextView count_tv;
     private UpdateMessageHandler.Callback callback;
+    private Messages.OnMessagesUpdate messagesCallback;
 
     public DialogsFragment() {
     }
@@ -46,6 +47,7 @@ public class DialogsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         App.handler.removeCallback(callback);
+        Messages.callbacks.remove(messagesCallback);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -59,129 +61,141 @@ public class DialogsFragment extends Fragment {
         count_tv = (TextView) v.findViewById(R.id.count);
         rv = (RecyclerViewWrapper) v.findViewById(R.id.rv);
         rv.setAdapter(new DialogsAdapter());
+        ((DialogsAdapter) rv.adapter).elements = Messages.dialogObjects;
         rv.layoutManager.setMsPerInch(200);
-        new AsyncTask<Void, Void, Integer>() {
+        count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Integer doInBackground(Void... params) {
-                int count = 0;
-                try {
-                    final JSONObject o = new JSONObject(Net.processRequest("messages.getDialogs", true, "count=20")).getJSONObject("response");
-                    count = o.getInt("count");
-                    JSONArray arr = o.getJSONArray("items");
-                    for (int i = 0; i < arr.length(); i++) {
-                        ObjectDialog dialog = new ObjectDialog(arr.getJSONObject(i));
-                        ((DialogsAdapter) rv.adapter).elements.add(dialog);
+            protected Void doInBackground(Void... params) {
+                Messages.updateDialogs();
+
+                Messages.callbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
+                    @Override
+                    public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
+                        if (prevDialogIndex == 0)
+                            rv.adapter.notifyItemChanged(prevDialogIndex);
+                        else {
+                            rv.adapter.notifyItemMoved(prevDialogIndex, 0);
+                            if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
+                                rv.smoothScrollToTop();
+                        }
                     }
 
-                    App.handler.addCallback(callback = (update_code, needToLog, peer_id, date, arr1) -> {
-                        switch (update_code) {
-                            case 1:
-                                try {
-                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
-                                    if (index != -1) {
-                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
-                                        dialog.message.flags = arr1.getInt(2);
-                                        dialog.message.processFlags();
-                                        if (dialog.message.read_state)
-                                            dialog.updateUnread();
-                                        rv.adapter.notifyItemChanged(index);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case 2:
-                                try {
-                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
-                                    if (index != -1) {
-                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
-                                        dialog.message.flags |= ~arr1.getInt(2);
-                                        dialog.message.processFlags();
-                                        if (dialog.message.read_state)
-                                            dialog.updateUnread();
-                                        rv.adapter.notifyItemChanged(index);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case 3:
-                                try {
-                                    int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
-                                    if (index != -1) {
-                                        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
-                                        dialog.message.flags &= ~arr1.getInt(2);
-                                        dialog.message.processFlags();
-                                        if (dialog.message.read_state)
-                                            dialog.updateUnread();
-                                        rv.adapter.notifyItemChanged(index);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case 4:
-                                int index = ((DialogsAdapter) rv.adapter).getDialogIndexByPeerID(peer_id);
+                    @Override
+                    public void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg) {
+                        rv.adapter.notifyItemChanged(dialogIndex);
+                    }
+                });
+
+                App.handler.addCallback(callback = (update_code, needToLog, user_id, date, arr) -> {
+                });
+                /*App.handler.addCallback(callback = (update_code, needToLog, peer_id, date, arr1) -> {
+                    switch (update_code) {
+                        case 1:
+                            try {
+                                int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
                                 if (index != -1) {
-                                    ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.remove(index);
-                                    try {
-                                        dialog.message.id = arr1.getInt(1);
-                                        dialog.message.flags = arr1.getInt(2);
-                                        dialog.message.processFlags();
+                                    ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                    dialog.message.flags = arr1.getInt(2);
+                                    dialog.message.processFlags();
+                                    if (dialog.message.read_state)
                                         dialog.updateUnread();
-                                        dialog.message.date = arr1.getLong(4) * 1000;
-                                        dialog.message.body = arr1.getString(6);
-                                        JSONObject attachments = arr1.getJSONObject(7);
-                                        if (attachments.has("from"))
-                                            dialog.message.from_id = attachments.getInt("from");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        dialog.message.body = "Error";
+                                    rv.adapter.notifyItemChanged(index);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case 2:
+                            try {
+                                int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
+                                if (index != -1) {
+                                    ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                    dialog.message.flags |= ~arr1.getInt(2);
+                                    dialog.message.processFlags();
+                                    if (dialog.message.read_state)
+                                        dialog.updateUnread();
+                                    rv.adapter.notifyItemChanged(index);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case 3:
+                            try {
+                                int index = ((DialogsAdapter) rv.adapter).getDialogByMessageID(arr1.getInt(1));
+                                if (index != -1) {
+                                    ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(index);
+                                    dialog.message.flags &= ~arr1.getInt(2);
+                                    dialog.message.processFlags();
+                                    if (dialog.message.read_state)
+                                        dialog.updateUnread();
+                                    rv.adapter.notifyItemChanged(index);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case 4:
+                            int index = ((DialogsAdapter) rv.adapter).getDialogIndexByPeerID(peer_id);
+                            if (index != -1) {
+                                ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.remove(index);
+                                try {
+                                    dialog.message.id = arr1.getInt(1);
+                                    dialog.message.flags = arr1.getInt(2);
+                                    dialog.message.processFlags();
+                                    dialog.updateUnread();
+                                    dialog.message.date = arr1.getLong(4) * 1000;
+                                    dialog.message.body = arr1.getString(6);
+                                    JSONObject attachments = arr1.getJSONObject(7);
+                                    if (attachments.has("from"))
+                                        dialog.message.from_id = attachments.getInt("from");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    dialog.message.body = "Error";
+                                }
+                                ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
+                                if (index == 0)
+                                    rv.adapter.notifyItemChanged(0);
+                                else {
+                                    rv.adapter.notifyItemMoved(index, 0);
+                                    rv.adapter.notifyItemChanged(0);
+                                    if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
+                                        rv.smoothScrollToTop();
+                                }
+                            } else {
+                                new AsyncTask<Void, Void, ObjectDialog>() {
+                                    @Override
+                                    protected ObjectDialog doInBackground(Void... voids) {
+                                        try {
+                                            return Messages.getDialogByMessageID(arr1.getInt(1));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        return null;
                                     }
-                                    ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
-                                    if (index == 0)
-                                        rv.adapter.notifyItemChanged(0);
-                                    else {
-                                        rv.adapter.notifyItemMoved(index, 0);
-                                        rv.adapter.notifyItemChanged(0);
+
+                                    @Override
+                                    protected void onPostExecute(ObjectDialog dialog) {
+                                        ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
+                                        rv.adapter.notifyItemInserted(0);
                                         if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
                                             rv.smoothScrollToTop();
                                     }
-                                } else {
-                                    new AsyncTask<Void, Void, ObjectDialog>() {
-                                        @Override
-                                        protected ObjectDialog doInBackground(Void... voids) {
-                                            try {
-                                                return Messages.getDialogByMessageID(arr1.getInt(1));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                            return null;
-                                        }
-
-                                        @Override
-                                        protected void onPostExecute(ObjectDialog dialog) {
-                                            ((DialogsAdapter) rv.adapter).elements.add(0, dialog);
-                                            rv.adapter.notifyItemInserted(0);
-                                            if (rv.layoutManager.findFirstVisibleItemPosition() < 2)
-                                                rv.smoothScrollToTop();
-                                        }
-                                    }.execute();
-                                }
-                                break;
-                        }
-                    });
-                } catch (JSONException | IOException e) {
-                    e.printStackTrace();
-                }
-                return count;
+                                }.execute();
+                            }
+                            break;
+                    }
+                });*/
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Integer count) {
-                count_tv.setText(getString(R.string.message_count, count));
+            protected void onPostExecute(Void v) {
+                if (getActivity() != null)
+                    count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
                 rv.adapter.notifyDataSetChanged();
             }
         }.execute();
@@ -192,11 +206,11 @@ public class DialogsFragment extends Fragment {
         public ArrayList<ObjectDialog> elements = new ArrayList<>();
 
 
-        /**
+/*        *//**
          * @param peer_id peer_id of needed dialog
          * @return index of dialog or
          * -1 if no such dialog found
-         */
+         *//*
         public int getDialogIndexByPeerID(int peer_id) {
             for (int i = 0; i < elements.size(); i++)
                 if (elements.get(i).message.peer_id == peer_id)
@@ -204,19 +218,20 @@ public class DialogsFragment extends Fragment {
             return -1;
         }
 
+        */
+
         /**
          * @param message_id ID of message
          * @return index of dialog which has last message with ID == message_id
          * or -1 if no such dialogs
-         */
+         *//*
         public int getDialogByMessageID(int message_id) {
             for (int i = 0; i < elements.size(); i++) {
                 if (elements.get(i).message.id == message_id)
                     return i;
             }
             return -1;
-        }
-
+        }*/
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.element_dialog, parent, false));
