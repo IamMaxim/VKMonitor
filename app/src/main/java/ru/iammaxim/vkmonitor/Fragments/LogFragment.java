@@ -1,6 +1,5 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -370,9 +369,13 @@ public class LogFragment extends Fragment {
                 arr = o.getJSONArray("upd");
                 update_code = arr.getInt(0);
                 peer_id = o.getInt("peer_id");
-                ObjectUser user = Users.get(peer_id);
-                name = user.getTitle();
-                photo_url = user.photo_url;
+                if (peer_id == -1) {
+                    name = "Error";
+                } else {
+                    ObjectUser user = Users.get(peer_id);
+                    name = user.getTitle();
+                    photo_url = user.photo_200;
+                }
 
                 Date _date = new Date(o.getLong("date"));
                 date = App.dateSDF.format(_date);
@@ -382,16 +385,20 @@ public class LogFragment extends Fragment {
             }
         }
 
-        public Element(int update_code, int user_id, long date, JSONArray arr) {
+        public Element(int update_code, int peer_id, long date, JSONArray arr) {
             this.update_code = update_code;
-            this.peer_id = user_id;
+            this.peer_id = peer_id;
             Date date1 = new Date(date);
             this.date = App.dateSDF.format(date1);
             this.time = App.timeSDF.format(date1);
             this.arr = arr;
-            ObjectUser user = Users.get(user_id);
-            name = user.toString();
-            photo_url = user.photo_url;
+            if (peer_id != -1) {
+                ObjectUser user = Users.get(peer_id);
+                name = user.toString();
+                photo_url = user.photo_200;
+            } else {
+                name = "Error";
+            }
         }
     }
 }

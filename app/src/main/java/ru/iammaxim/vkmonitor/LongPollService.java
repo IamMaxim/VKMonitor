@@ -17,6 +17,7 @@ import java.io.IOException;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Users.UserDB;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectLongPollServer;
 
@@ -77,8 +78,8 @@ public class LongPollService extends Service {
 
         private boolean init() throws JSONException {
             try {
-                currentLongPollServer = new ObjectLongPollServer(Net.processRequest("messages.getLongPollServer", true, "use_ssl=1", "need_pts=1"));
-            } catch (IOException | JSONException e) {
+                currentLongPollServer = ObjectLongPollServer.getServer(Net.processRequest("messages.getLongPollServer", true, "use_ssl=1", "need_pts=1"));
+            } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -110,7 +111,7 @@ public class LongPollService extends Service {
                     try {
                         processLongPollMessage();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        System.err.println(e.getMessage());
                         try {
                             Thread.sleep(10000);
                         } catch (InterruptedException e1) {
@@ -132,7 +133,7 @@ public class LongPollService extends Service {
             if (!o.isNull("failed")) {
                 int code = o.getInt("failed");
                 if (code == 2 || code == 3) {
-                    currentLongPollServer = new ObjectLongPollServer(Net.processRequest("messages.getLongPollServer", true, "use_ssl=1", "need_pts=1"));
+                    currentLongPollServer = ObjectLongPollServer.getServer(Net.processRequest("messages.getLongPollServer", true, "use_ssl=1", "need_pts=1"));
                     return;
                 }
             }
@@ -141,6 +142,7 @@ public class LongPollService extends Service {
                 JSONArray arr1 = (JSONArray) arr.get(i);
                 int update_code = arr1.getInt(0);
                 Messages.processLongPollMessage(update_code, arr1);
+                Users.processLongPollMessage(update_code, arr1);
                 App.addToLog(update_code, arr1);
             }
             currentLongPollServer.update(o.getLong("ts"));

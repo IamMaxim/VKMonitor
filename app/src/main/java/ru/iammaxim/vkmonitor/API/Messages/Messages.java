@@ -34,7 +34,6 @@ public class Messages {
 
     public static void processLongPollMessage(int update_code, JSONArray arr) {
         try {
-            System.out.println("processing long poll update in Messages");
             switch (update_code) {
                 case 1:
                 case 2:
@@ -103,6 +102,11 @@ public class Messages {
         });
     }
 
+    /**
+     * @param peer_id peer_id of needed dialog
+     * @return ReturnPair(true if dialogs were fully updated,
+     * index of dialog or -1 if no such dialog found
+     */
     private static ReturnPair getDialogIndexByPeerID(int peer_id) throws IOException, JSONException {
         int i;
         for (i = 0; i < dialogObjects.size(); i++)
@@ -134,6 +138,11 @@ public class Messages {
         }
     }
 
+    /**
+     * @param message_id ID of message
+     * @return ReturnPair(true if dialogs were fully updated,
+     * index of dialog or -1 if no such dialogs
+     */
     public static ReturnPair getDialogIndexByMessageID(int message_id) throws IOException, JSONException {
         int i;
         for (i = 0; i < dialogObjects.size(); i++) {

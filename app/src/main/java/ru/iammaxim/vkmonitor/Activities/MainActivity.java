@@ -21,7 +21,9 @@ import ru.iammaxim.vkmonitor.API.Users.UserDB;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;
 
+    // only needed if permissions not yet granted, otherwise it is made in App.java
     private void loadFiles() {
+        App.loadIO();
         AccessTokenManager.load();
         if (!UserDB.isLoaded())
             UserDB.load();
@@ -30,10 +32,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        App.init();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
-        } else loadFiles();
+        }
         App.updateShortcuts(this);
         setContentView(R.layout.activity_main);
         FragmentManager fm = getSupportFragmentManager();

@@ -1,5 +1,6 @@
 package ru.iammaxim.vkmonitor;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -7,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,13 +54,9 @@ public class App extends Application {
     public static LongPollService.LongPollThread longPollThread;
     public static CircleTransformation circleTransformation = new CircleTransformation();
 
-/*    // should be called on app launch from UI thread
-    // because UpdateMessageHandler should only be created from UI thread
-    public static void init() {
-    }*/
-
-/*    static {
+    public static void loadIO() {
         logFile = new File(logPath);
+        File filterFile = new File(filterPath);
         try {
             if (!logFile.exists())
                 logFile.createNewFile();
@@ -65,7 +64,7 @@ public class App extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        File filterFile = new File(filterPath);
+
         try {
             if (filterFile.exists()) {
                 Scanner scanner = new Scanner(filterFile).useDelimiter("\\A");
@@ -79,10 +78,7 @@ public class App extends Application {
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
-        if (AccessTokenManager.getActiveToken() != null)
-            UserDB.update();
-    }*/
+    }
 
     public static void saveFilter() {
         try {
@@ -119,31 +115,12 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        logFile = new File(logPath);
-        try {
-            if (!logFile.exists())
-                logFile.createNewFile();
-            logFos = new FileOutputStream(logFile, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        File filterFile = new File(filterPath);
-        try {
-            if (filterFile.exists()) {
-                Scanner scanner = new Scanner(filterFile).useDelimiter("\\A");
-                JSONArray json = new JSONArray(scanner.next());
-                if (json.length() > 0) useFilter = true;
-                for (int i = 0; i < json.length(); i++) {
-                    filter.add(json.getInt(i));
-                }
-                scanner.close();
-            }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
 
-        if (AccessTokenManager.getActiveToken() != null)
-            UserDB.update();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            loadIO();
+            AccessTokenManager.load();
+            UserDB.load();
+        }
     }
 
     @SuppressLint("NewApi")
@@ -263,7 +240,7 @@ public class App extends Application {
                 case 62:
                 case 70:
                 case 114:
-                    return arr.getJSONObject(1).getInt("peer_id");
+                    return arr.getInt(1);
                 case 8:
                 case 9:
                     return -arr.getInt(1);

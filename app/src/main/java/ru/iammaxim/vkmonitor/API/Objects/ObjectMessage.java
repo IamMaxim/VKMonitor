@@ -1,9 +1,15 @@
 package ru.iammaxim.vkmonitor.API.Objects;
 
+import android.content.Context;
+import android.text.Html;
+import android.text.Spanned;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ru.iammaxim.vkmonitor.API.Users.Users;
+import ru.iammaxim.vkmonitor.App;
 
 public class ObjectMessage {
     public int id, from_id, peer_id = -1;
@@ -26,6 +32,29 @@ public class ObjectMessage {
             MEDIA_FLAG = 512;
 
     public ObjectMessage() {
+    }
+
+    public Spanned getFullBody() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(body);
+        try {
+            if (json.has("attachments")) {
+                JSONArray attachments = json.getJSONArray("attachments");
+                for (int i = 0; i < attachments.length(); i++) {
+                    JSONObject attachment = attachments.getJSONObject(i);
+                    String type = attachment.getString("type");
+                    String nameToAdd;
+                    if (type.equals("doc")) {
+                        nameToAdd = attachment.getJSONObject("doc").getString("title");
+                    } else
+                        nameToAdd = type;
+                    sb.append(" ").append("<font color=\"#466991\">").append(nameToAdd).append("</font>");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return Html.fromHtml(sb.toString());
     }
 
     public ObjectMessage(JSONObject object) {
@@ -60,7 +89,7 @@ public class ObjectMessage {
             if (object.has("photo_200"))
                 photo = object.getString("photo_200");
             else if (!object.has("chat_id"))
-                photo = Users.get(peer_id).photo_url;
+                photo = Users.get(peer_id).photo_200;
             if (object.has("push_settings")) {
                 muted = object.getJSONObject("push_settings").getInt("sound") == 1;
             }

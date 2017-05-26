@@ -7,7 +7,7 @@ public class ObjectLongPollServer {
     public String key, server;
     public long ts;
 
-    public ObjectLongPollServer(String json) throws JSONException {
+    private ObjectLongPollServer(String json) throws JSONException {
         System.out.println(json);
         JSONObject o = new JSONObject(json).getJSONObject("response");
         key = o.getString("key");
@@ -17,5 +17,23 @@ public class ObjectLongPollServer {
 
     public void update(long ts) {
         this.ts = ts;
+    }
+
+    public static ObjectLongPollServer getServer(String JSON) {
+        ObjectLongPollServer server = null;
+        while (server == null) {
+            try {
+                server = new ObjectLongPollServer(JSON);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (server == null)
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+        }
+        return server;
     }
 }

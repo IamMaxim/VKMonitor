@@ -87,7 +87,7 @@ public class ChangeFilterFragment extends Fragment {
             holder.cb.setId(position);
             holder.cb.setChecked(element.enabled);
             holder.cb.setOnCheckedChangeListener(checkboxListener);
-            Picasso.with(holder.photo.getContext()).load(element.photo_url).transform(circleTransformation).into(holder.photo);
+            Picasso.with(holder.photo.getContext()).load(element.photo_200).transform(circleTransformation).into(holder.photo);
         }
 
         @Override
@@ -110,7 +110,7 @@ public class ChangeFilterFragment extends Fragment {
     }
 
     class UserElement implements Comparable<UserElement> {
-        String name, photo_url;
+        String name, photo_200;
         int user_id;
         boolean enabled;
 
@@ -118,7 +118,7 @@ public class ChangeFilterFragment extends Fragment {
             this.user_id = user_id;
             ObjectUser user = Users.get(user_id);
             name = user.toString();
-            photo_url = user.photo_url;
+            photo_200 = user.photo_200;
             enabled = App.filter.contains(user_id);
         }
 

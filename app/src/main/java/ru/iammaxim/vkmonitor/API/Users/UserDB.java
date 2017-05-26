@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.Net;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
@@ -50,12 +51,12 @@ public class UserDB {
                 while (usersToUpdate.size() > 0) {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
-                        sb.append(usersToUpdate.get(0));
+                        sb.append(usersToUpdate.remove(0));
                         if (i < 100)
                             sb.append(',');
                     }
                     try {
-                        JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString())).getJSONArray("response");
+                        JSONArray arr = new JSONObject(Net.processRequest("users.get", true, "user_ids=" + sb.toString(), "fields=photo_200,online")).getJSONArray("response");
                         sb.delete(0, sb.length());
                         for (int i = 0; i < arr.length(); i++) {
                             ObjectUser user = new ObjectUser(arr.getJSONObject(i));
@@ -92,7 +93,7 @@ public class UserDB {
                 FileOutputStream fos = new FileOutputStream(file);
                 JSONArray json = new JSONArray();
                 for (ObjectUser user : userDB.values()) {
-                    json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_url", user.photo_url));
+                    json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_200", user.photo_200));
                 }
                 fos.write(json.toString().getBytes());
                 fos.close();
@@ -107,7 +108,7 @@ public class UserDB {
         new Thread(() -> {
             try {
                 try {
-                    me = new ObjectUser(Net.processRequest("users.get", true, "fields=photo_200"));
+                    me = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -121,18 +122,21 @@ public class UserDB {
                     JSONArray arr = new JSONArray(new Scanner(file).useDelimiter("\\A").next());
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject obj = arr.getJSONObject(i);
-                        ObjectUser user = new ObjectUser();
-                        user.id = obj.getInt("id");
+                        ObjectUser user = new ObjectUser(obj);
+/*                        user.id = obj.getInt("id");
                         user.first_name = obj.getString("first_name");
                         user.last_name = obj.getString("last_name");
-                        if (obj.has("photo_url"))
-                            user.photo_url = obj.getString("photo_url");
+                        if (obj.has("photo_200"))
+                            user.photo_200 = obj.getString("photo_200");*/
                         add(user);
                     }
                 }
             } catch (NoSuchElementException | FileNotFoundException | JSONException e) {
                 System.err.println(e.getMessage());
             }
+
+            if (AccessTokenManager.getActiveToken() != null)
+                UserDB.update();
         }).start();
     }
 
