@@ -7,6 +7,7 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     android:fitsSystemWindows="true"
     tools:context="ru.iammaxim.vkmonitor.Activities.MainActivity">
 
@@ -24,10 +25,10 @@
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".Activities.MainActivity">
 
         <TextView
@@ -129,8 +130,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:id="@+id/open_log"
@@ -192,8 +193,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:id="@+id/change_filter"

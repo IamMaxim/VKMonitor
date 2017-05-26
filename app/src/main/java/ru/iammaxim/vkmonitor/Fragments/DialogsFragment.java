@@ -29,7 +29,7 @@ import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
-public class DialogsFragment extends Fragment {
+public class DialogsFragment extends mFragment {
     private RecyclerViewWrapper rv;
     private TextView count_tv;
     private UpdateMessageHandler.Callback callback;

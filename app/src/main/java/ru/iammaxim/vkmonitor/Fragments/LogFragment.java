@@ -47,7 +47,7 @@ import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
  * Created by maxim on 5/14/17.
  */
 
-public class LogFragment extends Fragment {
+public class LogFragment extends mFragment {
     private RecyclerViewWrapper log;
 
     private UpdateMessageHandler.Callback callback;

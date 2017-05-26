@@ -5,6 +5,7 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     android:fitsSystemWindows="true"
     tools:context="ru.iammaxim.vkmonitor.Activities.LogActivity">
 
@@ -39,12 +40,12 @@
             android:id="@+id/count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:elevation="40dp"
             android:padding="4dp"
             android:text="Count: loading..."
             android:textAlignment="center"
-            android:background="@color/colorPrimary"
-            android:textColor="@color/colorTextOnPrimary"
-            android:elevation="40dp"/>
+            android:textColor="@color/colorTextOnPrimary" />
     </LinearLayout>
 
 

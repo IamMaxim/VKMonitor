@@ -11,4 +11,5 @@
     <color name="colorTextOnAccent">#FFFFFF</color>
     <color name="colorUnreadMessageBg">#3c6caeec</color>
     <color name="colorMutedUnreadMessageBg">#3cc2c2c2</color>
+    <color name="color_background">#ffffff</color>
 </resources>

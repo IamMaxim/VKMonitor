@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import ru.iammaxim.vkmonitor.R;
 
-public class DialogFragment extends Fragment {
+public class DialogFragment extends mFragment {
 
 
     public DialogFragment() {}

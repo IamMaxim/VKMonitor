@@ -25,7 +25,7 @@ import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
 
-public class AccessTokenManagerFragment extends Fragment {
+public class AccessTokenManagerFragment extends mFragment {
     private RecyclerView rv;
     private LinearLayoutManager layoutManager;
     private Adapter adapter = new Adapter();

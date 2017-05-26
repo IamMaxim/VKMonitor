@@ -31,7 +31,7 @@ import ru.iammaxim.vkmonitor.Views.CircleTransformation;
  * Created by maxim on 5/19/17.
  */
 
-public class ChangeFilterFragment extends Fragment {
+public class ChangeFilterFragment extends mFragment {
     private CircleTransformation circleTransformation = new CircleTransformation();
     private RecyclerView rv;
     private FilterAdapter adapter;

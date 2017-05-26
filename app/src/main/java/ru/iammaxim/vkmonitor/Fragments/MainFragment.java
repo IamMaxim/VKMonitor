@@ -28,7 +28,7 @@ import ru.iammaxim.vkmonitor.RequestGenerator.RequestGeneratorMain;
  * Created by maxim on 5/14/17.
  */
 
-public class MainFragment extends Fragment implements View.OnClickListener {
+public class MainFragment extends mFragment implements View.OnClickListener {
     private static boolean started = false;
     private View start, stop;
     private TextView state;

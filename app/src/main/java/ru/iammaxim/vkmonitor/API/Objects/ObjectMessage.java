@@ -38,6 +38,9 @@ public class ObjectMessage {
         StringBuilder sb = new StringBuilder();
         sb.append(body);
         try {
+            if (json.has("fwd_messages")) {
+                sb.append(sb.length() > 0 ? " " : "").append("<font color=\"#466991\">").append(json.getJSONArray("fwd_messages").length()).append(" forwarded messages").append("</font>");
+            }
             if (json.has("attachments")) {
                 JSONArray attachments = json.getJSONArray("attachments");
                 for (int i = 0; i < attachments.length(); i++) {
