@@ -125,7 +125,7 @@ public class App extends Application {
 
     @SuppressLint("NewApi")
     public static void updateShortcuts(Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 
             ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "log")
