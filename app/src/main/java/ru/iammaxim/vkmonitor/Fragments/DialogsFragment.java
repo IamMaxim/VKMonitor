@@ -57,7 +57,6 @@ public class DialogsFragment extends mFragment {
         count_tv = (TextView) v.findViewById(R.id.count);
         rv = (RecyclerViewWrapper) v.findViewById(R.id.rv);
         rv.setAdapter(new DialogsAdapter());
-        ((DialogsAdapter) rv.adapter).elements = Messages.dialogObjects;
         rv.layoutManager.setMsPerInch(200);
         count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
 
@@ -93,6 +92,7 @@ public class DialogsFragment extends mFragment {
         App.handler.addCallback(callback = (update_code, needToLog, user_id, date, arr) -> {
         });
 
+        toolbar.setTitle("Updating...");
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -102,6 +102,8 @@ public class DialogsFragment extends mFragment {
 
             @Override
             protected void onPostExecute(Void v) {
+                ((DialogsAdapter) rv.adapter).elements = Messages.dialogObjects;
+                toolbar.setTitle("Dialogs");
                 if (getActivity() != null)
                     count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
                 rv.adapter.notifyDataSetChanged();

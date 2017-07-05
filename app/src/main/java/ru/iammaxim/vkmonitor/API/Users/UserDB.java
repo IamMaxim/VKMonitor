@@ -107,11 +107,6 @@ public class UserDB {
         loaded = true;
         new Thread(() -> {
             try {
-                try {
-                    me = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 synchronized (userDB) {
                     userDB.clear();
                     File file = new File(filepath);
@@ -158,5 +153,9 @@ public class UserDB {
 
     public static boolean isLoaded() {
         return loaded;
+    }
+
+    public static void setMe(ObjectUser me) {
+        UserDB.me = me;
     }
 }

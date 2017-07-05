@@ -23,6 +23,11 @@ public class Messages {
     public static SparseArray<Dialog> dialogs = new SparseArray<>();
     public static int dialogsCount = 0;
     public static ArrayList<OnMessagesUpdate> callbacks = new ArrayList<>();
+    private static boolean needToUpdateDialogs = true;
+
+    public static void setNeedToUpdateDialogs() {
+        needToUpdateDialogs = true;
+    }
 
 
     public interface OnMessagesUpdate {
@@ -30,7 +35,6 @@ public class Messages {
 
         void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg);
     }
-
 
     public static void processLongPollMessage(int update_code, JSONArray arr) {
         try {
@@ -105,9 +109,11 @@ public class Messages {
     /**
      * @param peer_id peer_id of needed dialog
      * @return ReturnPair(true if dialogs were fully updated,
-     * index of dialog or -1 if no such dialog found
+     *index of dialog or -1 if no such dialog found
      */
     private static ReturnPair getDialogIndexByPeerID(int peer_id) throws IOException, JSONException {
+        updateDialogs();
+
         int i;
         for (i = 0; i < dialogObjects.size(); i++)
             if (dialogObjects.get(i).message.peer_id == peer_id)
@@ -141,9 +147,11 @@ public class Messages {
     /**
      * @param message_id ID of message
      * @return ReturnPair(true if dialogs were fully updated,
-     * index of dialog or -1 if no such dialogs
+     *index of dialog or -1 if no such dialogs
      */
     public static ReturnPair getDialogIndexByMessageID(int message_id) throws IOException, JSONException {
+        updateDialogs();
+
         int i;
         for (i = 0; i < dialogObjects.size(); i++) {
             if (dialogObjects.get(i).message.id == message_id)
@@ -176,9 +184,10 @@ public class Messages {
     }
 
     public static void updateDialogs() {
-        if (dialogObjects.size() > 0)
+        if (!needToUpdateDialogs)
             return;
         try {
+            dialogObjects.clear();
             JSONObject o = new JSONObject(Net.processRequest("messages.getDialogs", true, "count=20")).getJSONObject("response");
             dialogsCount = o.getInt("count");
             JSONArray arr = o.getJSONArray("items");

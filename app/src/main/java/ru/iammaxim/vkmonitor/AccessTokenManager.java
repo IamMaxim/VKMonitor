@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import ru.iammaxim.vkmonitor.API.Users.Users;
+import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
@@ -36,6 +37,16 @@ public class AccessTokenManager {
     public static void setActiveToken(int index) {
         activeTokenIndex = index;
         activeToken = tokens.get(index);
+        Messages.setNeedToUpdateDialogs();
+        new Thread(() -> {
+            try {
+                UserDB.setMe(new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public static void load() {

@@ -209,6 +209,7 @@ public class App extends Application {
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.AM_PM, Calendar.AM);
         if (date.before(calendar.getTime())) {
             calendar.add(Calendar.DATE, -1);
             if (date.after(calendar.getTime())) {
