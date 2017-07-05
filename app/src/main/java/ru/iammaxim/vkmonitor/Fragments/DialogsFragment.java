@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +46,7 @@ public class DialogsFragment extends mFragment {
         super.onDestroyView();
         App.handler.removeCallback(callback);
         Messages.callbacks.remove(messagesCallback);
+        Users.callbacks.remove(usersCallback);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -88,7 +91,7 @@ public class DialogsFragment extends mFragment {
             }
         });
 
-        //needed to keep long poll updating without delay
+        // needed to keep long poll updating without delay
         App.handler.addCallback(callback = (update_code, needToLog, user_id, date, arr) -> {
         });
 
@@ -181,6 +184,12 @@ public class DialogsFragment extends mFragment {
 
         @Override
         public void onClick(View v) {
+            // open dialog with clicked peer_id
+            DialogFragment fragment = new DialogFragment();
+            Bundle args = new Bundle();
+            args.putInt("peer_id", elements.get(v.getId()).message.peer_id);
+            fragment.setArguments(args);
+            addFragment(fragment);
         }
     }
 
@@ -201,5 +210,14 @@ public class DialogsFragment extends mFragment {
             from_photo = (ImageView) v.findViewById(R.id.from_photo);
             unread = (TextView) v.findViewById(R.id.unread);
         }
+    }
+
+    private void addFragment(Fragment fragment) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
