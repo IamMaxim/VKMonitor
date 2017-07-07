@@ -35,7 +35,7 @@ public class UpdateMessageHandler extends Handler {
     }
 
     public boolean needToSleep() {
-        return !(callbacks.size() > 0 || Messages.callbacks.size() > 0 || Users.callbacks.size() > 0);
+        return !(callbacks.size() > 0 || Messages.messageCallbacks.size() > 0 || Users.callbacks.size() > 0);
     }
 
     @Override

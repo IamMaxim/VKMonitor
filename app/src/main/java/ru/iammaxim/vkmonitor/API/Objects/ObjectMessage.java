@@ -165,6 +165,20 @@ public class ObjectMessage {
         this(new JSONObject(json));
     }
 
+    public void applyFlags(int update_code, int flags) {
+        switch (update_code) {
+            case 1:
+                this.flags = flags;
+                break;
+            case 2:
+                this.flags |= ~flags;
+                break;
+            case 3:
+                this.flags &= ~flags;
+                break;
+        }
+    }
+
     public void processFlags() {
         read_state = !getFlag(flags, READ_STATE_FLAG);
         out = getFlag(flags, OUT_FLAG);

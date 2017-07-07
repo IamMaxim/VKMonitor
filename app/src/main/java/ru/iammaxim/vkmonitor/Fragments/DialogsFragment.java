@@ -37,6 +37,7 @@ public class DialogsFragment extends mFragment {
     private UpdateMessageHandler.Callback callback;
     private Messages.OnMessagesUpdate messagesCallback;
     private Users.OnUsersUpdate usersCallback;
+    private Messages.OnDialogsUpdate dialogsCallback;
 
     public DialogsFragment() {
     }
@@ -45,7 +46,8 @@ public class DialogsFragment extends mFragment {
     public void onDestroyView() {
         super.onDestroyView();
         App.handler.removeCallback(callback);
-        Messages.callbacks.remove(messagesCallback);
+        Messages.messageCallbacks.remove(messagesCallback);
+        Messages.dialogCallbacks.remove(dialogsCallback);
         Users.callbacks.remove(usersCallback);
     }
 
@@ -63,7 +65,7 @@ public class DialogsFragment extends mFragment {
         rv.layoutManager.setMsPerInch(200);
         count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
 
-        Messages.callbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
+        Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
                 if (prevDialogIndex == 0)
@@ -76,10 +78,12 @@ public class DialogsFragment extends mFragment {
             }
 
             @Override
-            public void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg) {
-                rv.adapter.notifyItemChanged(dialogIndex);
+            public void onMessageFlagsUpdated(int message_id, int update_code, int flags) {
+
             }
         });
+
+        Messages.dialogCallbacks.add(dialogsCallback = dialogIndex -> rv.adapter.notifyItemChanged(dialogIndex));
 
         Users.callbacks.add(usersCallback = (user_id, online) -> {
             for (int i = 0; i < Messages.dialogObjects.size(); i++) {

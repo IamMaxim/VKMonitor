@@ -22,7 +22,8 @@ public class Messages {
     public static ArrayList<ObjectDialog> dialogObjects = new ArrayList<>();
     public static SparseArray<Dialog> dialogs = new SparseArray<>();
     public static int dialogsCount = 0;
-    public static ArrayList<OnMessagesUpdate> callbacks = new ArrayList<>();
+    public static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
+    public static ArrayList<OnDialogsUpdate> dialogCallbacks = new ArrayList<>();
     private static boolean needToUpdateDialogs = true;
 
     public static void setNeedToUpdateDialogs() {
@@ -47,26 +48,6 @@ public class Messages {
                 "peer_id=" + msg.peer_id,
                 "message=" + msg.body,
                 "random_id=" + msg.random_id);
-    }
-
-    public static class MessagesObject {
-        /**
-         * total messages count
-         * NOTE: this is not messages.size()!
-         */
-        public int count;
-        public ArrayList<ObjectMessage> messages;
-
-        public MessagesObject(int count, ArrayList<ObjectMessage> messages) {
-            this.count = count;
-            this.messages = messages;
-        }
-    }
-
-    public interface OnMessagesUpdate {
-        void onMessageGet(int prevDialogIndex, ObjectMessage msg);
-
-        void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg);
     }
 
     public static void processLongPollMessage(int update_code, JSONArray arr) {
@@ -106,35 +87,35 @@ public class Messages {
         dialogObjects.add(0, dialog);
 
         App.handler.post(() -> {
-            for (OnMessagesUpdate c : callbacks) {
+            for (OnMessagesUpdate c : messageCallbacks) {
                 c.onMessageGet(ret.index, dialog.message);
             }
         });
     }
 
     private static void updateFlags(int update_code, JSONArray arr) throws JSONException, IOException {
+        App.handler.post(() -> {
+            for (OnMessagesUpdate c : messageCallbacks) {
+                try {
+                    c.onMessageFlagsUpdated(arr.getInt(1), update_code, arr.getInt(2));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         ReturnPair ret = getDialogIndexByMessageID(arr.getInt(1));
         if (ret.index == -1)
             return;
         ObjectDialog dialog = dialogObjects.get(ret.index);
-        switch (update_code) {
-            case 1:
-                dialog.message.flags = arr.getInt(2);
-                break;
-            case 2:
-                dialog.message.flags |= ~arr.getInt(2);
-                break;
-            case 3:
-                dialog.message.flags &= ~arr.getInt(2);
-                break;
-        }
+        dialog.message.applyFlags(update_code, arr.getInt(2));
         dialog.message.processFlags();
         if (!ret.fullyUpdated && dialog.message.read_state)
             dialog.updateUnread();
 
         App.handler.post(() -> {
-            for (OnMessagesUpdate c : callbacks) {
-                c.onMessageFlagsUpdated(ret.index, dialog.message);
+            for (OnDialogsUpdate c : dialogCallbacks) {
+                c.onDialogFlagsUpdated(ret.index);
             }
         });
     }
@@ -232,6 +213,32 @@ public class Messages {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public interface OnMessagesUpdate {
+        void onMessageGet(int prevDialogIndex, ObjectMessage msg);
+
+        //        void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg);
+        void onMessageFlagsUpdated(int message_id, int update_code, int flags);
+    }
+
+    public interface OnDialogsUpdate {
+        /** Local index of updated dialog. Entry is processed automatically */
+        void onDialogFlagsUpdated(int dialogIndex);
+    }
+
+    public static class MessagesObject {
+        /**
+         * total messages count
+         * NOTE: this is not messages.size()!
+         */
+        public int count;
+        public ArrayList<ObjectMessage> messages;
+
+        public MessagesObject(int count, ArrayList<ObjectMessage> messages) {
+            this.count = count;
+            this.messages = messages;
         }
     }
 

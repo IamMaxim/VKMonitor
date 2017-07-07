@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -69,7 +68,7 @@ public class DialogFragment extends mFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Messages.callbacks.remove(messagesCallback);
+        Messages.messageCallbacks.remove(messagesCallback);
         Users.callbacks.remove(usersCallback);
     }
 
@@ -108,7 +107,7 @@ public class DialogFragment extends mFragment {
         rv.setAdapter(adapter = new DialogAdapter());
         rv.layoutManager.setMsPerInch(200);
 
-        Messages.callbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
+        Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
                 // TODO: process action messages
@@ -120,8 +119,7 @@ public class DialogFragment extends mFragment {
                             it.remove();
                             for (int i = adapter.elements.size() - 1; i >= 0; i--) {
                                 if (adapter.elements.get(i) == toSend) {
-                                    toSend.isSending = false;
-                                    toSend.read_state = false;
+                                    adapter.elements.set(i, msg); // this will update date, body, id etc.
                                     adapter.notifyItemChanged(i);
                                     return;
                                 }
@@ -138,8 +136,16 @@ public class DialogFragment extends mFragment {
             }
 
             @Override
-            public void onMessageFlagsUpdated(int dialogIndex, ObjectMessage msg) {
-                // TODO: check for peer_id and change message if needed
+            public void onMessageFlagsUpdated(int message_id, int update_code, int flags) {
+                for (int i = adapter.elements.size() - 1; i >= 0; i--) {
+                    ObjectMessage message = adapter.elements.get(i);
+                    if (message_id == message.id) {
+                        message.applyFlags(update_code, flags);
+                        message.processFlags();
+                        adapter.notifyItemChanged(i);
+                        return;
+                    }
+                }
             }
         });
 
