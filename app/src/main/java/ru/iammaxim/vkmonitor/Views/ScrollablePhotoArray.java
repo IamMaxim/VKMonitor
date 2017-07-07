@@ -26,7 +26,9 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
         super(context);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         setLayoutParams(lp);
+        setPadding(0, dpToPx(2), 0, dpToPx(2));
 
+        setMinimumHeight(dpToPx(204));
         layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         addView(layout);
@@ -51,5 +53,10 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
         view.setAdjustViewBounds(true);
         Picasso.with(getContext()).load(photo.getBestURL()).into(view);
         layout.addView(view);
+    }
+
+    private int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 }

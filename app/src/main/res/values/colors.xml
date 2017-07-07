@@ -13,4 +13,6 @@
     <color name="colorMutedUnreadMessageBg">#3cc2c2c2</color>
     <color name="color_background">#ffffff</color>
     <color name="messageTextColor">#000000</color>
+    <color name="element_message_title_color">#466991</color>
+    <color name="element_message_fwd_date_color">#949494</color>
 </resources>

@@ -27,7 +27,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#2e2e2e"
+            android:textColor="@color/element_message_title_color"
             android:textStyle="bold"
             tools:text="Sender name"
             android:textSize="13sp"/>

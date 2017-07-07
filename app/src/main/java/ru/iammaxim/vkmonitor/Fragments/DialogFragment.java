@@ -1,9 +1,13 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
+import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +32,8 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.Views.ForwardedMessagesLine;
+import ru.iammaxim.vkmonitor.Views.ImprovedTextView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 import ru.iammaxim.vkmonitor.Views.ScrollablePhotoArray;
 
@@ -274,23 +280,88 @@ public class DialogFragment extends mFragment {
             }
 
             if (!message.body.isEmpty()) {
-                TextView msg = new TextView(getContext());
-                msg.setTextColor(0xff000000);
-                msg.setTextSize(15);
-                msg.setText(message.body);
-                holder.container.addView(msg);
+                holder.container.addView(getBodyTextView(message.body));
             }
 
             if (message.photos.size() > 0) { // add photo attachments
                 ScrollablePhotoArray spa = new ScrollablePhotoArray(getContext());
                 for (AttachmentPhoto p : message.photos) {
-/*                ImageView photo = new ImageView(getContext());
-                Picasso.with(getContext()).load(p.getBestURL()).into(photo);
-                holder.container.addView(photo);*/
                     spa.add(p);
                 }
                 holder.container.addView(spa);
             }
+
+            if (message.forwards.size() > 0) { // add forwarded messages
+                holder.container.addView(createForwards(message));
+            }
+        }
+
+        private LinearLayout createForwards(ObjectMessage msg) {
+            LinearLayout layout = new LinearLayout(getContext());
+            layout.setOrientation(LinearLayout.HORIZONTAL);
+            ForwardedMessagesLine line = new ForwardedMessagesLine(getContext());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            lp.setMargins(0, 0, dpToPx(4), 0);
+            line.setLayoutParams(lp);
+            layout.addView(line);
+            LinearLayout layout1 = new LinearLayout(getContext());
+            layout1.setOrientation(LinearLayout.VERTICAL);
+            layout.addView(layout1);
+
+            for (int i = 0; i < msg.forwards.size(); i++) {
+                ObjectMessage message = msg.forwards.get(i);
+                if (i == 0 || elements.get(i - 1).user_id != message.user_id) { // upper
+                    layout1.addView(getFwdMessagesHeader(message));
+                }
+                if (!message.body.isEmpty()) {
+                    TextView body = getBodyTextView(message.body);
+                    LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lp1.setMargins(dpToPx(2), 0, 0, 0);
+                    layout1.addView(body);
+                }
+                if (message.forwards.size() > 0) {
+                    layout1.addView(createForwards(message));
+                }
+            }
+            return layout;
+        }
+
+        private View getFwdMessagesHeader(ObjectMessage msg) {
+            LinearLayout layout = new LinearLayout(getContext());
+            layout.setOrientation(LinearLayout.HORIZONTAL);
+            layout.setPadding(0, dpToPx(4), dpToPx(4), 0);
+
+            ImageView iv = new ImageView(getContext());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dpToPx(36), dpToPx(36));
+            iv.setLayoutParams(lp);
+            new Thread(() -> {
+                ObjectUser user = Users.get(msg.user_id);
+                if (getActivity() == null)
+                    return;
+                getActivity().runOnUiThread(() ->
+                        Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(iv));
+            }).start();
+            layout.addView(iv);
+
+            LinearLayout layout1 = new LinearLayout(getContext());
+            layout1.setOrientation(LinearLayout.VERTICAL);
+            layout1.setPadding(dpToPx(6), dpToPx(2), dpToPx(6), 0);
+
+            TextView title = new TextView(getContext());
+            SpannableString ss = new SpannableString(msg.title);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(), 0);
+            title.setText(ss);
+            title.setTextSize(13);
+            title.setTextColor(getResources().getColor(R.color.element_message_title_color));
+            layout1.addView(title);
+
+            TextView date = new TextView(getContext());
+            date.setTextSize(12);
+            date.setText(App.formatDateAndTime(msg.date));
+            date.setTextColor(getResources().getColor(R.color.element_message_fwd_date_color));
+            layout1.addView(date);
+            layout.addView(layout1);
+            return layout;
         }
 
         @Override
@@ -320,5 +391,13 @@ public class DialogFragment extends mFragment {
     private int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    private TextView getBodyTextView(String body) {
+        ImprovedTextView tv = new ImprovedTextView(getContext());
+        tv.setTextColor(0xff000000);
+        tv.setTextSize(15);
+        tv.setText(body);
+        return tv;
     }
 }

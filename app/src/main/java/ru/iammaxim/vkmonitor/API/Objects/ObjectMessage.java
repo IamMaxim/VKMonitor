@@ -24,6 +24,7 @@ public class ObjectMessage {
     public boolean isAction = false;
     public boolean isSending = false;
 
+    public ArrayList<ObjectMessage> forwards = new ArrayList<>();
     public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
 
     private static final int
@@ -144,6 +145,13 @@ public class ObjectMessage {
                     case "chat_kick_user":
                         body = Users.get(user_id) + " kicked " + Users.get(object.getInt("action_mid")).getTitle();
                         break;
+                }
+            }
+
+            if (object.has("fwd_messages")) {
+                JSONArray arr = object.getJSONArray("fwd_messages");
+                for (int i = 0; i < arr.length(); i++) {
+                    forwards.add(new ObjectMessage(arr.getJSONObject(i)));
                 }
             }
 

@@ -3,19 +3,27 @@ package ru.iammaxim.vkmonitor.Views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 
 /**
- * Created by maxim on 12/5/16.
+ * Created by maxim on 07.07.2017.
  */
 
-public class VerticalDivider extends View {
+public class ForwardedMessagesLine extends View {
     private Paint p;
 
-    public VerticalDivider(Context context) {
+    public ForwardedMessagesLine(Context context) {
         this(context, null);
+    }
+
+    public ForwardedMessagesLine(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        p = new Paint();
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(0xFF6B9ECE);
     }
 
     @Override
@@ -23,14 +31,7 @@ public class VerticalDivider extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int height = getMeasuredHeight();
         DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-        setMeasuredDimension((int) dm.density, height); // 1 dp width
-    }
-
-    public VerticalDivider(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        p = new Paint();
-        p.setStyle(Paint.Style.FILL);
-        p.setColor(0x1F000000);
+        setMeasuredDimension((int) (2 * dm.density), height); // 2 dp width
     }
 
     @Override
