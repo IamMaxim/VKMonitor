@@ -9,6 +9,9 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Users.Users;
+
 /**
  * Created by maxim on 11.09.2016.
  */
@@ -29,6 +32,10 @@ public class UpdateMessageHandler extends Handler {
 
     public int getCallbacksSize() {
         return callbacks.size();
+    }
+
+    public boolean needToSleep() {
+        return !(callbacks.size() > 0 || Messages.callbacks.size() > 0 || Users.callbacks.size() > 0);
     }
 
     @Override

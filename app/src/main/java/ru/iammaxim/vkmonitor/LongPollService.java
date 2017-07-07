@@ -147,7 +147,7 @@ public class LongPollService extends Service {
             }
             currentLongPollServer.update(o.getLong("ts"));
 
-            if (App.handler.getCallbacksSize() == 0) {
+            if (App.handler.needToSleep()) {
                 synchronized (this) {
                     try {
                         wait(300000);

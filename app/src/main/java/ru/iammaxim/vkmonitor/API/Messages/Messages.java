@@ -40,11 +40,20 @@ public class Messages {
         return new MessagesObject(_count, msgs);
     }
 
+    public static void send(ObjectMessage msg) throws IOException {
+        msg.random_id = (int) (Math.random() * Integer.MAX_VALUE);
+        // TODO: implement attachments support
+        Net.processRequest("messages.send", true,
+                "peer_id=" + msg.peer_id,
+                "message=" + msg.body,
+                "random_id=" + msg.random_id);
+    }
+
     public static class MessagesObject {
         /**
-         *  total messages count
+         * total messages count
          * NOTE: this is not messages.size()!
-         * */
+         */
         public int count;
         public ArrayList<ObjectMessage> messages;
 

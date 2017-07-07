@@ -91,10 +91,6 @@ public class DialogsFragment extends mFragment {
             }
         });
 
-        // needed to keep long poll updating without delay
-        App.handler.addCallback(callback = (update_code, needToLog, user_id, date, arr) -> {
-        });
-
         toolbar.setTitle("Updating...");
         new AsyncTask<Void, Void, Void>() {
             @Override

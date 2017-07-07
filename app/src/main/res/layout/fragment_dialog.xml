@@ -45,6 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp"
             android:scrollbars="vertical" />
 
         <LinearLayout
@@ -70,19 +72,23 @@
 
 
                 <EditText
+                    android:id="@+id/message_et"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:hint="Type message" />
 
-                <ImageView
+                <ImageButton
+                    android:id="@+id/send"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="8dp"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_send_black_24dp"
-                    android:layout_marginLeft="8dp" />
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/ic_send_black_24dp" />
 
             </LinearLayout>
         </LinearLayout>

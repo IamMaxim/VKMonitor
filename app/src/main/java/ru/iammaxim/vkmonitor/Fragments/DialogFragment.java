@@ -8,9 +8,10 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -19,6 +20,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
@@ -37,12 +39,19 @@ public class DialogFragment extends mFragment {
     private Messages.OnMessagesUpdate messagesCallback;
     private Users.OnUsersUpdate usersCallback;
     private ObjectUser user;
+
     private ImageView photo;
     private TextView title;
     private TextView subtitle;
+
+    private EditText message_et;
+    private View send_button;
+
     private boolean isChat;
     private DialogAdapter adapter;
     private int messagesCount = 0;
+
+    private ArrayList<ObjectMessage> currentlySending = new ArrayList<>();
 
     public static final class MessageType {
         public static final int
@@ -76,21 +85,25 @@ public class DialogFragment extends mFragment {
 
         View v = inflater.inflate(R.layout.fragment_dialog, container, false);
 
+
+        // setup toolbar
         View mToolbarView = inflater.inflate(R.layout.toolbar_dialog, container, false);
         photo = (ImageView) mToolbarView.findViewById(R.id.photo);
         title = (TextView) mToolbarView.findViewById(R.id.title);
         subtitle = (TextView) mToolbarView.findViewById(R.id.subtitle);
-
         title.setText(user.getTitle());
         subtitle.setText("Subtitle");
         Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(photo);
-
         Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.addView(mToolbarView);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         count_tv = (TextView) v.findViewById(R.id.count);
+        message_et = (EditText) v.findViewById(R.id.message_et);
+        send_button = v.findViewById(R.id.send);
         rv = (RecyclerViewWrapper) v.findViewById(R.id.rv);
         rv.setAdapter(adapter = new DialogAdapter());
         rv.layoutManager.setMsPerInch(200);
@@ -98,7 +111,30 @@ public class DialogFragment extends mFragment {
         Messages.callbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
-                // TODO: check for peer_id and add message if needed
+                // TODO: process action messages
+                if (msg.peer_id == peer_id) {
+                    Iterator<ObjectMessage> it = currentlySending.iterator();
+                    while (it.hasNext()) {
+                        ObjectMessage toSend = it.next();
+                        if (toSend.random_id == msg.random_id) {
+                            it.remove();
+                            for (int i = adapter.elements.size() - 1; i >= 0; i--) {
+                                if (adapter.elements.get(i) == toSend) {
+                                    toSend.isSending = false;
+                                    toSend.read_state = false;
+                                    adapter.notifyItemChanged(i);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    adapter.elements.add(msg);
+                    adapter.notifyItemInserted(adapter.elements.size() - 1);
+
+                    if (rv.onTheBottom())
+                        rv.smoothScrollToBottom();
+                }
             }
 
             @Override
@@ -111,6 +147,30 @@ public class DialogFragment extends mFragment {
             // TODO: check for user_id and if it's equals to peer_id, update online status
         });
 
+        send_button.setOnClickListener(b -> {
+            String s;
+            if (!(s = message_et.getEditableText().toString()).isEmpty()) {
+                message_et.getEditableText().clear();
+                ObjectMessage msg = new ObjectMessage(peer_id, Users.get().id, s);
+                msg.isSending = true;
+
+                adapter.elements.add(msg);
+                currentlySending.add(msg);
+                adapter.notifyItemInserted(adapter.elements.size() - 1);
+                if (rv.onTheBottom())
+                    rv.smoothScrollToBottom();
+
+                new Thread(() -> {
+                    try {
+                        Messages.send(msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        });
+
+        // load latest messages
         new Thread(() -> {
             try {
                 Messages.MessagesObject obj = Messages.getHistory(peer_id, 200, 0);
@@ -122,6 +182,7 @@ public class DialogFragment extends mFragment {
                         adapter.elements.add(0, message);
                     }
                     adapter.notifyItemRangeInserted(0, obj.messages.size());
+                    rv.scrollToBottom();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -182,12 +243,28 @@ public class DialogFragment extends mFragment {
             holder.container.removeAllViews();
             ObjectMessage message = elements.get(position);
             ObjectUser user = Users.get(message.user_id);
+
             if (holder.photo != null) {
                 holder.photo.setImageDrawable(null);
                 Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(holder.photo);
             }
+
             if (holder.title != null) {
                 holder.title.setText(user.getTitle());
+            }
+
+            if (holder.unread != null) {
+                if (message.read_state)
+                    holder.unread.setVisibility(View.GONE);
+                else
+                    holder.unread.setVisibility(View.VISIBLE);
+            }
+
+            if (holder.sending != null) {
+                if (message.isSending)
+                    holder.sending.setVisibility(View.VISIBLE);
+                else
+                    holder.sending.setVisibility(View.GONE);
             }
 
             if (!message.body.isEmpty()) {
@@ -220,6 +297,8 @@ public class DialogFragment extends mFragment {
         private ImageView photo;
         private TextView title;
         private LinearLayout container;
+        private View sending;
+        private View unread;
 
         public ViewHolder(View v) {
             super(v);
@@ -227,6 +306,8 @@ public class DialogFragment extends mFragment {
             photo = (ImageView) v.findViewById(R.id.photo);
             title = (TextView) v.findViewById(R.id.title);
             container = (LinearLayout) v.findViewById(R.id.container);
+            sending = v.findViewById(R.id.sending);
+            unread = v.findViewById(R.id.unread);
         }
     }
 

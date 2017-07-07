@@ -32,16 +32,6 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
         addView(layout);
     }
 
-/*    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-        int height = getMeasuredHeight();
-        if (height > 200 * dm.density)
-            height = (int) (200 * dm.density);
-        setMeasuredDimension(getMeasuredWidth(), height);
-    }*/
-
     public void add(AttachmentPhoto photo) {
         DisplayMetrics dm = getResources().getDisplayMetrics();
 
@@ -57,11 +47,8 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
 
         photos.add(photo);
         ImageView view = new ImageView(getContext());
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//        view.setLayoutParams(lp);
         view.setMaxHeight((int) (dm.density * 200));
         view.setAdjustViewBounds(true);
-//        view.setScaleType(ImageView.ScaleType.FIT_XY);
         Picasso.with(getContext()).load(photo.getBestURL()).into(view);
         layout.addView(view);
     }

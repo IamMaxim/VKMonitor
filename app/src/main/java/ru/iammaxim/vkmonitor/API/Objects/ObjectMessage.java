@@ -14,13 +14,16 @@ import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ObjectMessage {
+    public int random_id;
     public int id, user_id, peer_id = -1;
     public String title, body, photo;
     public JSONObject json;
     public long date;
     public int flags;
-    public boolean out, read_state, muted = false;
+    public boolean out, read_state = true, muted = false;
     public boolean isAction = false;
+    public boolean isSending = false;
+
     public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
 
     private static final int
@@ -36,6 +39,22 @@ public class ObjectMessage {
             MEDIA_FLAG = 512;
 
     public ObjectMessage() {
+    }
+
+    public ObjectMessage(int peer_id, int user_id, String body) {
+        this.peer_id = peer_id;
+        this.user_id = user_id;
+        this.body = body;
+
+        ObjectUser user = Users.get(user_id);
+
+        if (user_id == Users.get().id)
+            out = true;
+        else
+            out = false;
+        this.title = user.getTitle();
+        this.date = System.currentTimeMillis();
+        this.photo = user.photo_200;
     }
 
     public Spanned getFullBody() {
@@ -100,6 +119,9 @@ public class ObjectMessage {
             if (object.has("push_settings")) {
                 muted = object.getJSONObject("push_settings").getInt("sound") == 1;
             }
+
+            if (object.has("random_id"))
+                random_id = object.getInt("random_id");
 
             if (object.has("action")) {
                 isAction = true;

@@ -17,6 +17,13 @@ public class RecyclerViewWrapper extends RecyclerView {
         this(context, null);
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (onTheBottom())
+            scrollToBottom();
+    }
+
     public RecyclerViewWrapper(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
@@ -45,5 +52,9 @@ public class RecyclerViewWrapper extends RecyclerView {
     public void setAdapter(Adapter adapter) {
         this.adapter = adapter;
         super.setAdapter(adapter);
+    }
+
+    public boolean onTheBottom() {
+        return layoutManager.findLastVisibleItemPosition() > adapter.getItemCount() - 3;
     }
 }

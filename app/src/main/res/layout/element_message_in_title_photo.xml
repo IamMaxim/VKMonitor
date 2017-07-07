@@ -18,10 +18,10 @@
         android:layout_height="wrap_content"
         android:background="@drawable/element_message_bg_in"
         android:orientation="vertical"
-        android:layout_marginLeft="@dimen/element_message_margin_left"
-        android:layout_marginRight="@dimen/element_message_margin_right"
-        android:layout_marginTop="@dimen/element_message_margin_top"
-        android:layout_marginBottom="@dimen/element_message_margin_bottom">
+        android:layout_marginLeft="@dimen/element_message_in_margin_left"
+        android:layout_marginRight="@dimen/element_message_in_margin_right"
+        android:layout_marginTop="@dimen/element_message_in_margin_top"
+        android:layout_marginBottom="@dimen/element_message_in_margin_bottom">
 
         <TextView
             android:id="@+id/title"

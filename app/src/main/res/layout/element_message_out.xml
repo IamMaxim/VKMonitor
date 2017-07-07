@@ -5,15 +5,34 @@
     android:gravity="end"
     android:orientation="horizontal">
 
+    <ProgressBar
+        android:id="@+id/sending"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp" />
+
+    <FrameLayout
+        android:id="@+id/unread"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/element_message_unread_indicator" />
+
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/element_message_bg_out"
-        android:layout_marginLeft="@dimen/element_message_margin_left"
-        android:layout_marginRight="@dimen/element_message_margin_right"
-        android:layout_marginTop="@dimen/element_message_margin_top"
-        android:layout_marginBottom="@dimen/element_message_margin_bottom" />
+        android:orientation="vertical" />
 
 </LinearLayout>
