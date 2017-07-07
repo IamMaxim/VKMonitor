@@ -1,6 +1,5 @@
 package ru.iammaxim.vkmonitor.API.Objects;
 
-import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -8,16 +7,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Users.Users;
-import ru.iammaxim.vkmonitor.App;
 
 public class ObjectMessage {
-    public int id, from_id, peer_id = -1;
+    public int id, user_id, peer_id = -1;
     public String title, body, photo;
     public JSONObject json;
     public long date;
     public int flags;
     public boolean out, read_state, muted = false;
+    public boolean isAction = false;
+    public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
 
     private static final int
             READ_STATE_FLAG = 1,
@@ -74,13 +78,13 @@ public class ObjectMessage {
 
             if (object.has("chat_id")) {
                 peer_id = 2000000000 + object.getInt("chat_id");
-                from_id = object.getInt("user_id");
+                user_id = object.getInt("user_id");
             } else if (object.has("user_id")) {
                 peer_id = object.getInt("user_id");
                 if (out)
-                    from_id = Users.get().id;
+                    user_id = Users.get().id;
                 else
-                    from_id = peer_id;
+                    user_id = peer_id;
             }
 
             if (title == null || title.equals(" ... ") || title.equals("")) {
@@ -96,6 +100,40 @@ public class ObjectMessage {
             if (object.has("push_settings")) {
                 muted = object.getJSONObject("push_settings").getInt("sound") == 1;
             }
+
+            if (object.has("action")) {
+                isAction = true;
+                switch (object.getString("action")) {
+                    case "chat_photo_update":
+                        body = Users.get(user_id) + " updated chat photo";
+                        break;
+                    case "chat_photo_remove":
+                        body = Users.get(user_id) + " removed chat photo";
+                        break;
+                    case "chat_create":
+                        body = Users.get(user_id) + " created chat \"" + object.getString("action_text") + "\"";
+                        break;
+                    case "chat_title_update":
+                        body = Users.get(user_id) + " changed chat title to \"" + object.getString("action_text") + "\"";
+                        break;
+                    case "chat_invite_user":
+                        body = Users.get(user_id) + " invited " + Users.get(object.getInt("action_mid")).getTitle();
+                        break;
+                    case "chat_kick_user":
+                        body = Users.get(user_id) + " kicked " + Users.get(object.getInt("action_mid")).getTitle();
+                        break;
+                }
+            }
+
+            if (object.has("attachments")) {
+                JSONArray arr = object.getJSONArray("attachments");
+
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject o = arr.getJSONObject(i);
+                    if (o.getString("type").equals("photo"))
+                        photos.add(new AttachmentPhoto(o.getJSONObject("photo")));
+                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -104,26 +142,6 @@ public class ObjectMessage {
     public ObjectMessage(String json) throws JSONException {
         this(new JSONObject(json));
     }
-
-/*    public static ObjectMessage createFromLongPoll(JSONArray object) {
-        ObjectMessage message = new ObjectMessage();
-        try {
-            message.id = object.getInt(1);
-            message.processFlags(object.getInt(2));
-            message.from_id = object.getInt(3);
-            if (message.out)
-                message.user_id = AccessTokenManager.currentUser.id;
-            else
-                message.user_id = message.from_id;
-            message.date = object.getLong(4);
-            message.title = object.getString(5);
-            message.body = object.getString(6);
-            message.user_id = Integer.parseInt(object.getJSONObject(7).getString("from"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return message;
-    }*/
 
     public void processFlags() {
         read_state = !getFlag(flags, READ_STATE_FLAG);

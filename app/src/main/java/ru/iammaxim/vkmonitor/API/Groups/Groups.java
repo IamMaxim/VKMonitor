@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.API.Objects.ObjectGroup;
 import ru.iammaxim.vkmonitor.Net;

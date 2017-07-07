@@ -2,7 +2,6 @@ package ru.iammaxim.vkmonitor;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.Scanner;

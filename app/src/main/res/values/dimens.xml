@@ -7,4 +7,10 @@
     <dimen name="scroll_down_button_corner_radius">32dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="element_message_photo_size">48dp</dimen>
+    <dimen name="element_message_margin_left">4dp</dimen>
+    <dimen name="element_message_margin_right">4dp</dimen>
+    <dimen name="element_message_margin_top">2dp</dimen>
+    <dimen name="element_message_margin_bottom">4dp</dimen>
+    <dimen name="element_message_margin_left_and_photo">56dp</dimen>
 </resources>

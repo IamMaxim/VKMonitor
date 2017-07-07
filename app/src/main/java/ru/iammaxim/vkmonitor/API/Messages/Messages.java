@@ -29,6 +29,30 @@ public class Messages {
         needToUpdateDialogs = true;
     }
 
+    public static MessagesObject getHistory(int peer_id, int count, int offset) throws IOException, JSONException {
+        JSONObject object = new JSONObject(Net.processRequest("messages.getHistory", true, "peer_id=" + peer_id, "count=" + count, "offset=" + offset)).getJSONObject("response");
+        int _count = object.getInt("count");
+        JSONArray arr = object.getJSONArray("items");
+        ArrayList<ObjectMessage> msgs = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            msgs.add(new ObjectMessage(arr.getJSONObject(i)));
+        }
+        return new MessagesObject(_count, msgs);
+    }
+
+    public static class MessagesObject {
+        /**
+         *  total messages count
+         * NOTE: this is not messages.size()!
+         * */
+        public int count;
+        public ArrayList<ObjectMessage> messages;
+
+        public MessagesObject(int count, ArrayList<ObjectMessage> messages) {
+            this.count = count;
+            this.messages = messages;
+        }
+    }
 
     public interface OnMessagesUpdate {
         void onMessageGet(int prevDialogIndex, ObjectMessage msg);
@@ -69,7 +93,7 @@ public class Messages {
         dialog.message.body = arr.getString(6);
         JSONObject attachments = arr.getJSONObject(7);
         if (attachments.has("from"))
-            dialog.message.from_id = attachments.getInt("from");
+            dialog.message.user_id = attachments.getInt("from");
         dialogObjects.add(0, dialog);
 
         App.handler.post(() -> {

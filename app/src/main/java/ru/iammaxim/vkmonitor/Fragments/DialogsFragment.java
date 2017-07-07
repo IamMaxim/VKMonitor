@@ -158,8 +158,8 @@ public class DialogsFragment extends mFragment {
             new AsyncTask<Void, Void, ObjectUser>() {
                 @Override
                 protected ObjectUser doInBackground(Void[] params) {
-                    if (dialog.message.from_id != dialog.message.peer_id)
-                        return Users.get(dialog.message.from_id);
+                    if (dialog.message.user_id != dialog.message.peer_id)
+                        return Users.get(dialog.message.user_id);
                     else
                         return null;
                 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/element_message_bg_in"
+        android:layout_marginLeft="@dimen/element_message_margin_left"
+        android:layout_marginRight="@dimen/element_message_margin_right"
+        android:layout_marginTop="@dimen/element_message_margin_top"
+        android:layout_marginBottom="@dimen/element_message_margin_bottom" />
+
+</LinearLayout>

@@ -5,7 +5,7 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background"
+    android:background="#EBF0F4"
     android:fitsSystemWindows="true"
     tools:context="ru.iammaxim.vkmonitor.Activities.LogActivity">
 

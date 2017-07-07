@@ -1,11 +1,7 @@
 package ru.iammaxim.vkmonitor.Views;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.ImageButton;
-
-import ru.iammaxim.vkmonitor.R;
 
 /**
  * Created by maxim on 14.09.2016.

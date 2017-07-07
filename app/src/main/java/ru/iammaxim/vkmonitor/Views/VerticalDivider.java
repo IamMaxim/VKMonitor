@@ -11,26 +11,30 @@ import android.view.View;
  * Created by maxim on 12/5/16.
  */
 
-public class Divider extends View {
+public class VerticalDivider extends View {
     private Paint p;
 
-    public Divider(Context context) {
+    public VerticalDivider(Context context) {
         this(context, null);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = getMeasuredWidth();
+        int height = getMeasuredHeight();
         DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-        setMeasuredDimension(width, (int) dm.density); // 1 dp height
+        setMeasuredDimension((int) dm.density, height); // 1 dp width
     }
 
-    public Divider(Context context, AttributeSet attrs) {
+    public VerticalDivider(Context context, AttributeSet attrs) {
         super(context, attrs);
         p = new Paint();
         p.setStyle(Paint.Style.FILL);
         p.setColor(0x1F000000);
+    }
+
+    public void setColor(int color) {
+        p.setColor(color);
     }
 
     @Override
