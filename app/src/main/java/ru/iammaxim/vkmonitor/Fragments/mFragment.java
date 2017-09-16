@@ -23,6 +23,8 @@ public class mFragment extends Fragment {
                 }
 
                 public void onAnimationEnd(Animation animation) {
+                    if (getView() == null)
+                        return;
                     getView().setLayerType(View.LAYER_TYPE_NONE, null);
                 }
 

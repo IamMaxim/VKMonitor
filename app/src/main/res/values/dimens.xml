@@ -13,4 +13,7 @@
     <dimen name="element_message_in_margin_top">2dp</dimen>
     <dimen name="element_message_in_margin_bottom">2dp</dimen>
     <dimen name="element_message_in_margin_left_and_photo">56dp</dimen>
+    <dimen name="messageDateMarginBottom">5dp</dimen>
+    <dimen name="messageDateMarginEnd">8dp</dimen>
+    <dimen name="element_message_out_margin_right">4dp</dimen>
 </resources>

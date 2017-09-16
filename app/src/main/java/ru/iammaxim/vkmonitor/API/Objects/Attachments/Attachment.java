@@ -5,4 +5,9 @@ package ru.iammaxim.vkmonitor.API.Objects.Attachments;
  */
 
 public class Attachment {
+    public String type;
+
+    public Attachment(String type) {
+        this.type = type;
+    }
 }

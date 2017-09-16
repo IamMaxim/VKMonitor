@@ -1,11 +1,12 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
@@ -23,15 +24,18 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.Views.Divider;
 import ru.iammaxim.vkmonitor.Views.ForwardedMessagesLine;
 import ru.iammaxim.vkmonitor.Views.ImprovedTextView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
@@ -44,6 +48,7 @@ public class DialogFragment extends mFragment {
     private Messages.OnMessagesUpdate messagesCallback;
     private Users.OnUsersUpdate usersCallback;
     private ObjectUser user;
+    private CoordinatorLayout layout;
 
     private ImageView photo;
     private TextView title;
@@ -84,34 +89,41 @@ public class DialogFragment extends mFragment {
         user = Users.get(peer_id);
 
         // detect if this is multiDialog (needed for proper message display)
-        if (peer_id > 2000000000)
-            isChat = true;
-        else isChat = false;
+        isChat = peer_id > 2000000000;
 
         View v = inflater.inflate(R.layout.fragment_dialog, container, false);
 
 
         // setup toolbar
         View mToolbarView = inflater.inflate(R.layout.toolbar_dialog, container, false);
-        photo = (ImageView) mToolbarView.findViewById(R.id.photo);
-        title = (TextView) mToolbarView.findViewById(R.id.title);
-        subtitle = (TextView) mToolbarView.findViewById(R.id.subtitle);
+        photo = mToolbarView.findViewById(R.id.photo);
+        title = mToolbarView.findViewById(R.id.title);
+        subtitle = mToolbarView.findViewById(R.id.subtitle);
         title.setText(user.getTitle());
         subtitle.setText("Subtitle");
         Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(photo);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.addView(mToolbarView);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        count_tv = (TextView) v.findViewById(R.id.count);
-        message_et = (EditText) v.findViewById(R.id.message_et);
+        layout = v.findViewById(R.id.layout);
+        count_tv = v.findViewById(R.id.count);
+        message_et = v.findViewById(R.id.message_et);
         send_button = v.findViewById(R.id.send);
-        rv = (RecyclerViewWrapper) v.findViewById(R.id.rv);
+        rv = v.findViewById(R.id.rv);
         rv.setAdapter(adapter = new DialogAdapter());
         rv.layoutManager.setMsPerInch(200);
+
+
+/*        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chat_bg1, options);
+        BitmapDrawable d = new BitmapDrawable(getResources(), bitmap);*/
+        layout.setBackgroundResource(R.drawable.chat_bg);
+
 
         Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
@@ -279,20 +291,36 @@ public class DialogFragment extends mFragment {
                     holder.sending.setVisibility(View.GONE);
             }
 
+            if (holder.date != null) {
+                holder.date.setText(App.timeSDF.format(new Date(message.date)));
+            }
+
             if (!message.body.isEmpty()) {
                 holder.container.addView(getBodyTextView(message.body));
             }
 
-            if (message.photos.size() > 0) { // add photo attachments
-                ScrollablePhotoArray spa = new ScrollablePhotoArray(getContext());
-                for (AttachmentPhoto p : message.photos) {
-                    spa.add(p);
-                }
-                holder.container.addView(spa);
-            }
+            addAttachments(message, holder.container);
 
             if (message.forwards.size() > 0) { // add forwarded messages
                 holder.container.addView(createForwards(message));
+            }
+        }
+
+        private void addAttachments(ObjectMessage msg, LinearLayout layout) {
+            if (msg.photos.size() > 0) { // add photo attachments
+                ScrollablePhotoArray spa = new ScrollablePhotoArray(getContext());
+                for (AttachmentPhoto p : msg.photos) {
+                    spa.add(p);
+                }
+                layout.addView(spa);
+            }
+
+            if (msg.otherAttachments.size() > 0) {
+                for (Attachment a : msg.otherAttachments) {
+                    TextView tv = new TextView(layout.getContext());
+                    tv.setText(Html.fromHtml("<font color=\"#9fc6f2\">" + a.type + "</font>"));
+                    layout.addView(tv);
+                }
             }
         }
 
@@ -309,16 +337,23 @@ public class DialogFragment extends mFragment {
             layout.addView(layout1);
 
             for (int i = 0; i < msg.forwards.size(); i++) {
+                boolean isUpper = false;
                 ObjectMessage message = msg.forwards.get(i);
-                if (i == 0 || elements.get(i - 1).user_id != message.user_id) { // upper
+                if (i == 0 || msg.forwards.get(i - 1).user_id != message.user_id) { // upper
                     layout1.addView(getFwdMessagesHeader(message));
+                    isUpper = true;
                 }
+
                 if (!message.body.isEmpty()) {
                     TextView body = getBodyTextView(message.body);
-                    LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    lp1.setMargins(dpToPx(2), 0, 0, 0);
+                    /*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    params.setMargins(0, isUpper ? dpToPx(4) : 0, 0, 0);
+                    body.setLayoutParams(params);*/
                     layout1.addView(body);
                 }
+
+                addAttachments(message, layout1);
+
                 if (message.forwards.size() > 0) {
                     layout1.addView(createForwards(message));
                 }
@@ -376,15 +411,17 @@ public class DialogFragment extends mFragment {
         private LinearLayout container;
         private View sending;
         private View unread;
+        private TextView date;
 
-        public ViewHolder(View v) {
+        ViewHolder(View v) {
             super(v);
 
-            photo = (ImageView) v.findViewById(R.id.photo);
-            title = (TextView) v.findViewById(R.id.title);
-            container = (LinearLayout) v.findViewById(R.id.container);
+            photo = v.findViewById(R.id.photo);
+            title = v.findViewById(R.id.title);
+            container = v.findViewById(R.id.container);
             sending = v.findViewById(R.id.sending);
             unread = v.findViewById(R.id.unread);
+            date = v.findViewById(R.id.date);
         }
     }
 
@@ -395,7 +432,7 @@ public class DialogFragment extends mFragment {
 
     private TextView getBodyTextView(String body) {
         ImprovedTextView tv = new ImprovedTextView(getContext());
-        tv.setTextColor(0xff000000);
+        tv.setTextColor(getResources().getColor(R.color.messageTextColor));
         tv.setTextSize(15);
         tv.setText(body);
         return tv;

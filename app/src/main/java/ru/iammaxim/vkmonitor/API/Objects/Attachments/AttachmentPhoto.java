@@ -12,7 +12,7 @@ import java.util.Iterator;
  * Created by maxim on 07.07.2017.
  */
 
-public class AttachmentPhoto {
+public class AttachmentPhoto extends Attachment {
     public int id;
     public int album_id;
     public int owner_id;
@@ -25,6 +25,7 @@ public class AttachmentPhoto {
     private int best = -1;
 
     public AttachmentPhoto(JSONObject object) throws JSONException {
+        super("photo");
         id = object.getInt("id");
         album_id = object.getInt("album_id");
         owner_id = object.getInt("owner_id");

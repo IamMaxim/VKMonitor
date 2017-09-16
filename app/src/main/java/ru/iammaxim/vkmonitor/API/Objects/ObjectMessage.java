@@ -26,6 +26,7 @@ public class ObjectMessage {
 
     public ArrayList<ObjectMessage> forwards = new ArrayList<>();
     public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
+    public ArrayList<Attachment> otherAttachments = new ArrayList<>();
 
     private static final int
             READ_STATE_FLAG = 1,
@@ -160,8 +161,12 @@ public class ObjectMessage {
 
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject o = arr.getJSONObject(i);
-                    if (o.getString("type").equals("photo"))
+                    String type = o.getString("type");
+
+                    if (type.equals("photo"))
                         photos.add(new AttachmentPhoto(o.getJSONObject("photo")));
+                    else
+                        this.otherAttachments.add(new Attachment(type));
                 }
             }
         } catch (JSONException e) {
