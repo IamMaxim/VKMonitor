@@ -18,13 +18,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,7 +131,7 @@ public class DialogFragment extends mFragment {
         rv = v.findViewById(R.id.rv);
         rv.setAdapter(adapter = new DialogAdapter());
         rv.layoutManager.setMsPerInch(200);
-        rv.initOnScrollListener();
+        rv.initOnScrolledToTopListener();
 
 
         layout.setBackgroundResource(R.drawable.chat_bg);

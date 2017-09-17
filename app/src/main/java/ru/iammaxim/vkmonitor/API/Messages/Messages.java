@@ -219,6 +219,31 @@ public class Messages {
         }
     }
 
+
+    /**
+     * @return actual count of dialogs loaded
+     */
+    public static int loadAdditionalDialogs() {
+        if (dialogsCount == dialogObjects.size())
+            return 0;
+
+        try {
+            JSONObject o = new JSONObject(Net.processRequest("messages.getDialogs", true, "count=200", "offset=" + dialogObjects.size())).getJSONObject("response");
+            dialogsCount = o.getInt("count");
+            JSONArray arr = o.getJSONArray("items");
+            for (int i = 0; i < arr.length(); i++) {
+                ObjectDialog dialog = new ObjectDialog(arr.getJSONObject(i));
+                dialogObjects.add(dialog);
+            }
+            return arr.length();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public interface OnMessagesUpdate {
         void onMessageGet(int prevDialogIndex, ObjectMessage msg);
 

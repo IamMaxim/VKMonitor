@@ -65,6 +65,30 @@ public class DialogsFragment extends mFragment {
         rv.layoutManager.setMsPerInch(200);
         count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
 
+
+        rv.initOnScrolledToBottomListener();
+        rv.onScrolledToBottom = () ->
+                new AsyncTask<Void, Void, Void>() {
+                    int oldCount, loaded;
+
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        oldCount = rv.adapter.getItemCount();
+                        loaded = Messages.loadAdditionalDialogs();
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        if (loaded == 0)
+                            return;
+
+                        ((DialogsAdapter) rv.adapter).elements = Messages.dialogObjects;
+                        rv.adapter.notifyItemRangeInserted(oldCount, loaded);
+                    }
+                }.execute();
+
+
         Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {

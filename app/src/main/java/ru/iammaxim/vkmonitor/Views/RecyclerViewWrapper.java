@@ -14,17 +14,28 @@ public class RecyclerViewWrapper extends RecyclerView {
     public Adapter adapter;
     public ImprovedLinearLayoutManager layoutManager;
     public Runnable onScrolledToTop;
+    public Runnable onScrolledToBottom;
 
     public RecyclerViewWrapper(Context context) {
         this(context, null);
     }
 
-    public void initOnScrollListener() {
+    public void initOnScrolledToTopListener() {
         addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (onScrolledToTop != null && layoutManager.findFirstVisibleItemPosition() == 0)
                     onScrolledToTop.run();
+            }
+        });
+    }
+
+    public void initOnScrolledToBottomListener() {
+        addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (onScrolledToBottom != null && layoutManager.findLastVisibleItemPosition() == adapter.getItemCount() - 1)
+                    onScrolledToBottom.run();
             }
         });
     }
