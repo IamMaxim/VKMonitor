@@ -29,25 +29,43 @@ public class Users {
     }
 
     public static ObjectUser get(int id) {
-        if (id > 2000000000) {
+/*        if (id > 2000000000) {
             ObjectUser user = new ObjectUser();
             user.first_name = "Chat";
             user.last_name = String.valueOf(id - 2000000000);
             return user;
-        }
-        ObjectUser user = UserDB.get(id);
+        }*/
+
+        // It's a group
         if (id < 0) {
             return Groups.getById(-id).asUser();
         }
+
+        ObjectUser user = UserDB.get(id);
         if (user == null) {
             try {
-                user = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
-                UserDB.add(user);
-            } catch (IOException e) {
+                ObjectUser u;
+                if (id > 2000000000) {
+                    u = new ObjectUser();
+                    u.id = id;
+                    u.isChat = true;
+                    String str = Net.processRequest("messages.getChat", true, "chat_id=" + (id - 2000000000));
+                    System.out.println(str);
+                    JSONObject o = new JSONObject(str).getJSONObject("response");
+                    u.chat_title = o.getString("title");
+                    if (o.has("photo_200"))
+                        u.photo_200 = o.getString("photo_200");
+                } else
+                    u = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
+                UserDB.add(u);
+                user = u;
+            } catch (Exception e) {
                 e.printStackTrace();
-            } catch (JSONException e) {
                 System.err.println("Error occurred while updating user " + id);
                 System.err.println(TextUtils.join("\n", e.getStackTrace()));
+                user = new ObjectUser();
+                user.first_name = "Error";
+                user.last_name = "Error";
             }
         }
         return user;

@@ -42,27 +42,27 @@ public class RequestGeneratorMain extends AppCompatActivity {
         setContentView(R.layout.activity_request_generator);
         context = this;
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        et1 = (EditText) findViewById(R.id.et1);
-        et2 = (EditText) findViewById(R.id.et2);
-        et4 = (EditText) findViewById(R.id.et4);
-        et5 = (EditText) findViewById(R.id.et5);
-        et6 = (EditText) findViewById(R.id.et6);
-        et7 = (EditText) findViewById(R.id.et7);
-        et8 = (EditText) findViewById(R.id.et8);
-        et9 = (EditText) findViewById(R.id.et9);
-        b1 = (Button) findViewById(R.id.b1);
-        tv1 = (TextView) findViewById(R.id.tv1);
-        b2 = (Button) findViewById(R.id.b2);
+        et1 = findViewById(R.id.et1);
+        et2 = findViewById(R.id.et2);
+        et4 = findViewById(R.id.et4);
+        et5 = findViewById(R.id.et5);
+        et6 = findViewById(R.id.et6);
+        et7 = findViewById(R.id.et7);
+        et8 = findViewById(R.id.et8);
+        et9 = findViewById(R.id.et9);
+        b1 = findViewById(R.id.b1);
+        tv1 = findViewById(R.id.tv1);
+        b2 = findViewById(R.id.b2);
         tv1.setOnClickListener(v -> {
             AlertDialog dialog = new AlertDialog.Builder(RequestGeneratorMain.context).create();
             dialog.setMessage(tv1.getText());
             dialog.show();
         });
-        objs_container = (LinearLayout) findViewById(R.id.objs_container);
+        objs_container = findViewById(R.id.objs_container);
         b1.setOnClickListener(v -> new RunMethod().execute());
         b2.setOnClickListener(v -> objs_container.removeAllViews());
     }

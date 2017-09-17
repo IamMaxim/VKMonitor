@@ -21,6 +21,7 @@ import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 public class ScrollablePhotoArray extends HorizontalScrollView {
     private ArrayList<AttachmentPhoto> photos = new ArrayList<>();
     private LinearLayout layout;
+    private int height;
 
     public ScrollablePhotoArray(Context context) {
         super(context);
@@ -28,7 +29,8 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
         setLayoutParams(lp);
         setPadding(0, dpToPx(2), 0, dpToPx(2));
 
-        setMinimumHeight(dpToPx(204));
+        height = 204;
+        setMinimumHeight(dpToPx(height));
         layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         addView(layout);
@@ -47,9 +49,14 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
             layout.addView(divider);
         }
 
+        if (photo.height < height - 4) {
+            height = photo.height + 4;
+            setMinimumHeight(height);
+        }
+
         photos.add(photo);
         ImageView view = new ImageView(getContext());
-        view.setMaxHeight((int) (dm.density * 200));
+        view.setMaxHeight((int) (dm.density * height));
         view.setAdjustViewBounds(true);
         Picasso.with(getContext()).load(photo.getBestURL()).into(view);
         layout.addView(view);

@@ -93,7 +93,16 @@ public class UserDB {
                 FileOutputStream fos = new FileOutputStream(file);
                 JSONArray json = new JSONArray();
                 for (ObjectUser user : userDB.values()) {
-                    json.put(new JSONObject().put("id", user.id).put("first_name", user.first_name).put("last_name", user.last_name).put("photo_200", user.photo_200));
+                    JSONObject o = new JSONObject()
+                            .put("id", user.id)
+                            .put("first_name", user.first_name)
+                            .put("last_name", user.last_name)
+                            .put("photo_200", user.photo_200);
+
+                    if (user.isChat)
+                        o.put("chat_title", user.chat_title);
+
+                    json.put(o);
                 }
                 fos.write(json.toString().getBytes());
                 fos.close();

@@ -55,12 +55,12 @@ public class DialogsFragment extends mFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_dialogs, container, false);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         toolbar.setTitle("Dialogs");
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        count_tv = (TextView) v.findViewById(R.id.count);
-        rv = (RecyclerViewWrapper) v.findViewById(R.id.rv);
+        count_tv = v.findViewById(R.id.count);
+        rv = v.findViewById(R.id.rv);
         rv.setAdapter(new DialogsAdapter());
         rv.layoutManager.setMsPerInch(200);
         count_tv.setText(getString(R.string.message_count, Messages.dialogsCount));
@@ -202,13 +202,13 @@ public class DialogsFragment extends mFragment {
         ViewHolder(View v) {
             super(v);
             parent = v;
-            title = (TextView) v.findViewById(R.id.title);
-            body = (TextView) v.findViewById(R.id.body);
-            date = (TextView) v.findViewById(R.id.date);
-            photo = (ImageView) v.findViewById(R.id.photo);
-            photoBg = (PhotoBgView) v.findViewById(R.id.photo_bg);
-            from_photo = (ImageView) v.findViewById(R.id.from_photo);
-            unread = (TextView) v.findViewById(R.id.unread);
+            title = v.findViewById(R.id.title);
+            body = v.findViewById(R.id.body);
+            date = v.findViewById(R.id.date);
+            photo = v.findViewById(R.id.photo);
+            photoBg = v.findViewById(R.id.photo_bg);
+            from_photo = v.findViewById(R.id.from_photo);
+            unread = v.findViewById(R.id.unread);
         }
     }
 

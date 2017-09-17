@@ -55,10 +55,10 @@ public class ChangeFilterFragment extends mFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_change_filter, container, false);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        rv = (RecyclerView) v.findViewById(R.id.rv);
+        rv = v.findViewById(R.id.rv);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         rv.setAdapter(adapter);
         return v;
@@ -101,9 +101,9 @@ public class ChangeFilterFragment extends mFragment {
 
             ViewHolder(View itemView) {
                 super(itemView);
-                photo = (ImageView) itemView.findViewById(R.id.photo);
-                name = (TextView) itemView.findViewById(R.id.name);
-                cb = (CheckBox) itemView.findViewById(R.id.cb);
+                photo = itemView.findViewById(R.id.photo);
+                name = itemView.findViewById(R.id.name);
+                cb = itemView.findViewById(R.id.cb);
             }
         }
     }

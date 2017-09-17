@@ -10,36 +10,35 @@
         android:layout_width="@dimen/element_message_photo_size"
         android:layout_height="@dimen/element_message_photo_size"
         android:layout_gravity="top"
-        android:layout_marginTop="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_weight="0"/>
+        android:layout_marginTop="4dp"
+        android:layout_weight="0" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/element_message_bg_in"
-        android:orientation="vertical"
-        android:layout_weight="1"
+        android:layout_marginBottom="@dimen/element_message_in_margin_bottom"
         android:layout_marginLeft="@dimen/element_message_in_margin_left"
         android:layout_marginRight="@dimen/element_message_in_margin_right"
         android:layout_marginTop="@dimen/element_message_in_margin_top"
-        android:layout_marginBottom="@dimen/element_message_in_margin_bottom">
+        android:layout_weight="1"
+        android:background="@drawable/element_message_bg_in"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/element_message_title_color"
-            android:textStyle="bold"
-            tools:text="Sender name"
             android:textSize="13sp"
-            />
+            android:textStyle="bold"
+            tools:text="Sender name" />
 
         <LinearLayout
             android:id="@+id/container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical" />
 
     </LinearLayout>
 
@@ -47,11 +46,12 @@
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        tools:text="date"
-        android:maxLines="1"
-        android:textColor="@color/messageDateColor"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/messageDateMarginBottom"
-        android:layout_marginRight="@dimen/messageDateMarginEnd"/>
+        android:layout_marginRight="@dimen/messageDateMarginEnd"
+        android:layout_weight="0"
+        android:maxLines="1"
+        android:textColor="@color/messageDateColor"
+        android:textSize="12sp"
+        tools:text="date" />
 </LinearLayout>

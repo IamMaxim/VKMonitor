@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentSticker;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ObjectMessage {
@@ -26,6 +27,7 @@ public class ObjectMessage {
 
     public ArrayList<ObjectMessage> forwards = new ArrayList<>();
     public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
+    public ArrayList<AttachmentSticker> stickers = new ArrayList<>();
     public ArrayList<Attachment> otherAttachments = new ArrayList<>();
 
     private static final int
@@ -50,10 +52,7 @@ public class ObjectMessage {
 
         ObjectUser user = Users.get(user_id);
 
-        if (user_id == Users.get().id)
-            out = true;
-        else
-            out = false;
+        out = user_id == Users.get().id;
         this.title = user.getTitle();
         this.date = System.currentTimeMillis();
         this.photo = user.photo_200;
@@ -165,6 +164,8 @@ public class ObjectMessage {
 
                     if (type.equals("photo"))
                         photos.add(new AttachmentPhoto(o.getJSONObject("photo")));
+                    else if (type.equals("sticker"))
+                        stickers.add(new AttachmentSticker(o.getJSONObject("sticker")));
                     else
                         this.otherAttachments.add(new Attachment(type));
                 }

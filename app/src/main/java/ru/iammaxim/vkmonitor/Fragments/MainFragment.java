@@ -35,9 +35,9 @@ public class MainFragment extends mFragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        state = (TextView) v.findViewById(R.id.state);
+        state = v.findViewById(R.id.state);
         start = v.findViewById(R.id.start);
         stop = v.findViewById(R.id.stop);
 

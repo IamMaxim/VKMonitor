@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/element_message_bg_in"
-        android:layout_weight="1"
+        android:layout_marginBottom="@dimen/element_message_in_margin_bottom"
         android:layout_marginLeft="@dimen/element_message_in_margin_left"
         android:layout_marginRight="@dimen/element_message_in_margin_right"
         android:layout_marginTop="@dimen/element_message_in_margin_top"
-        android:layout_marginBottom="@dimen/element_message_in_margin_bottom" >
+        android:layout_weight="1"
+        android:background="@drawable/element_message_bg_in"
+        android:orientation="vertical">
 
     </LinearLayout>
 
@@ -23,12 +23,13 @@
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        tools:text="date"
-        android:maxLines="1"
-        android:textColor="@color/messageDateColor"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/messageDateMarginBottom"
-        android:layout_marginRight="@dimen/messageDateMarginEnd"/>
+        android:layout_marginRight="@dimen/messageDateMarginEnd"
+        android:layout_weight="0"
+        android:maxLines="1"
+        android:textColor="@color/messageDateColor"
+        android:textSize="12sp"
+        tools:text="date" />
 
 </LinearLayout>

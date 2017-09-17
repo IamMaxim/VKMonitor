@@ -3,13 +3,18 @@ package ru.iammaxim.vkmonitor.API.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
+import ru.iammaxim.vkmonitor.Net;
+
 /**
  * Created by Maxim on 20.06.2016.
  */
 public class ObjectUser {
+    public boolean isChat = false;
     public boolean online = false;
     public int id, platform = 0;
-    public String first_name, last_name, photo_200;
+    public String chat_title, first_name, last_name, photo_200;
 
     public ObjectUser() {
     }
@@ -31,6 +36,19 @@ public class ObjectUser {
     private void load(JSONObject json) {
         try {
             id = json.getInt("id");
+            if (id > 2000000000) {
+                isChat = true;
+                if (json.has("chat_title"))
+                    chat_title = json.getString("chat_title");
+                else {
+                    try {
+                        JSONObject o = new JSONObject(Net.processRequest("messages.getChat", true, "chat_id=" + (id - 2000000000))).getJSONObject("response");
+                        chat_title = o.getString("title");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             first_name = json.getString("first_name");
             last_name = json.getString("last_name");
             if (json.has("photo_200"))
@@ -48,7 +66,10 @@ public class ObjectUser {
     }
 
     public String getTitle() {
-        return first_name + " " + last_name;
+        if (isChat)
+            return chat_title;
+        else
+            return first_name + " " + last_name;
     }
 
     public void setStatus(boolean online, int platform) {

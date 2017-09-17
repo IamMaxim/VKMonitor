@@ -46,7 +46,7 @@ public class AccessTokenManagerFragment extends mFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //setup FAB
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        FloatingActionButton fab = getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             AccessTokenManager.Token token = new AccessTokenManager.Token("", "", false);
             adapter.elements.add(token);
@@ -63,10 +63,10 @@ public class AccessTokenManagerFragment extends mFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_access_token_manager, container, false);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        rv = (RecyclerView) v.findViewById(R.id.rv);
+        rv = v.findViewById(R.id.rv);
         layoutManager = new LinearLayoutManager(getContext());
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
@@ -170,10 +170,10 @@ public class AccessTokenManagerFragment extends mFragment {
 
             public ViewHolder(View v) {
                 super(v);
-                bg = (ImageView) v.findViewById(R.id.bg);
-                setActive = (Button) v.findViewById(R.id.set_active);
-                name = (EditText) v.findViewById(R.id.et_name);
-                token = (EditText) v.findViewById(R.id.et_token);
+                bg = v.findViewById(R.id.bg);
+                setActive = v.findViewById(R.id.set_active);
+                name = v.findViewById(R.id.et_name);
+                token = v.findViewById(R.id.et_token);
             }
         }
     }

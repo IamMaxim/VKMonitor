@@ -58,15 +58,15 @@ public class LogFragment extends mFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_log, container, false);
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        log = (RecyclerViewWrapper) v.findViewById(R.id.rv);
+        log = v.findViewById(R.id.rv);
         log.setAdapter(new Adapter());
         log.layoutManager.setMsPerInch(150);
-        FloatingActionButton scrollDownButton = (FloatingActionButton) v.findViewById(R.id.scroll_down);
+        FloatingActionButton scrollDownButton = v.findViewById(R.id.scroll_down);
         scrollDownButton.setOnClickListener(v1 -> log.scrollToBottom());
-        connectionStatus = (TextView) v.findViewById(R.id.connectionStatus);
+        connectionStatus = v.findViewById(R.id.connectionStatus);
         if (isServiceRunning(LongPollService.class)) {
             connectionStatus.setText(R.string.status_connected);
             connectionStatus.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
@@ -102,7 +102,7 @@ public class LogFragment extends mFragment {
                 getActivity().runOnUiThread(() -> {
                     if (getView() == null)
                         return;
-                    final ProgressBar pb = (ProgressBar) getView().findViewById(R.id.progressBar);
+                    final ProgressBar pb = getView().findViewById(R.id.progressBar);
                     pb.animate().scaleX(0).scaleY(0).setDuration(300).withEndAction(() -> pb.setVisibility(View.GONE)).start();
                     log.scrollToBottom();
                     log.stopScroll();
@@ -346,14 +346,14 @@ public class LogFragment extends mFragment {
 
             public ViewHolder(View itemView) {
                 super(itemView);
-                photo = (ImageView) itemView.findViewById(R.id.photo);
-                upperConnector = (ImageView) itemView.findViewById(R.id.upperConnector);
-                lowerConnector = (ImageView) itemView.findViewById(R.id.lowerConnector);
-                name = (TextView) itemView.findViewById(R.id.name);
-                description = (TextView) itemView.findViewById(R.id.description);
-                date = (TextView) itemView.findViewById(R.id.date);
-                time = (TextView) itemView.findViewById(R.id.time);
-                photoBg = (PhotoBgView) itemView.findViewById(R.id.photo_bg);
+                photo = itemView.findViewById(R.id.photo);
+                upperConnector = itemView.findViewById(R.id.upperConnector);
+                lowerConnector = itemView.findViewById(R.id.lowerConnector);
+                name = itemView.findViewById(R.id.name);
+                description = itemView.findViewById(R.id.description);
+                date = itemView.findViewById(R.id.date);
+                time = itemView.findViewById(R.id.time);
+                photoBg = itemView.findViewById(R.id.photo_bg);
             }
         }
     }

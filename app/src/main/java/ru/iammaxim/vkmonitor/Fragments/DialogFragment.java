@@ -1,6 +1,8 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
+import android.annotation.SuppressLint;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,7 @@ import java.util.Iterator;
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentSticker;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
@@ -83,10 +86,10 @@ public class DialogFragment extends mFragment {
         Users.callbacks.remove(usersCallback);
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.peer_id = getArguments().getInt("peer_id");
-        user = Users.get(peer_id);
 
         // detect if this is multiDialog (needed for proper message display)
         isChat = peer_id > 2000000000;
@@ -99,15 +102,26 @@ public class DialogFragment extends mFragment {
         photo = mToolbarView.findViewById(R.id.photo);
         title = mToolbarView.findViewById(R.id.title);
         subtitle = mToolbarView.findViewById(R.id.subtitle);
-        title.setText(user.getTitle());
-        subtitle.setText("Subtitle");
-        Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(photo);
         Toolbar toolbar = v.findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.addView(mToolbarView);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                user = Users.get(peer_id);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                title.setText(user.getTitle());
+                subtitle.setText("Subtitle");
+                Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(photo);
+            }
+        }.execute();
 
         layout = v.findViewById(R.id.layout);
         count_tv = v.findViewById(R.id.count);
@@ -307,12 +321,24 @@ public class DialogFragment extends mFragment {
         }
 
         private void addAttachments(ObjectMessage msg, LinearLayout layout) {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+
             if (msg.photos.size() > 0) { // add photo attachments
                 ScrollablePhotoArray spa = new ScrollablePhotoArray(getContext());
                 for (AttachmentPhoto p : msg.photos) {
                     spa.add(p);
                 }
                 layout.addView(spa);
+            }
+
+            if (msg.stickers.size() > 0) {
+                for (AttachmentSticker sticker : msg.stickers) {
+                    ImageView iv = new ImageView(getContext());
+                    iv.setMaxHeight((int) (sticker.height * dm.density));
+                    iv.setMinimumHeight((int) (sticker.height * dm.density));
+                    Picasso.with(getContext()).load(sticker.getBestURL()).into(iv);
+                    layout.addView(iv);
+                }
             }
 
             if (msg.otherAttachments.size() > 0) {
