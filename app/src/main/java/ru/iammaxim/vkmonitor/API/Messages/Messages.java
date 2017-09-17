@@ -25,6 +25,7 @@ public class Messages {
     public static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
     public static ArrayList<OnDialogsUpdate> dialogCallbacks = new ArrayList<>();
     private static boolean needToUpdateDialogs = true;
+    private static final Object sendLock = new Object();
 
     public static void setNeedToUpdateDialogs() {
         needToUpdateDialogs = true;
@@ -42,12 +43,13 @@ public class Messages {
     }
 
     public static void send(ObjectMessage msg) throws IOException {
-        msg.random_id = (int) (Math.random() * Integer.MAX_VALUE);
-        // TODO: implement attachments support
-        Net.processRequest("messages.send", true,
-                "peer_id=" + msg.peer_id,
-                "message=" + msg.body,
-                "random_id=" + msg.random_id);
+        synchronized (sendLock) {
+            // TODO: implement attachments support
+            Net.processRequest("messages.send", true,
+                    "peer_id=" + msg.peer_id,
+                    "message=" + msg.body,
+                    "random_id=" + msg.random_id);
+        }
     }
 
     public static void processLongPollMessage(int update_code, JSONArray arr) {
@@ -84,6 +86,7 @@ public class Messages {
         JSONObject attachments = arr.getJSONObject(7);
         if (attachments.has("from"))
             dialog.message.user_id = attachments.getInt("from");
+        dialog.message.random_id = arr.getInt(8);
         dialogObjects.add(0, dialog);
 
         App.handler.post(() -> {

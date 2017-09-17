@@ -126,7 +126,7 @@ public class LongPollService extends Service {
         }
 
         private void processLongPollMessage() throws IOException, JSONException {
-            String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=74");
+            String json = Net.processRequest("https://" + currentLongPollServer.server + "?act=a_check&key=" + currentLongPollServer.key + "&ts=" + currentLongPollServer.ts + "&wait=50&mode=202");
             System.out.println(json);
             if (isInterrupted()) return;
             JSONObject o = new JSONObject(json);

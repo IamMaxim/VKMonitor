@@ -72,7 +72,6 @@ public class Users {
     }
 
     public static void processLongPollMessage(int update_code, JSONArray arr) {
-        System.out.println("processing long poll update in Users");
         try {
             switch (update_code) {
                 case 8:

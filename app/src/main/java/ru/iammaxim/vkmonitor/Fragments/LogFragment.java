@@ -152,7 +152,7 @@ public class LogFragment extends mFragment {
                             try {
                                 log.adapter.notifyItemInserted(log.adapter.getItemCount() - 1);
                                 log.adapter.notifyItemChanged(log.adapter.getItemCount() - 2);
-                                if (log.onTheBottom())
+                                if (log.nearTheBottom())
                                     log.layoutManager.smoothScrollToPosition(log, null, log.adapter.getItemCount() - 1);
                             } catch (NullPointerException e) {
                             }

@@ -38,7 +38,6 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
-import ru.iammaxim.vkmonitor.Views.Divider;
 import ru.iammaxim.vkmonitor.Views.ForwardedMessagesLine;
 import ru.iammaxim.vkmonitor.Views.ImprovedTextView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
@@ -151,7 +150,10 @@ public class DialogFragment extends mFragment {
                             it.remove();
                             for (int i = adapter.elements.size() - 1; i >= 0; i--) {
                                 if (adapter.elements.get(i) == toSend) {
-                                    adapter.elements.set(i, msg); // this will update date, body, id etc.
+//                                    adapter.elements.set(i, msg); // this will update date, body, id etc.
+                                    toSend.isSending = false;
+                                    toSend.date = msg.date;
+                                    toSend.body = msg.body;
                                     adapter.notifyItemChanged(i);
                                     return;
                                 }
@@ -162,7 +164,7 @@ public class DialogFragment extends mFragment {
                     adapter.elements.add(msg);
                     adapter.notifyItemInserted(adapter.elements.size() - 1);
 
-                    if (rv.onTheBottom())
+                    if (rv.nearTheBottom())
                         rv.smoothScrollToBottom();
                 }
             }
@@ -190,12 +192,13 @@ public class DialogFragment extends mFragment {
             if (!(s = message_et.getEditableText().toString()).isEmpty()) {
                 message_et.getEditableText().clear();
                 ObjectMessage msg = new ObjectMessage(peer_id, Users.get().id, s);
+                msg.random_id = (int) (Integer.MAX_VALUE * Math.random());
                 msg.isSending = true;
 
                 adapter.elements.add(msg);
                 currentlySending.add(msg);
                 adapter.notifyItemInserted(adapter.elements.size() - 1);
-                if (rv.onTheBottom())
+                if (rv.nearTheBottom())
                     rv.smoothScrollToBottom();
 
                 new Thread(() -> {
