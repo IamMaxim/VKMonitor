@@ -47,6 +47,7 @@ public class App extends Application {
     private static FileOutputStream logFos;
     public static SimpleDateFormat dateSDF = new SimpleDateFormat("dd.MM.yy");
     public static SimpleDateFormat dateSDF2 = new SimpleDateFormat("dd MMM");
+    public static SimpleDateFormat dateSDF3 = new SimpleDateFormat("dd MMM yy");
     public static SimpleDateFormat timeSDF = new SimpleDateFormat("HH:mm:ss");
     public static ArrayList<Integer> filter = new ArrayList<>();
     public static boolean useFilter = false;
@@ -228,11 +229,17 @@ public class App extends Application {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.AM_PM, Calendar.AM);
+
+        Calendar calendar1 = (Calendar) calendar.clone();
+        calendar1.set(Calendar.YEAR, calendar.get(Calendar.YEAR) - 1);
+
         if (date.before(calendar.getTime())) {
             calendar.add(Calendar.DATE, -1);
             if (date.after(calendar.getTime())) {
                 return "Yesterday " + timeSDF.format(date);
-            } else
+            } else if (date.before(calendar1.getTime()))
+                return dateSDF3.format(date) + " " + timeSDF.format(date);
+            else
                 return dateSDF2.format(date) + " " + timeSDF.format(date);
         } else {
             return timeSDF.format(date);
@@ -269,5 +276,23 @@ public class App extends Application {
         } catch (JSONException e) {
             return -1;
         }
+    }
+
+    private static String[] filesizePostfixes = {
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+    };
+
+    public static String getFilesizeString(long size) {
+        int postfixIndex = 0;
+        long newSize = size;
+        while ((size /= 1024) > 0) {
+            postfixIndex++;
+            newSize = size;
+        }
+        return newSize + " " + filesizePostfixes[postfixIndex];
     }
 }

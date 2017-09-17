@@ -36,25 +36,28 @@ public class ObjectUser {
     private void load(JSONObject json) {
         try {
             id = json.getInt("id");
-            if (id > 2000000000) {
+            if (id > 2000000000) { // is chat
                 isChat = true;
                 if (json.has("chat_title"))
                     chat_title = json.getString("chat_title");
-                else {
+                else if (json.has("title"))
+                    chat_title = json.getString("title");
+                else
                     try {
                         JSONObject o = new JSONObject(Net.processRequest("messages.getChat", true, "chat_id=" + (id - 2000000000))).getJSONObject("response");
                         chat_title = o.getString("title");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+            } else { // is user
+                first_name = json.getString("first_name");
+                last_name = json.getString("last_name");
+
+                if (json.has("online"))
+                    setStatus(json.getInt("online") == 1);
             }
-            first_name = json.getString("first_name");
-            last_name = json.getString("last_name");
             if (json.has("photo_200"))
                 photo_200 = json.getString("photo_200");
-            if (json.has("online"))
-                setStatus(json.getInt("online") == 1);
         } catch (JSONException e) {
             e.printStackTrace();
         }

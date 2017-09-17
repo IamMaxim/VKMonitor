@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -45,12 +46,24 @@ public class UserDB {
 
     public static void update() {
         new Thread(() -> {
-            ArrayList<Integer> usersToUpdate = new ArrayList<>(1000);
+            System.out.println("Starting user DB sync...");
+            ArrayList<Integer> usersToUpdate = new ArrayList<>(100);
+            ArrayList<Integer> chatsToUpdate = new ArrayList<>(100);
             synchronized (userDB) {
                 usersToUpdate.addAll(userDB.keySet());
+
+                Iterator<Integer> it = usersToUpdate.iterator();
+                while (it.hasNext()) {
+                    int id;
+                    if ((id = it.next()) > 2000000000) {
+                        chatsToUpdate.add(id);
+                        it.remove();
+                    }
+                }
+
                 while (usersToUpdate.size() > 0) {
                     StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < usersToUpdate.size() && i < 100; i++) {
+                    for (int i = 0; usersToUpdate.size() > 0 && i < 100; i++) {
                         sb.append(usersToUpdate.remove(0));
                         if (i < 100)
                             sb.append(',');
@@ -68,7 +81,31 @@ public class UserDB {
                         e.printStackTrace();
                     }
                 }
+
+                while (chatsToUpdate.size() > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; chatsToUpdate.size() > 0 && i < 100; i++) {
+                        sb.append(chatsToUpdate.remove(0) - 2000000000);
+                        if (i < 100 && chatsToUpdate.size() > 0)
+                            sb.append(',');
+                    }
+                    try {
+                        JSONArray arr = new JSONObject(Net.processRequest("messages.getChat", true, "chat_ids=" + sb.toString())).getJSONArray("response");
+                        sb.delete(0, sb.length());
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject o = arr.getJSONObject(i);
+                            o.put("id", o.getInt("id") + 2000000000);
+                            ObjectUser user = new ObjectUser(o);
+                            add(user);
+                        }
+
+                        Thread.sleep(500);
+                    } catch (JSONException | IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+            System.out.println("User DB sync completed.");
         }).start();
     }
 

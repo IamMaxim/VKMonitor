@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentDoc;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentSticker;
 import ru.iammaxim.vkmonitor.API.Users.Users;
@@ -28,6 +29,7 @@ public class ObjectMessage {
     public ArrayList<ObjectMessage> forwards = new ArrayList<>();
     public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
     public ArrayList<AttachmentSticker> stickers = new ArrayList<>();
+    public ArrayList<AttachmentDoc> docs = new ArrayList<>();
     public ArrayList<Attachment> otherAttachments = new ArrayList<>();
 
     private static final int
@@ -166,6 +168,8 @@ public class ObjectMessage {
                         photos.add(new AttachmentPhoto(o.getJSONObject("photo")));
                     else if (type.equals("sticker"))
                         stickers.add(new AttachmentSticker(o.getJSONObject("sticker")));
+                    else if (type.equals("doc"))
+                        docs.add(new AttachmentDoc(o.getJSONObject("doc")));
                     else
                         this.otherAttachments.add(new Attachment(type));
                 }

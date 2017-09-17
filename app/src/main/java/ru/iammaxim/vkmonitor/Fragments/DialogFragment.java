@@ -18,11 +18,13 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.Iterator;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentDoc;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentSticker;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
@@ -38,6 +41,7 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
+import ru.iammaxim.vkmonitor.Views.Attachments.AttachmentDocumentView;
 import ru.iammaxim.vkmonitor.Views.ForwardedMessagesLine;
 import ru.iammaxim.vkmonitor.Views.ImprovedTextView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
@@ -129,14 +133,37 @@ public class DialogFragment extends mFragment {
         rv = v.findViewById(R.id.rv);
         rv.setAdapter(adapter = new DialogAdapter());
         rv.layoutManager.setMsPerInch(200);
+        rv.initOnScrollListener();
 
 
-/*        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chat_bg1, options);
-        BitmapDrawable d = new BitmapDrawable(getResources(), bitmap);*/
         layout.setBackgroundResource(R.drawable.chat_bg);
 
+
+        rv.onScrolledToTop = () -> {
+            new AsyncTask<Void, Void, Void>() {
+                Messages.MessagesObject msgs;
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    try {
+                        msgs = Messages.getHistory(peer_id, 200, adapter.elements.size());
+                        for (int i = msgs.messages.size() - 1; i >= 0; i--) {
+                            adapter.elements.add(0, msgs.messages.get(i));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    adapter.notifyItemRangeInserted(0, msgs.messages.size());
+                }
+            }.execute();
+        };
 
         Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
@@ -341,6 +368,12 @@ public class DialogFragment extends mFragment {
                     iv.setMinimumHeight((int) (sticker.height * dm.density));
                     Picasso.with(getContext()).load(sticker.getBestURL()).into(iv);
                     layout.addView(iv);
+                }
+            }
+
+            if (msg.docs.size() > 0) {
+                for (AttachmentDoc doc : msg.docs) {
+                    layout.addView(new AttachmentDocumentView(getContext(), doc));
                 }
             }
 

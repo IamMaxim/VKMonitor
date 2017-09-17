@@ -2,6 +2,7 @@ package ru.iammaxim.vkmonitor.Views;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
@@ -12,9 +13,20 @@ import android.util.AttributeSet;
 public class RecyclerViewWrapper extends RecyclerView {
     public Adapter adapter;
     public ImprovedLinearLayoutManager layoutManager;
+    public Runnable onScrolledToTop;
 
     public RecyclerViewWrapper(Context context) {
         this(context, null);
+    }
+
+    public void initOnScrollListener() {
+        addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (onScrolledToTop != null && layoutManager.findFirstVisibleItemPosition() == 0)
+                    onScrolledToTop.run();
+            }
+        });
     }
 
     @Override

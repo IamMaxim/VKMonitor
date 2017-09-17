@@ -102,6 +102,10 @@ public class AccessTokenManager {
         return activeTokenIndex;
     }
 
+    public static void removeActiveToken() {
+        activeToken = null;
+    }
+
     public static class Token {
         public boolean isActive;
         public String name, token;

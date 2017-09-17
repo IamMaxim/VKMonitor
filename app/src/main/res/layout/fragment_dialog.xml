@@ -12,13 +12,14 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:background="@android:color/transparent">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="#82000000"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -33,8 +34,7 @@
             android:id="@+id/count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:elevation="2dp"
+            android:background="#82000000"            android:elevation="2dp"
             android:padding="4dp"
             android:text="Count: loading..."
             android:textAlignment="center"
@@ -62,7 +62,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#6e000000"
                 android:elevation="40dp"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
@@ -78,7 +78,9 @@
                     android:layout_marginLeft="6dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="Type message" />
+                    android:hint="Type message"
+                    android:textColor="#ffffffff"
+                    android:textColorHint="#acacac"/>
 
                 <ImageButton
                     android:id="@+id/send"

@@ -1,5 +1,6 @@
 package ru.iammaxim.vkmonitor.API.Users;
 
+import android.os.NetworkOnMainThreadException;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
@@ -28,14 +29,24 @@ public class Users {
         return UserDB.get();
     }
 
-    public static ObjectUser get(int id) {
-/*        if (id > 2000000000) {
-            ObjectUser user = new ObjectUser();
-            user.first_name = "Chat";
-            user.last_name = String.valueOf(id - 2000000000);
-            return user;
-        }*/
+    private static ObjectUser getUser(int id) throws IOException, JSONException {
+        ObjectUser user;
+        if (id > 2000000000) {
+            user = new ObjectUser();
+            user.id = id;
+            user.isChat = true;
+            String str = Net.processRequest("messages.getChat", true, "chat_id=" + (id - 2000000000));
+            System.out.println(str);
+            JSONObject o = new JSONObject(str).getJSONObject("response");
+            user.chat_title = o.getString("title");
+            if (o.has("photo_200"))
+                user.photo_200 = o.getString("photo_200");
+        } else
+            user = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
+        return user;
+    }
 
+    public static ObjectUser get(int id) {
         // It's a group
         if (id < 0) {
             return Groups.getById(-id).asUser();
@@ -44,28 +55,32 @@ public class Users {
         ObjectUser user = UserDB.get(id);
         if (user == null) {
             try {
-                ObjectUser u;
-                if (id > 2000000000) {
-                    u = new ObjectUser();
-                    u.id = id;
-                    u.isChat = true;
-                    String str = Net.processRequest("messages.getChat", true, "chat_id=" + (id - 2000000000));
-                    System.out.println(str);
-                    JSONObject o = new JSONObject(str).getJSONObject("response");
-                    u.chat_title = o.getString("title");
-                    if (o.has("photo_200"))
-                        u.photo_200 = o.getString("photo_200");
-                } else
-                    u = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
+                ObjectUser u = getUser(id);
                 UserDB.add(u);
                 user = u;
-            } catch (Exception e) {
+            } catch (NetworkOnMainThreadException e) {
                 e.printStackTrace();
-                System.err.println("Error occurred while updating user " + id);
-                System.err.println(TextUtils.join("\n", e.getStackTrace()));
                 user = new ObjectUser();
                 user.first_name = "Error";
                 user.last_name = "Error";
+
+                new Thread(() -> {
+                    try {
+                        UserDB.add(getUser(id));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
+                }).start();
+            } catch (Exception e) {
+                e.printStackTrace();
+                user = new ObjectUser();
+                user.first_name = "Error";
+                user.last_name = "Error";
+
+                System.err.println("Error occurred while updating user " + id);
+                System.err.println(TextUtils.join("\n", e.getStackTrace()));
             }
         }
         return user;

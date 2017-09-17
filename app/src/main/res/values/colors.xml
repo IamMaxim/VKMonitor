@@ -16,4 +16,6 @@
     <color name="element_message_title_color">#add4ff</color>
     <color name="element_message_fwd_date_color">#e3e3e3</color>
     <color name="messageDateColor">#e8e8e8</color>
+    <color name="messageAttachmentDocTitleColor">#add4ff</color>
+    <color name="messageAttachmentDocSubtitleColor">#e3e3e3</color>
 </resources>

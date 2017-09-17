@@ -56,6 +56,14 @@
             android:text="@string/set_active"
             android:textColor="@color/colorPrimaryDark" />
 
+            <Button
+                android:id="@+id/delete"
+                style="?borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:textColor="@color/colorPrimaryDark" />
+
         </LinearLayout>
 
     </LinearLayout>

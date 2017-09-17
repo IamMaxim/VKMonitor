@@ -17,4 +17,5 @@
     <string name="current_token_not_set">Current token not set</string>
     <string name="request_generator_main_name">Request Generator</string>
     <string name="message_count">Count: %1$d</string>
+    <string name="delete">Delete</string>
 </resources>
