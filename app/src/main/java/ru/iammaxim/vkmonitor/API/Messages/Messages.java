@@ -244,6 +244,14 @@ public class Messages {
         return 0;
     }
 
+    public static void setActivity(int peer_id) {
+        try {
+            Net.processRequest("messages.setActivity", true, "peer_id=" + peer_id, "type=typing");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public interface OnMessagesUpdate {
         void onMessageGet(int prevDialogIndex, ObjectMessage msg);
 

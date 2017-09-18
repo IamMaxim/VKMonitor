@@ -8,8 +8,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableString;
+import android.text.TextWatcher;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -211,6 +213,23 @@ public class DialogFragment extends mFragment {
 
         Users.callbacks.add(usersCallback = (user_id, online) -> {
             // TODO: check for user_id and if it's equals to peer_id, update online status
+        });
+
+        message_et.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                new Thread(() -> Messages.setActivity(peer_id)).start();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
         });
 
         send_button.setOnClickListener(b -> {

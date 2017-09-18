@@ -26,6 +26,7 @@
             android:name=".LongPollService"
             android:enabled="true"
             android:exported="true" />
+
         <activity
             android:name=".Activities.UserActivity"
             android:label="@string/title_activity_user"
@@ -45,6 +46,7 @@
         <activity
             android:name=".Activities.LogActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.PhotoViewerActivity"></activity>
     </application>
 
 </manifest>
