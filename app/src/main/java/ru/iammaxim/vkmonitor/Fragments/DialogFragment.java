@@ -102,6 +102,7 @@ public class DialogFragment extends mFragment {
         View mToolbarView = inflater.inflate(R.layout.toolbar_dialog, container, false);
         photo = mToolbarView.findViewById(R.id.photo);
         title = mToolbarView.findViewById(R.id.title);
+        title.setMaxLines(1);
         subtitle = mToolbarView.findViewById(R.id.subtitle);
         Toolbar toolbar = v.findViewById(R.id.toolbar);
         toolbar.setTitle("");
