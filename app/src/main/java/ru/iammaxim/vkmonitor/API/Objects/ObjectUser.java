@@ -14,7 +14,7 @@ public class ObjectUser {
     public boolean isChat = false;
     public boolean online = false;
     public int id, platform = 0;
-    public String chat_title, first_name, last_name, photo_200;
+    public String chat_title, first_name, last_name, photo;
 
     public ObjectUser() {
     }
@@ -57,7 +57,13 @@ public class ObjectUser {
                     setStatus(json.getInt("online") == 1);
             }
             if (json.has("photo_200"))
-                photo_200 = json.getString("photo_200");
+                photo = json.getString("photo_200");
+            else if (json.has("photo_100"))
+                photo = json.getString("photo_100");
+            else if (json.has("photo_50"))
+                photo = json.getString("photo_50");
+            else if (json.has("photo"))
+                photo = json.getString("photo");
         } catch (JSONException e) {
             e.printStackTrace();
         }

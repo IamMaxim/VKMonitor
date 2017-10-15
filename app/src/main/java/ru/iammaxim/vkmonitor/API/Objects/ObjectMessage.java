@@ -57,7 +57,7 @@ public class ObjectMessage {
         out = user_id == Users.get().id;
         this.title = user.getTitle();
         this.date = System.currentTimeMillis();
-        this.photo = user.photo_200;
+        this.photo = user.photo;
     }
 
     public Spanned getFullBody() {
@@ -118,7 +118,7 @@ public class ObjectMessage {
             if (object.has("photo_200"))
                 photo = object.getString("photo_200");
             else if (!object.has("chat_id"))
-                photo = Users.get(peer_id).photo_200;
+                photo = Users.get(peer_id).photo;
             if (object.has("push_settings")) {
                 muted = object.getJSONObject("push_settings").getInt("sound") == 1;
             }

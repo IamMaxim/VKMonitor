@@ -8,11 +8,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectDialog;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Net;
+import ru.iammaxim.vkmonitor.Notifications;
 
 /**
  * Created by maxim on 5/21/17.
@@ -22,10 +25,29 @@ public class Messages {
     public static ArrayList<ObjectDialog> dialogObjects = new ArrayList<>();
     public static SparseArray<Dialog> dialogs = new SparseArray<>();
     public static int dialogsCount = 0;
-    public static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
-    public static ArrayList<OnDialogsUpdate> dialogCallbacks = new ArrayList<>();
+    private static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
+    private static ArrayList<OnDialogsUpdate> dialogsCallbacks = new ArrayList<>();
     private static boolean needToUpdateDialogs = true;
     private static final Object sendLock = new Object();
+    public static HashMap<Integer, ObjectMessage> drafts = new HashMap<>();
+
+    public static void addMessageCallback(OnMessagesUpdate callback) {
+        messageCallbacks.add(callback);
+        App.notifyLongPollThread();
+    }
+
+    public static void removeMessageCallback(OnMessagesUpdate callback) {
+        messageCallbacks.remove(callback);
+    }
+
+    public static void addDialogsCallback(OnDialogsUpdate callback) {
+        dialogsCallbacks.add(callback);
+        App.notifyLongPollThread();
+    }
+
+    public static void removeDialogsCallback(OnDialogsUpdate callback) {
+        dialogsCallbacks.remove(callback);
+    }
 
     public static void setNeedToUpdateDialogs() {
         needToUpdateDialogs = true;
@@ -42,13 +64,51 @@ public class Messages {
         return new MessagesObject(_count, msgs);
     }
 
+    public static void send(int peer_id) throws IOException {
+        ObjectMessage msg = drafts.get(peer_id);
+        if (msg == null)
+            return;
+        send(msg);
+    }
+
     public static void send(ObjectMessage msg) throws IOException {
         synchronized (sendLock) {
+            ArrayList<String> keysAndValues = new ArrayList<>();
+            keysAndValues.add("peer_id=" + msg.peer_id);
+            keysAndValues.add("message=" + msg.body);
+            keysAndValues.add("random_id=" + msg.random_id);
+
+            ArrayList<String> attachments = new ArrayList<>();
+            if (msg.photos.size() > 0) {
+                for (AttachmentPhoto photo : msg.photos) {
+                    boolean isErrored = false;
+                    while (photo.isUploading) {
+                        if (photo.isErrored) {
+                            isErrored = true;
+                            break;
+                        }
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (isErrored)
+                        continue;
+                    attachments.add("photo" + photo.owner_id + "_" + photo.id);
+                }
+
+                StringBuilder attachmentsSB = new StringBuilder();
+                for (int i = 0; i < attachments.size(); i++) {
+                    attachmentsSB.append(attachments.get(i));
+                    if (i != attachments.size() - 1)
+                        attachmentsSB.append(",");
+                }
+                keysAndValues.add("attachments=" + attachmentsSB.toString());
+            }
+
             // TODO: implement attachments support
-            Net.processRequest("messages.send", true,
-                    "peer_id=" + msg.peer_id,
-                    "message=" + msg.body,
-                    "random_id=" + msg.random_id);
+            Net.processRequest("messages.send", true, keysAndValues.toArray(new String[0]));
         }
     }
 
@@ -89,6 +149,8 @@ public class Messages {
         dialog.message.random_id = arr.getInt(8);
         dialogObjects.add(0, dialog);
 
+        if (!dialog.message.muted)
+            Notifications.send(App.context, "New message in \"" + dialog.message.title + "\"", dialog.message.body, null);
         App.handler.post(() -> {
             for (OnMessagesUpdate c : messageCallbacks) {
                 c.onMessageGet(ret.index, dialog.message);
@@ -117,7 +179,7 @@ public class Messages {
             dialog.updateUnread();
 
         App.handler.post(() -> {
-            for (OnDialogsUpdate c : dialogCallbacks) {
+            for (OnDialogsUpdate c : dialogsCallbacks) {
                 c.onDialogFlagsUpdated(ret.index);
             }
         });
@@ -252,6 +314,10 @@ public class Messages {
         }
     }
 
+    public static int messageCallbacksSize() {
+        return messageCallbacks.size();
+    }
+
     public interface OnMessagesUpdate {
         void onMessageGet(int prevDialogIndex, ObjectMessage msg);
 
@@ -260,7 +326,9 @@ public class Messages {
     }
 
     public interface OnDialogsUpdate {
-        /** Local index of updated dialog. Entry is processed automatically */
+        /**
+         * Local index of updated dialog. Entry is processed automatically
+         */
         void onDialogFlagsUpdated(int dialogIndex);
     }
 

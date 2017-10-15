@@ -26,7 +26,7 @@ public class ObjectGroup {
         user.id = -id;
         user.first_name = name;
         user.last_name = "";
-        user.photo_200 = photo_200;
+        user.photo = photo_200;
         return user;
     }
 }

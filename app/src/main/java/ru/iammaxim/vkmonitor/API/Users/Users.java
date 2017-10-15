@@ -1,5 +1,6 @@
 package ru.iammaxim.vkmonitor.API.Users;
 
+import android.os.AsyncTask;
 import android.os.NetworkOnMainThreadException;
 import android.text.TextUtils;
 
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import ru.iammaxim.vkmonitor.API.Groups.Groups;
 import ru.iammaxim.vkmonitor.App;
@@ -19,7 +21,20 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
  * Created by maxim on 18.08.2016.
  */
 public class Users {
-    public static ArrayList<OnUsersUpdate> callbacks = new ArrayList<>();
+    private static ArrayList<OnUsersUpdate> callbacks = new ArrayList<>();
+
+    public static void addCallback(OnUsersUpdate callback) {
+        callbacks.add(callback);
+        App.notifyLongPollThread();
+    }
+
+    public static void removeCallback(OnUsersUpdate callback) {
+        callbacks.remove(callback);
+    }
+
+    public static int callbacksSize() {
+        return callbacks.size();
+    }
 
     public interface OnUsersUpdate {
         void onStatusChange(int user_id, boolean online);
@@ -40,13 +55,17 @@ public class Users {
             JSONObject o = new JSONObject(str).getJSONObject("response");
             user.chat_title = o.getString("title");
             if (o.has("photo_200"))
-                user.photo_200 = o.getString("photo_200");
+                user.photo = o.getString("photo_200");
         } else
-            user = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,online")).getJSONArray("response").getJSONObject(0));
+            user = new ObjectUser(new JSONObject(Net.processRequest("users.get", true, "user_ids=" + id, "fields=photo_200,photo_100,photo_50,online")).getJSONArray("response").getJSONObject(0));
         return user;
     }
 
     public static ObjectUser get(int id) {
+        return get(id, null);
+    }
+
+    public static ObjectUser get(int id, AsyncTask<ObjectUser, Void, ObjectUser> onUserLoad) {
         // It's a group
         if (id < 0) {
             return Groups.getById(-id).asUser();
@@ -59,14 +78,19 @@ public class Users {
                 UserDB.add(u);
                 user = u;
             } catch (NetworkOnMainThreadException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                System.err.println("NetworkOnMainException caught");
                 user = new ObjectUser();
                 user.first_name = "Error";
                 user.last_name = "Error";
 
                 new Thread(() -> {
                     try {
-                        UserDB.add(getUser(id));
+                        ObjectUser user1 = getUser(id);
+                        UserDB.add(user1);
+                        if (onUserLoad != null) {
+                            onUserLoad.execute(user1);
+                        }
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     } catch (JSONException e1) {

@@ -46,9 +46,9 @@ public class DialogsFragment extends mFragment {
     public void onDestroyView() {
         super.onDestroyView();
         App.handler.removeCallback(callback);
-        Messages.messageCallbacks.remove(messagesCallback);
-        Messages.dialogCallbacks.remove(dialogsCallback);
-        Users.callbacks.remove(usersCallback);
+        Messages.removeMessageCallback(messagesCallback);
+        Messages.removeDialogsCallback(dialogsCallback);
+        Users.removeCallback(usersCallback);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -89,7 +89,7 @@ public class DialogsFragment extends mFragment {
                 }.execute();
 
 
-        Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
+        Messages.addMessageCallback(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
                 if (prevDialogIndex == 0)
@@ -107,9 +107,9 @@ public class DialogsFragment extends mFragment {
             }
         });
 
-        Messages.dialogCallbacks.add(dialogsCallback = dialogIndex -> rv.adapter.notifyItemChanged(dialogIndex));
+        Messages.addDialogsCallback(dialogsCallback = dialogIndex -> rv.adapter.notifyItemChanged(dialogIndex));
 
-        Users.callbacks.add(usersCallback = (user_id, online) -> {
+        Users.addCallback(usersCallback = (user_id, online) -> {
             for (int i = 0; i < Messages.dialogObjects.size(); i++) {
                 ObjectDialog dialog = Messages.dialogObjects.get(i);
                 if (dialog.message.peer_id == user_id) {
@@ -174,10 +174,18 @@ public class DialogsFragment extends mFragment {
                 else
                     holder.body.setBackgroundResource(R.drawable.unread_message_body_bg);
             }
-            if (Users.get(dialog.message.peer_id).online)
-                holder.photoBg.setColor(0xff66bb6a);
-            else
-                holder.photoBg.setColor(getResources().getColor(R.color.colorPrimary));
+
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void[] objects) {
+                    return Users.get(dialog.message.peer_id).online;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean isOnline) {
+
+                }
+            }.execute();
 
             new AsyncTask<Void, Void, ObjectUser>() {
                 @Override
@@ -194,7 +202,7 @@ public class DialogsFragment extends mFragment {
                         holder.from_photo.setVisibility(View.GONE);
                     else {
                         holder.from_photo.setVisibility(View.VISIBLE);
-                        Picasso.with(holder.from_photo.getContext()).load(user.photo_200).transform(App.circleTransformation).into(holder.from_photo);
+                        Picasso.with(holder.from_photo.getContext()).load(user.photo).transform(App.circleTransformation).into(holder.from_photo);
                     }
                 }
             }.execute();

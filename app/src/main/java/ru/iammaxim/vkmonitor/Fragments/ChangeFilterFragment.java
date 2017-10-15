@@ -117,7 +117,7 @@ public class ChangeFilterFragment extends mFragment {
             this.user_id = user_id;
             ObjectUser user = Users.get(user_id);
             name = user.toString();
-            photo_200 = user.photo_200;
+            photo_200 = user.photo;
             enabled = App.filter.contains(user_id);
         }
 

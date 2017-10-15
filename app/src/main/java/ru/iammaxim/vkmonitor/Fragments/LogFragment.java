@@ -373,7 +373,7 @@ public class LogFragment extends mFragment {
                 } else {
                     ObjectUser user = Users.get(peer_id);
                     name = user.getTitle();
-                    photo_url = user.photo_200;
+                    photo_url = user.photo;
                 }
 
                 Date _date = new Date(o.getLong("date"));
@@ -394,7 +394,7 @@ public class LogFragment extends mFragment {
             if (peer_id != -1) {
                 ObjectUser user = Users.get(peer_id);
                 name = user.toString();
-                photo_url = user.photo_200;
+                photo_url = user.photo;
             } else {
                 name = "Error";
             }

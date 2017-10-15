@@ -20,10 +20,7 @@ public class UpdateMessageHandler extends Handler {
 
     public void addCallback(Callback callback) {
         callbacks.add(callback);
-        if (App.longPollThread != null)
-            synchronized (App.longPollThread) {
-                App.longPollThread.notify();
-            }
+        App.notifyLongPollThread();
     }
 
     public void removeCallback(Callback callback) {
@@ -35,7 +32,7 @@ public class UpdateMessageHandler extends Handler {
     }
 
     public boolean needToSleep() {
-        return !(callbacks.size() > 0 || Messages.messageCallbacks.size() > 0 || Users.callbacks.size() > 0);
+        return !(callbacks.size() > 0 || Messages.messageCallbacksSize() > 0 || Users.callbacksSize() > 0);
     }
 
     @Override

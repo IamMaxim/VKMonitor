@@ -54,6 +54,14 @@ public class App extends Application {
     public static UpdateMessageHandler handler = new UpdateMessageHandler();
     public static LongPollService.LongPollThread longPollThread;
     public static CircleTransformation circleTransformation = new CircleTransformation();
+    public static Context context;
+
+    public static void notifyLongPollThread() {
+        if (App.longPollThread != null)
+            synchronized (App.longPollThread.waitLock) {
+                App.longPollThread.waitLock.notifyAll();
+            }
+    }
 
     public static void loadIO() {
         logFile = new File(logPath);

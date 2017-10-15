@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/VKMonitor.iml" filepath="$PROJECT_DIR$/VKMonitor.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/filechooser/filechooser.iml" filepath="$PROJECT_DIR$/filechooser/filechooser.iml" />
     </modules>
   </component>
 </project>

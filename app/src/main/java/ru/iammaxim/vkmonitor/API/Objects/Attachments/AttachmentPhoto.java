@@ -5,8 +5,12 @@ import android.util.DisplayMetrics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import ru.iammaxim.vkmonitor.API.Photos.Photos;
 
 /**
  * Created by maxim on 07.07.2017.
@@ -23,6 +27,8 @@ public class AttachmentPhoto extends Attachment {
     public String access_key;
     public HashMap<Integer, String> photos = new HashMap<>();
     private int best = -1;
+    public boolean isUploading = false;
+    public boolean isErrored = false;
 
     public AttachmentPhoto(JSONObject object) throws JSONException {
         super("photo");
@@ -45,6 +51,31 @@ public class AttachmentPhoto extends Attachment {
                 photos.put(size, object.getString(key));
             }
         }
+    }
+
+    private AttachmentPhoto() {
+        super("photo");
+    }
+
+    public static AttachmentPhoto upload(File f, int peer_id) {
+        AttachmentPhoto photo = new AttachmentPhoto();
+        photo.isUploading = true;
+
+        new Thread(() -> {
+            try {
+                JSONObject res = Photos.upload(f, peer_id);
+                int owner_id = res.getInt("owner_id");
+                int id = res.getInt("id");
+                photo.id = id;
+                photo.owner_id = owner_id;
+                photo.isUploading = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                photo.isErrored = true;
+            }
+        }).start();
+
+        return photo;
     }
 
     public String getBestURL() {

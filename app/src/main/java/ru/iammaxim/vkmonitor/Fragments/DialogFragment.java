@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -62,6 +63,7 @@ public class DialogFragment extends mFragment {
 
     private EditText message_et;
     private View send_button;
+    private View attachButton;
 
     private boolean isChat;
     private DialogAdapter adapter;
@@ -85,8 +87,8 @@ public class DialogFragment extends mFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Messages.messageCallbacks.remove(messagesCallback);
-        Users.callbacks.remove(usersCallback);
+        Messages.removeMessageCallback(messagesCallback);
+        Users.removeCallback(usersCallback);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -123,13 +125,14 @@ public class DialogFragment extends mFragment {
             protected void onPostExecute(Void aVoid) {
                 title.setText(user.getTitle());
                 subtitle.setText("Subtitle");
-                Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(photo);
+                Picasso.with(getContext()).load(user.photo).transform(App.circleTransformation).into(photo);
             }
         }.execute();
 
         layout = v.findViewById(R.id.layout);
         count_tv = v.findViewById(R.id.count);
         message_et = v.findViewById(R.id.message_et);
+        attachButton = v.findViewById(R.id.attachPhoto);
         send_button = v.findViewById(R.id.send);
         rv = v.findViewById(R.id.rv);
         rv.setAdapter(adapter = new DialogAdapter());
@@ -166,7 +169,7 @@ public class DialogFragment extends mFragment {
             }.execute();
         };
 
-        Messages.messageCallbacks.add(messagesCallback = new Messages.OnMessagesUpdate() {
+        Messages.addMessageCallback(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
             public void onMessageGet(int prevDialogIndex, ObjectMessage msg) {
                 // TODO: process action messages
@@ -211,7 +214,7 @@ public class DialogFragment extends mFragment {
             }
         });
 
-        Users.callbacks.add(usersCallback = (user_id, online) -> {
+        Users.addCallback(usersCallback = (user_id, online) -> {
             // TODO: check for user_id and if it's equals to peer_id, update online status
         });
 
@@ -223,6 +226,12 @@ public class DialogFragment extends mFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                ObjectMessage msg = Messages.drafts.get(peer_id);
+                if (msg == null) {
+                    msg = new ObjectMessage();
+                    Messages.drafts.put(peer_id, msg);
+                }
+                msg.body = charSequence.toString();
                 new Thread(() -> Messages.setActivity(peer_id)).start();
             }
 
@@ -230,6 +239,16 @@ public class DialogFragment extends mFragment {
             public void afterTextChanged(Editable editable) {
 
             }
+        });
+
+        attachButton.setOnClickListener(b -> {
+            ObjectMessage msg = Messages.drafts.get(peer_id);
+            if (msg == null) {
+                msg = new ObjectMessage();
+                Messages.drafts.put(peer_id, msg);
+            }
+
+//            msg.photos.add(AttachmentPhoto.upload())
         });
 
         send_button.setOnClickListener(b -> {
@@ -324,20 +343,36 @@ public class DialogFragment extends mFragment {
             return null;
         }
 
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.container.removeAllViews();
-            ObjectMessage message = elements.get(position);
-            ObjectUser user = Users.get(message.user_id);
-
+        private void loadUserData(ViewHolder holder, ObjectUser user) {
             if (holder.photo != null) {
                 holder.photo.setImageDrawable(null);
-                Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(holder.photo);
+                Picasso.with(getContext()).load(user.photo).transform(App.circleTransformation).into(holder.photo);
             }
 
             if (holder.title != null) {
                 holder.title.setText(user.getTitle());
             }
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.container.removeAllViews();
+            ObjectMessage message = elements.get(position);
+
+            ObjectUser user = Users.get(message.user_id, new AsyncTask<ObjectUser, Void, ObjectUser>() {
+                @Override
+                protected ObjectUser doInBackground(ObjectUser... objectUsers) {
+                    return objectUsers[0];
+                }
+
+                @Override
+                protected void onPostExecute(ObjectUser user) {
+                    if (holder != null)
+                        loadUserData(holder, user);
+                }
+            });
+            if (user != null)
+                loadUserData(holder, user);
 
             if (holder.unread != null) {
                 if (message.read_state)
@@ -454,7 +489,7 @@ public class DialogFragment extends mFragment {
                 if (getActivity() == null)
                     return;
                 getActivity().runOnUiThread(() ->
-                        Picasso.with(getContext()).load(user.photo_200).transform(App.circleTransformation).into(iv));
+                        Picasso.with(getContext()).load(user.photo).transform(App.circleTransformation).into(iv));
             }).start();
             layout.addView(iv);
 

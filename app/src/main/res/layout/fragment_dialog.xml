@@ -12,8 +12,8 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:background="@android:color/transparent">
+        android:background="@android:color/transparent"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -34,7 +34,8 @@
             android:id="@+id/count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#82000000"            android:elevation="2dp"
+            android:background="#82000000"
+            android:elevation="2dp"
             android:padding="4dp"
             android:text="Count: loading..."
             android:textAlignment="center"
@@ -80,7 +81,17 @@
                     android:background="@android:color/transparent"
                     android:hint="Type message"
                     android:textColor="#ffffffff"
-                    android:textColorHint="#acacac"/>
+                    android:textColorHint="#acacac" />
+
+                <ImageButton
+                    android:id="@+id/attachPhoto"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="0"
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/ic_attach_file" />
 
                 <ImageButton
                     android:id="@+id/send"

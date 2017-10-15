@@ -1,8 +1,11 @@
 package ru.iammaxim.vkmonitor;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -16,8 +19,22 @@ public class Notifications {
         builder.setColor(context.getResources().getColor(R.color.colorPrimary));
         builder.setContentTitle(title);
         builder.setContentText(text);
+        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        builder.setSound(sound);
+        long[] pattern = {300,
+                300,
+                300,
+                300,
+                300,
+                300,
+                300,
+        };
+        builder.setVibrate(pattern);
+
         if (icon != null)
             builder.setLargeIcon(icon);
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify((int) (Math.random() * Integer.MAX_VALUE), builder.build());
     }
 
     public static void send(Context context, String title, String text) {

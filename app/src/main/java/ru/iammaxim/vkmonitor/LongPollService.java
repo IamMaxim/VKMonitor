@@ -27,6 +27,9 @@ public class LongPollService extends Service {
     private LocalBroadcastManager broadcaster;
     public static final String STATUS_CHANGED = "ru.iammaxim.vkmonitor.LongPollService.STATUS_CHANGED";
     public static final String STATUS_VALUE = "ru.iammaxim.vkmonitor.LongPollService.STATUS_VALUE";
+    // this variable is used to make battery usage better. When app is not opened for a while,
+    // request frequency is being minimized
+    private int requestCounter = 0;
 
     public LongPollService() {
     }
@@ -75,6 +78,7 @@ public class LongPollService extends Service {
     public class LongPollThread extends Thread {
         private ObjectLongPollServer currentLongPollServer;
         private Context ctx;
+        public final Object waitLock = new Object();
 
         private boolean init() throws JSONException {
             try {
@@ -148,14 +152,21 @@ public class LongPollService extends Service {
             currentLongPollServer.update(o.getLong("ts"));
 
             if (App.handler.needToSleep()) {
-                synchronized (this) {
+                System.out.println("Going to sleep");
+                synchronized (waitLock) {
                     try {
-                        wait(300000);
+                        if (requestCounter > 10)
+                            waitLock.wait(300000);
+                        else
+                            waitLock.wait((1 + requestCounter) * 30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-            }
+                requestCounter++;
+                System.out.println("Sleep completed. Counter now: " + requestCounter);
+            } else
+                requestCounter = 0;
         }
     }
 

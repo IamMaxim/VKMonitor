@@ -134,7 +134,7 @@ public class UserDB {
                             .put("id", user.id)
                             .put("first_name", user.first_name)
                             .put("last_name", user.last_name)
-                            .put("photo_200", user.photo_200);
+                            .put("photo", user.photo);
 
                     if (user.isChat)
                         o.put("chat_title", user.chat_title);
@@ -167,8 +167,8 @@ public class UserDB {
 /*                        user.id = obj.getInt("id");
                         user.first_name = obj.getString("first_name");
                         user.last_name = obj.getString("last_name");
-                        if (obj.has("photo_200"))
-                            user.photo_200 = obj.getString("photo_200");*/
+                        if (obj.has("photo"))
+                            user.photo = obj.getString("photo");*/
                         add(user);
                     }
                 }
