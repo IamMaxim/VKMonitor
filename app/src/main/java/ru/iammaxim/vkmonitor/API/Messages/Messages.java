@@ -149,7 +149,7 @@ public class Messages {
         dialog.message.random_id = arr.getInt(8);
         dialogObjects.add(0, dialog);
 
-        if (!dialog.message.muted)
+        if (!dialog.message.muted && dialog.message.out)
             Notifications.send(App.context, "New message in \"" + dialog.message.title + "\"", dialog.message.body, null);
         App.handler.post(() -> {
             for (OnMessagesUpdate c : messageCallbacks) {
