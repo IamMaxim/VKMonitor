@@ -69,6 +69,8 @@ public class DialogFragment extends mFragment {
     private DialogAdapter adapter;
     private int messagesCount = 0;
 
+    private long animTime = 300;
+
     private ArrayList<ObjectMessage> currentlySending = new ArrayList<>();
 
     public static final class MessageType {
@@ -276,25 +278,43 @@ public class DialogFragment extends mFragment {
         });
 
         // load latest messages
-        new Thread(() -> {
-            try {
-                Messages.MessagesObject obj = Messages.getHistory(peer_id, 200, 0);
-                if (getActivity() == null)
+        new AsyncTask<Void, Void, Messages.MessagesObject>() {
+
+            @Override
+            protected void onPostExecute(Messages.MessagesObject obj) {
+                if (getActivity() == null || obj == null)
                     return;
-                getActivity().runOnUiThread(() -> {
-                    setMessagesCount(obj.count);
-                    for (ObjectMessage message : obj.messages) {
-                        adapter.elements.add(0, message);
-                    }
-                    adapter.notifyItemRangeInserted(0, obj.messages.size());
-                    rv.scrollToBottom();
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+                setMessagesCount(obj.count);
+                for (ObjectMessage message : obj.messages) {
+                    adapter.elements.add(0, message);
+                }
+                adapter.notifyItemRangeInserted(0, obj.messages.size());
+                rv.scrollToBottom();
             }
-        }).start();
+
+            @Override
+            protected Messages.MessagesObject doInBackground(Void... voids) {
+                long startTime = System.currentTimeMillis();
+                Messages.MessagesObject obj = null;
+                try {
+                    obj = Messages.getHistory(peer_id, 200, 0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                long elapsed = System.currentTimeMillis() - startTime;
+                if (elapsed < animTime) {
+                    try {
+                        Thread.sleep(animTime - elapsed);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return obj;
+            }
+        }.execute();
         return v;
     }
 

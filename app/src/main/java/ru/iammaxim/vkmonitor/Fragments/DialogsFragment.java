@@ -38,6 +38,7 @@ public class DialogsFragment extends mFragment {
     private Messages.OnMessagesUpdate messagesCallback;
     private Users.OnUsersUpdate usersCallback;
     private Messages.OnDialogsUpdate dialogsCallback;
+    private long animTime = 300;
 
     public DialogsFragment() {
     }
@@ -123,7 +124,16 @@ public class DialogsFragment extends mFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+                long startTime = System.currentTimeMillis();
                 Messages.updateDialogs();
+                long elapsed = System.currentTimeMillis() - startTime;
+                if (elapsed < animTime) {
+                    try {
+                        Thread.sleep(animTime - elapsed);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 return null;
             }
 
