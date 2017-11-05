@@ -43,4 +43,9 @@ public class Notifications {
     public static void send(Context context, String title, String text) {
         send(context, title, text, null);
     }
+
+    public static void cancel(Context context, int id) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(id);
+    }
 }

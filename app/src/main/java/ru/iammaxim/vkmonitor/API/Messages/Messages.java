@@ -175,7 +175,6 @@ public class Messages {
 
                             @Override
                             public void onPrepareLoad(Drawable placeHolderDrawable) {
-                                Notifications.send(App.context, "OnPrepareLoad()", "OPL");
                             }
                         });
             });

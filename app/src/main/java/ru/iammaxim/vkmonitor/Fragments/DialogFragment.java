@@ -45,6 +45,7 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
+import ru.iammaxim.vkmonitor.Notifications;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.Views.Attachments.AttachmentDocumentView;
 import ru.iammaxim.vkmonitor.Views.AttachmentsPhotoPanel;
@@ -313,6 +314,10 @@ public class DialogFragment extends mFragment {
                 return obj;
             }
         }.execute();
+
+        // cancel notifications related to this chat
+        Notifications.cancel(getContext(), peer_id);
+
         return v;
     }
 
