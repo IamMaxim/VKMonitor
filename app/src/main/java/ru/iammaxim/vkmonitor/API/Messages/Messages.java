@@ -27,14 +27,14 @@ import ru.iammaxim.vkmonitor.Notifications;
  */
 
 public class Messages {
+    private static final Object sendLock = new Object();
     public static ArrayList<ObjectDialog> dialogObjects = new ArrayList<>();
     public static SparseArray<Dialog> dialogs = new SparseArray<>();
     public static int dialogsCount = 0;
+    public static HashMap<Integer, ObjectMessage> drafts = new HashMap<>();
     private static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
     private static ArrayList<OnDialogsUpdate> dialogsCallbacks = new ArrayList<>();
     private static boolean needToUpdateDialogs = true;
-    private static final Object sendLock = new Object();
-    public static HashMap<Integer, ObjectMessage> drafts = new HashMap<>();
 
     public static void addMessageCallback(OnMessagesUpdate callback) {
         messageCallbacks.add(callback);

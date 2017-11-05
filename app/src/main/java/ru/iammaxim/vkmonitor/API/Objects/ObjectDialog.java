@@ -11,7 +11,8 @@ public class ObjectDialog {
     public ObjectMessage message;
     public int unread = 0;
 
-    public ObjectDialog() {}
+    public ObjectDialog() {
+    }
 
     public ObjectDialog(JSONObject obj) throws JSONException {
         if (obj.has("unread"))

@@ -19,10 +19,10 @@ import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
  */
 
 public class AttachmentsPhotoPanel extends HorizontalScrollView {
+    protected final int height = 64;
     protected ArrayList<AttachmentPhoto> photos = new ArrayList<>();
     protected ArrayList<ImageView> photoViews = new ArrayList<>();
     protected LinearLayout layout;
-    protected final int height = 64;
 
     public AttachmentsPhotoPanel(Context context, AttributeSet attrs) {
         super(context, attrs);

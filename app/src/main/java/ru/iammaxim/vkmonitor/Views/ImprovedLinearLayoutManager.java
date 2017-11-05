@@ -15,10 +15,6 @@ import android.util.DisplayMetrics;
 public class ImprovedLinearLayoutManager extends LinearLayoutManager {
     private float msPerInch = 25;
 
-    public void setMsPerInch(float msPerInch) {
-        this.msPerInch = msPerInch;
-    }
-
     public ImprovedLinearLayoutManager(Context context) {
         super(context);
     }
@@ -29,6 +25,10 @@ public class ImprovedLinearLayoutManager extends LinearLayoutManager {
 
     public ImprovedLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    public void setMsPerInch(float msPerInch) {
+        this.msPerInch = msPerInch;
     }
 
     @Override

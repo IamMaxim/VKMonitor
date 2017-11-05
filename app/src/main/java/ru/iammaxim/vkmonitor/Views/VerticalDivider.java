@@ -18,19 +18,19 @@ public class VerticalDivider extends View {
         this(context, null);
     }
 
+    public VerticalDivider(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        p = new Paint();
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(0x1F000000);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int height = getMeasuredHeight();
         DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
         setMeasuredDimension((int) dm.density, height); // 1 dp width
-    }
-
-    public VerticalDivider(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        p = new Paint();
-        p.setStyle(Paint.Style.FILL);
-        p.setColor(0x1F000000);
     }
 
     @Override

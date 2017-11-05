@@ -33,12 +33,12 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.Stack;
 
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.LongPollService;
-import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
-import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
@@ -47,12 +47,11 @@ import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
  */
 
 public class LogFragment extends mFragment {
+    BroadcastReceiver receiver;
     private RecyclerViewWrapper log;
-
     private UpdateMessageHandler.Callback callback;
     private TextView connectionStatus;
     private Thread logLoader;
-    BroadcastReceiver receiver;
 
     @Nullable
     @Override

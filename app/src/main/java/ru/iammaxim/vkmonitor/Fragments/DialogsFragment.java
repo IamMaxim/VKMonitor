@@ -21,13 +21,13 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectDialog;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.API.Objects.ObjectDialog;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.UpdateMessageHandler;
-import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Views.PhotoBgView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
 
@@ -149,6 +149,15 @@ public class DialogsFragment extends mFragment {
         return v;
     }
 
+    private void addFragment(Fragment fragment) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     class DialogsAdapter extends RecyclerView.Adapter<ViewHolder> implements View.OnClickListener {
         public ArrayList<ObjectDialog> elements = new ArrayList<>();
 
@@ -252,14 +261,5 @@ public class DialogsFragment extends mFragment {
             from_photo = v.findViewById(R.id.from_photo);
             unread = v.findViewById(R.id.unread);
         }
-    }
-
-    private void addFragment(Fragment fragment) {
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-        transaction.replace(R.id.container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 }

@@ -1,6 +1,5 @@
 package ru.iammaxim.vkmonitor;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;

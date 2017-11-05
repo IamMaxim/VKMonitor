@@ -44,8 +44,6 @@ import ru.iammaxim.vkmonitor.Views.CircleTransformation;
 public class App extends Application {
     public static String logPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.log";
     public static String filterPath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.filter";
-    private static File logFile;
-    private static FileOutputStream logFos;
     public static SimpleDateFormat dateSDF = new SimpleDateFormat("dd.MM.yy");
     public static SimpleDateFormat dateSDF2 = new SimpleDateFormat("dd MMM");
     public static SimpleDateFormat dateSDF3 = new SimpleDateFormat("dd MMM yy");
@@ -56,6 +54,15 @@ public class App extends Application {
     public static LongPollService.LongPollThread longPollThread;
     public static CircleTransformation circleTransformation = new CircleTransformation();
     public static Context context;
+    private static File logFile;
+    private static FileOutputStream logFos;
+    private static String[] filesizePostfixes = {
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+    };
 
     public static void notifyLongPollThread() {
         if (App.longPollThread != null)
@@ -120,17 +127,6 @@ public class App extends Application {
 
     public static String getAccessToken() {
         return AccessTokenManager.getAccessToken();
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            loadIO();
-            AccessTokenManager.load();
-            UserDB.load();
-        }
     }
 
     @SuppressLint("NewApi")
@@ -287,14 +283,6 @@ public class App extends Application {
         }
     }
 
-    private static String[] filesizePostfixes = {
-            "B",
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-    };
-
     public static String getFilesizeString(long size) {
         int postfixIndex = 0;
         long newSize = size;
@@ -303,5 +291,16 @@ public class App extends Application {
             newSize = size;
         }
         return newSize + " " + filesizePostfixes[postfixIndex];
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            loadIO();
+            AccessTokenManager.load();
+            UserDB.load();
+        }
     }
 }

@@ -16,23 +16,6 @@ import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentSticker;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ObjectMessage {
-    public int random_id;
-    public int id, user_id, peer_id = -1;
-    public String title, body, photo;
-    public JSONObject json;
-    public long date;
-    public int flags;
-    private boolean out;
-    public boolean read_state = true, muted = false;
-    public boolean isAction = false;
-    public boolean isSending = false;
-
-    public ArrayList<ObjectMessage> forwards = new ArrayList<>();
-    public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
-    public ArrayList<AttachmentSticker> stickers = new ArrayList<>();
-    public ArrayList<AttachmentDoc> docs = new ArrayList<>();
-    public ArrayList<Attachment> otherAttachments = new ArrayList<>();
-
     private static final int
             READ_STATE_FLAG = 1,
             OUT_FLAG = 2,
@@ -44,20 +27,24 @@ public class ObjectMessage {
             DELETED_FLAG = 128,
             FIXED_FLAG = 256,
             MEDIA_FLAG = 512;
+    public int random_id;
+    public int id, user_id, peer_id = -1;
+    public String title, body, photo;
+    public JSONObject json;
+    public long date;
+    public int flags;
+    public boolean read_state = true, muted = false;
+    public boolean isAction = false;
+    public boolean isSending = false;
+
+    public ArrayList<ObjectMessage> forwards = new ArrayList<>();
+    public ArrayList<AttachmentPhoto> photos = new ArrayList<>();
+    public ArrayList<AttachmentSticker> stickers = new ArrayList<>();
+    public ArrayList<AttachmentDoc> docs = new ArrayList<>();
+    public ArrayList<Attachment> otherAttachments = new ArrayList<>();
+    private boolean out;
 
     public ObjectMessage() {
-    }
-
-    public void setOut(boolean out) {
-        this.out = out;
-        if (out)
-            flags |= OUT_FLAG;
-        else
-            flags &= ~OUT_FLAG;
-    }
-
-    public boolean out() {
-        return out;
     }
 
     public ObjectMessage(int peer_id, int user_id, String body) {
@@ -71,32 +58,6 @@ public class ObjectMessage {
         this.title = user.getTitle();
         this.date = System.currentTimeMillis();
         this.photo = user.photo;
-    }
-
-    public Spanned getFullBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(body);
-        try {
-            if (json.has("fwd_messages")) {
-                sb.append(sb.length() > 0 ? " " : "").append("<font color=\"#466991\">").append(json.getJSONArray("fwd_messages").length()).append(" forwarded messages").append("</font>");
-            }
-            if (json.has("attachments")) {
-                JSONArray attachments = json.getJSONArray("attachments");
-                for (int i = 0; i < attachments.length(); i++) {
-                    JSONObject attachment = attachments.getJSONObject(i);
-                    String type = attachment.getString("type");
-                    String nameToAdd;
-                    if (type.equals("doc")) {
-                        nameToAdd = attachment.getJSONObject("doc").getString("title");
-                    } else
-                        nameToAdd = type;
-                    sb.append(" ").append("<font color=\"#466991\">").append(nameToAdd).append("</font>");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return Html.fromHtml(sb.toString());
     }
 
     public ObjectMessage(JSONObject object) {
@@ -194,6 +155,44 @@ public class ObjectMessage {
 
     public ObjectMessage(String json) throws JSONException {
         this(new JSONObject(json));
+    }
+
+    public void setOut(boolean out) {
+        this.out = out;
+        if (out)
+            flags |= OUT_FLAG;
+        else
+            flags &= ~OUT_FLAG;
+    }
+
+    public boolean out() {
+        return out;
+    }
+
+    public Spanned getFullBody() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(body);
+        try {
+            if (json.has("fwd_messages")) {
+                sb.append(sb.length() > 0 ? " " : "").append("<font color=\"#466991\">").append(json.getJSONArray("fwd_messages").length()).append(" forwarded messages").append("</font>");
+            }
+            if (json.has("attachments")) {
+                JSONArray attachments = json.getJSONArray("attachments");
+                for (int i = 0; i < attachments.length(); i++) {
+                    JSONObject attachment = attachments.getJSONObject(i);
+                    String type = attachment.getString("type");
+                    String nameToAdd;
+                    if (type.equals("doc")) {
+                        nameToAdd = attachment.getJSONObject("doc").getString("title");
+                    } else
+                        nameToAdd = type;
+                    sb.append(" ").append("<font color=\"#466991\">").append(nameToAdd).append("</font>");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return Html.fromHtml(sb.toString());
     }
 
     public void applyFlags(int update_code, int flags) {

@@ -10,12 +10,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import ru.iammaxim.vkmonitor.API.Groups.Groups;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Net;
-import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
  * Created by maxim on 18.08.2016.
@@ -34,10 +33,6 @@ public class Users {
 
     public static int callbacksSize() {
         return callbacks.size();
-    }
-
-    public interface OnUsersUpdate {
-        void onStatusChange(int user_id, boolean online);
     }
 
     public static ObjectUser get() {
@@ -139,5 +134,9 @@ public class Users {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public interface OnUsersUpdate {
+        void onStatusChange(int user_id, boolean online);
     }
 }

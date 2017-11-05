@@ -1,12 +1,9 @@
 package ru.iammaxim.vkmonitor.API.Objects.Attachments;
 
-import android.util.DisplayMetrics;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -26,10 +23,10 @@ public class AttachmentPhoto extends Attachment {
     public long date;
     public String access_key;
     public HashMap<Integer, String> photos = new HashMap<>();
-    private int best = -1;
     public boolean isUploading = false;
     public boolean isErrored = false;
     public String localFilepath;
+    private int best = -1;
 
     public AttachmentPhoto(JSONObject object) throws JSONException {
         super("photo");

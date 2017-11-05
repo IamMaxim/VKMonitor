@@ -53,8 +53,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#6e000000">
+            android:background="#6e000000"
+            android:orientation="vertical">
 
             <ru.iammaxim.vkmonitor.Views.Divider
                 android:layout_width="match_parent"

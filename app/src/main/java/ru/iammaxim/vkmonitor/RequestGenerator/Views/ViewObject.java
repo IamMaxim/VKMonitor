@@ -20,9 +20,9 @@ import java.util.Date;
 import java.util.Iterator;
 
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
+import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.RequestGenerator.RequestGeneratorMain;
-import ru.iammaxim.vkmonitor.API.Users.Users;
 
 public class ViewObject {
     public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -15,10 +15,6 @@ public class ObjectLongPollServer {
         ts = o.getLong("ts");
     }
 
-    public void update(long ts) {
-        this.ts = ts;
-    }
-
     public static ObjectLongPollServer getServer(String JSON) {
         ObjectLongPollServer server = null;
         while (server == null) {
@@ -35,5 +31,9 @@ public class ObjectLongPollServer {
                 }
         }
         return server;
+    }
+
+    public void update(long ts) {
+        this.ts = ts;
     }
 }

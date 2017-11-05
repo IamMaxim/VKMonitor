@@ -1,6 +1,5 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
-import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -23,17 +21,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
-import ru.iammaxim.vkmonitor.Net;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.Views.MyWebView;
 
 public class AccessTokenManagerFragment extends mFragment {
+    // needed to be outside of method to access from anonymous class
+    AlertDialog dialog;
     private RecyclerView rv;
     private LinearLayoutManager layoutManager;
     private Adapter adapter = new Adapter();
@@ -50,9 +47,6 @@ public class AccessTokenManagerFragment extends mFragment {
             adapter.elements.add(newToken);
         }
     }
-
-    // needed to be outside of method to access from anonymous class
-    AlertDialog dialog;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

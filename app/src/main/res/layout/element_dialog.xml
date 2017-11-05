@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
-    android:id="@+id/parent">
+    android:orientation="horizontal">
 
     <FrameLayout
         android:layout_width="70dp"
@@ -22,7 +22,7 @@
             android:id="@+id/photo"
             android:layout_width="54dp"
             android:layout_height="54dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
     </FrameLayout>
 
@@ -56,9 +56,9 @@
                     android:layout_weight="1"
                     android:maxLines="1"
                     android:singleLine="true"
-                    tools:text="title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="#424242"/>
+                    android:textColor="#424242"
+                    tools:text="title" />
 
                 <TextView
                     android:id="@+id/date"
@@ -66,9 +66,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:maxLines="1"
-                    tools:text="date"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="date" />
 
             </LinearLayout>
 
@@ -82,8 +82,8 @@
                     android:id="@+id/from_photo"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_margin="4dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="4dp" />
 
                 <TextView
                     android:id="@+id/body"
@@ -92,24 +92,24 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:singleLine="true"
+                    android:paddingBottom="6dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
                     android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
+                    android:singleLine="true"
                     tools:text="body" />
 
                 <TextView
-                    tools:background="@drawable/unread_indicator_bg"
-                    android:layout_marginLeft="8dp"
-                    android:minWidth="26dp"
                     android:id="@+id/unread"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    tools:text="Unread"
+                    android:layout_marginLeft="8dp"
+                    android:minWidth="26dp"
+                    android:textAlignment="center"
                     android:textColor="@color/colorTextOnAccent"
-                    android:textAlignment="center"/>
+                    tools:background="@drawable/unread_indicator_bg"
+                    tools:text="Unread" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

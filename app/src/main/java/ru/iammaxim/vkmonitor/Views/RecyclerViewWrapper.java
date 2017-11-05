@@ -2,7 +2,6 @@ package ru.iammaxim.vkmonitor.Views;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
@@ -18,6 +17,13 @@ public class RecyclerViewWrapper extends RecyclerView {
 
     public RecyclerViewWrapper(Context context) {
         this(context, null);
+    }
+
+    public RecyclerViewWrapper(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+
+        layoutManager = new ImprovedLinearLayoutManager(context);
+        setLayoutManager(layoutManager);
     }
 
     public void initOnScrolledToTopListener() {
@@ -45,13 +51,6 @@ public class RecyclerViewWrapper extends RecyclerView {
         super.onSizeChanged(w, h, oldw, oldh);
         if (nearTheBottom())
             scrollToBottom();
-    }
-
-    public RecyclerViewWrapper(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-
-        layoutManager = new ImprovedLinearLayoutManager(context);
-        setLayoutManager(layoutManager);
     }
 
     public void smoothScrollToBottom() {

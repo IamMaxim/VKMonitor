@@ -17,9 +17,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.Net;
-import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 
 /**
  * Created by maxim on 18.08.2016.
@@ -27,8 +27,8 @@ import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
 public class UserDB {
     private static final String filepath = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.users";
     private static final HashMap<Integer, ObjectUser> userDB = new HashMap<>();
-    private static ObjectUser me;
     public static Thread saveThread;
+    private static ObjectUser me;
     private static boolean loaded = false;
 
     public static void startSaveThread() {

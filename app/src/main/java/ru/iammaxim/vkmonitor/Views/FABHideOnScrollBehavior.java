@@ -17,9 +17,9 @@ import ru.iammaxim.vkmonitor.R;
  * Created by maxim on 15.09.2016.
  */
 public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
-    private LinearInterpolator linearInterpolator = new LinearInterpolator();
     LinearLayoutManager rvLayoutManager;
     LogFragment.Adapter rvAdapter;
+    private LinearInterpolator linearInterpolator = new LinearInterpolator();
 
     public FABHideOnScrollBehavior(Context context, AttributeSet attrs) {
         super();

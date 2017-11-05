@@ -18,19 +18,19 @@ public class Divider extends View {
         this(context, null);
     }
 
+    public Divider(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        p = new Paint();
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(0x1F000000);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = getMeasuredWidth();
         DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
         setMeasuredDimension(width, (int) dm.density); // 1 dp height
-    }
-
-    public Divider(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        p = new Paint();
-        p.setStyle(Paint.Style.FILL);
-        p.setColor(0x1F000000);
     }
 
     @Override

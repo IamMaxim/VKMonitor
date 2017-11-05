@@ -81,16 +81,6 @@ public class DialogFragment extends mFragment {
     private ArrayList<ObjectMessage> currentlySending = new ArrayList<>();
     private int STORAGE_REQUEST_CODE = 29452;
 
-    public static final class MessageType {
-        public static final int
-                OUT = 0,
-                IN = 1,
-                IN_TITLE_PHOTO = 2,
-                IN_TITLE = 3,
-                IN_PHOTO = 4,
-                IN_MARGIN = 5;
-    }
-
     public DialogFragment() {
     }
 
@@ -367,6 +357,29 @@ public class DialogFragment extends mFragment {
         }
     }
 
+    private int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    private TextView getBodyTextView(String body) {
+        ImprovedTextView tv = new ImprovedTextView(getContext());
+        tv.setTextColor(getResources().getColor(R.color.messageTextColor));
+        tv.setTextSize(15);
+        tv.setText(body);
+        return tv;
+    }
+
+    public static final class MessageType {
+        public static final int
+                OUT = 0,
+                IN = 1,
+                IN_TITLE_PHOTO = 2,
+                IN_TITLE = 3,
+                IN_PHOTO = 4,
+                IN_MARGIN = 5;
+    }
+
     class DialogAdapter extends RecyclerView.Adapter<ViewHolder> {
         public ArrayList<ObjectMessage> elements = new ArrayList<>();
 
@@ -603,18 +616,5 @@ public class DialogFragment extends mFragment {
             unread = v.findViewById(R.id.unread);
             date = v.findViewById(R.id.date);
         }
-    }
-
-    private int dpToPx(int dp) {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
-    private TextView getBodyTextView(String body) {
-        ImprovedTextView tv = new ImprovedTextView(getContext());
-        tv.setTextColor(getResources().getColor(R.color.messageTextColor));
-        tv.setTextSize(15);
-        tv.setText(body);
-        return tv;
     }
 }

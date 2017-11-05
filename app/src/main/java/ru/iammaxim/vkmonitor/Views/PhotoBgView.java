@@ -15,14 +15,6 @@ import ru.iammaxim.vkmonitor.R;
 public class PhotoBgView extends View {
     Paint bgPaint = new Paint();
 
-    public void setColor(int color) {
-        bgPaint.setColor(color);
-    }
-
-    public int getColor() {
-        return bgPaint.getColor();
-    }
-
     public PhotoBgView(Context context, AttributeSet attrs) {
         super(context, attrs);
         bgPaint.setAntiAlias(true);
@@ -34,9 +26,17 @@ public class PhotoBgView extends View {
         }
     }
 
+    public int getColor() {
+        return bgPaint.getColor();
+    }
+
+    public void setColor(int color) {
+        bgPaint.setColor(color);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         int w = canvas.getWidth(), h = canvas.getHeight();
-        canvas.drawCircle(w/2, h/2, Math.min(w/2, h/2), bgPaint);
+        canvas.drawCircle(w / 2, h / 2, Math.min(w / 2, h / 2), bgPaint);
     }
 }

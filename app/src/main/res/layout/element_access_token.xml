@@ -48,13 +48,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/set_active"
-            style="?borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/set_active"
-            android:textColor="@color/colorPrimaryDark" />
+            <Button
+                android:id="@+id/set_active"
+                style="?borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/set_active"
+                android:textColor="@color/colorPrimaryDark" />
 
             <Button
                 android:id="@+id/delete"

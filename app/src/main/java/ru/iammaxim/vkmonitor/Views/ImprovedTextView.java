@@ -2,7 +2,6 @@ package ru.iammaxim.vkmonitor.Views;
 
 import android.content.Context;
 import android.text.Layout;
-import android.widget.TextView;
 
 /**
  * Created by maxim on 07.07.2017.

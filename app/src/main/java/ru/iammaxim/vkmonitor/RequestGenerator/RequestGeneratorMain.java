@@ -21,19 +21,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.iammaxim.vkmonitor.Net;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectMessage;
+import ru.iammaxim.vkmonitor.Net;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.RequestGenerator.Views.ViewObject;
 
 
 public class RequestGeneratorMain extends AppCompatActivity {
+    public static Context context;
     private EditText et1, et2, et4, et5, et6, et7, et8, et9;
     private Button b1, b2;
     private TextView tv1;
     private LinearLayout objs_container;
     private boolean arg1 = false, arg2 = false, arg3 = false;
-    public static Context context;
     private ProgressBar progressBar;
 
     @Override
@@ -82,7 +82,34 @@ public class RequestGeneratorMain extends AppCompatActivity {
                 runOnUiThread(() -> tv1.setText(str));
     }
 
-    private class RunMethod extends AsyncTask <Void, Void, Void> {
+    public void addMessages(final JSONObject msgs) {
+        new Thread(() -> {
+            try {
+                JSONObject json_obj2 = msgs.getJSONObject("response");
+                final JSONArray json_ar2 = json_obj2.getJSONArray("items");
+                final int count = json_ar2.length();
+                final List<View> messages = new ArrayList<>(count);
+                for (int i = 0; i < count; i++) {
+                    JSONObject tmp_obj = (JSONObject) json_ar2.get(i);
+                    if (tmp_obj.has("message"))
+                        tmp_obj = tmp_obj.getJSONObject("message");
+                    messages.add(new ViewObject(context, new ObjectMessage(tmp_obj)).getView());
+                }
+
+                runOnUiThread(() -> {
+                    for (View msg : messages) {
+                        objs_container.addView(msg, 0);
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+                sendLogMessage(e.getMessage() + "\n" + msgs.toString());
+            }
+        }
+        ).start();
+    }
+
+    private class RunMethod extends AsyncTask<Void, Void, Void> {
         private String response;
 
         //noinspection ResourceType
@@ -135,32 +162,5 @@ public class RequestGeneratorMain extends AppCompatActivity {
             if (response != null)
                 tv1.setText(response);
         }
-    }
-
-    public void addMessages(final JSONObject msgs) {
-        new Thread(() -> {
-            try {
-                JSONObject json_obj2 = msgs.getJSONObject("response");
-                final JSONArray json_ar2 = json_obj2.getJSONArray("items");
-                final int count = json_ar2.length();
-                final List<View> messages = new ArrayList<>(count);
-                for (int i = 0; i < count; i++) {
-                    JSONObject tmp_obj = (JSONObject) json_ar2.get(i);
-                    if (tmp_obj.has("message"))
-                        tmp_obj = tmp_obj.getJSONObject("message");
-                    messages.add(new ViewObject(context, new ObjectMessage(tmp_obj)).getView());
-                }
-
-                runOnUiThread(() -> {
-                    for (View msg : messages) {
-                        objs_container.addView(msg, 0);
-                    }
-                });
-            } catch (JSONException e) {
-                e.printStackTrace();
-                sendLogMessage(e.getMessage() + "\n" + msgs.toString());
-            }
-        }
-        ).start();
     }
 }

@@ -1,23 +1,22 @@
 package ru.iammaxim.vkmonitor.Activities;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.AccessTokenManager;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.Fragments.MainFragment;
 import ru.iammaxim.vkmonitor.R;
-import ru.iammaxim.vkmonitor.API.Users.UserDB;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 2871;

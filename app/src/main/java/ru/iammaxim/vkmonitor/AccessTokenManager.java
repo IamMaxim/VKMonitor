@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
-import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectUser;
+import ru.iammaxim.vkmonitor.API.Users.UserDB;
 
 /**
  * Created by maxim on 15.09.2016.

@@ -15,23 +15,23 @@
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:text="date"
             android:textAlignment="viewEnd"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_gravity="end" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:text="time"
             android:textAlignment="viewEnd"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_gravity="end" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
     <FrameLayout

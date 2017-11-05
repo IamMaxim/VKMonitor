@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import ru.iammaxim.vkmonitor.Net;
 

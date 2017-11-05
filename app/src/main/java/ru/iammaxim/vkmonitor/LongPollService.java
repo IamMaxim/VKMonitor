@@ -16,17 +16,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
+import ru.iammaxim.vkmonitor.API.Objects.ObjectLongPollServer;
 import ru.iammaxim.vkmonitor.API.Users.UserDB;
 import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.Activities.LogActivity;
-import ru.iammaxim.vkmonitor.API.Objects.ObjectLongPollServer;
 
 public class LongPollService extends Service {
-    private LongPollThread thread;
-    private static final int NOTIFICATION_ID = 124678;
-    private LocalBroadcastManager broadcaster;
     public static final String STATUS_CHANGED = "ru.iammaxim.vkmonitor.LongPollService.STATUS_CHANGED";
     public static final String STATUS_VALUE = "ru.iammaxim.vkmonitor.LongPollService.STATUS_VALUE";
+    private static final int NOTIFICATION_ID = 124678;
+    private LongPollThread thread;
+    private LocalBroadcastManager broadcaster;
     // this variable is used to make battery usage better. When app is not opened for a while,
     // request frequency is being minimized
     private int requestCounter = 0;
@@ -76,9 +76,14 @@ public class LongPollService extends Service {
     }
 
     public class LongPollThread extends Thread {
+        public final Object waitLock = new Object();
         private ObjectLongPollServer currentLongPollServer;
         private Context ctx;
-        public final Object waitLock = new Object();
+
+        public LongPollThread(Context ctx) {
+            super("LongPollThread");
+            this.ctx = ctx;
+        }
 
         private boolean init() throws JSONException {
             try {
@@ -88,11 +93,6 @@ public class LongPollService extends Service {
                 return false;
             }
             return true;
-        }
-
-        public LongPollThread(Context ctx) {
-            super("LongPollThread");
-            this.ctx = ctx;
         }
 
         private void log(String s) {
