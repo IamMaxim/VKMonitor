@@ -14,6 +14,10 @@ import android.support.v4.app.NotificationCompat;
 
 public class Notifications {
     public static void send(Context context, String title, String text, Bitmap icon) {
+        send((int) (Math.random() * Integer.MAX_VALUE), context, title, text, icon);
+    }
+
+    public static void send(int id, Context context, String title, String text, Bitmap icon) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "VKMonitor");
         builder.setSmallIcon(R.mipmap.icon);
         builder.setColor(context.getResources().getColor(R.color.colorPrimary));
@@ -34,7 +38,7 @@ public class Notifications {
         if (icon != null)
             builder.setLargeIcon(icon);
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify((int) (Math.random() * Integer.MAX_VALUE), builder.build());
+        nm.notify(id, builder.build());
     }
 
     public static void send(Context context, String title, String text) {

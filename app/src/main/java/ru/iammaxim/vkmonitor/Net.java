@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.Scanner;
@@ -21,39 +22,39 @@ public class Net {
     private static final String version = "?v=5.68";
 
     public static String processRequest(String url) throws IOException {
+//        System.out.println("Executing request: " + url);
+
         StringBuilder sb = new StringBuilder();
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        try {
-            Scanner scanner = new Scanner(connection.getInputStream());
-            while (scanner.hasNext()) {
-                sb.append(scanner.nextLine());
-            }
-            if (sb.toString().contains("error_code")) {
-                int attempts = 5;
-                do {
+        Scanner scanner = new Scanner(connection.getInputStream());
+        while (scanner.hasNext()) {
+            sb.append(scanner.nextLine());
+        }
+        if (sb.toString().contains("error_code")) {
+            int attempts = 5;
+            do {
+                try {
+                    Thread.sleep(1000);
+                    sb.delete(0, sb.length());
+                    connection = (HttpURLConnection) new URL(url).openConnection();
+                    scanner = new Scanner(connection.getInputStream());
+                    while (scanner.hasNext()) {
+                        sb.append(scanner.nextLine());
+                    }
+                } catch (InterruptedException | SocketException e) {
+                    e.printStackTrace();
                     try {
                         Thread.sleep(1000);
-                        sb.delete(0, sb.length());
-                        connection = (HttpURLConnection) new URL(url).openConnection();
-                        scanner = new Scanner(connection.getInputStream());
-                        while (scanner.hasNext()) {
-                            sb.append(scanner.nextLine());
-                        }
-                    } catch (InterruptedException | SocketException e) {
-                        e.printStackTrace();
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                        return processRequest(url);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
                     }
-                    attempts--;
-                } while (sb.toString().contains("error_code") && attempts > 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+                    return processRequest(url);
+                }
+                attempts--;
+            } while (sb.toString().contains("error_code") && attempts > 0);
         }
+
+//        System.out.println("Response: " + sb.toString());
         return sb.toString();
     }
 
@@ -70,7 +71,7 @@ public class Net {
         return processRequest(sb.toString());
     }
 
-    public static String postRequest(String url, File f) throws IOException {
+    public static String postRequest(String url, File f, String name) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost uploadFile = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -78,9 +79,9 @@ public class Net {
 
 
         builder.addBinaryBody(
-                f.getName(),
+                name,
                 new FileInputStream(f),
-                ContentType.APPLICATION_OCTET_STREAM,
+                ContentType.MULTIPART_FORM_DATA,
                 f.getName()
         );
 

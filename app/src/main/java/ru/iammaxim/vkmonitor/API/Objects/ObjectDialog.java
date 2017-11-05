@@ -20,7 +20,7 @@ public class ObjectDialog {
     }
 
     public void updateUnread() {
-        if (message.out || message.read_state)
+        if (message.out() || message.read_state)
             unread = 0;
         else
             unread++;

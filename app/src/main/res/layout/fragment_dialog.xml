@@ -53,7 +53,27 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="#6e000000">
+
+            <ru.iammaxim.vkmonitor.Views.Divider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/attachments_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ru.iammaxim.vkmonitor.Views.AttachmentsPhotoPanel
+                    android:id="@+id/attachments_photo_array"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                </ru.iammaxim.vkmonitor.Views.AttachmentsPhotoPanel>
+            </LinearLayout>
 
             <ru.iammaxim.vkmonitor.Views.Divider
                 android:layout_width="match_parent"
@@ -63,7 +83,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#6e000000"
                 android:elevation="40dp"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
@@ -89,6 +108,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:background="@android:color/transparent"
                     app:srcCompat="@drawable/ic_attach_file" />

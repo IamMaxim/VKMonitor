@@ -15,31 +15,29 @@ import java.util.ArrayList;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 
 /**
- * Created by maxim on 07.07.2017.
+ * Created by maxim on 10/17/17.
  */
 
-public class ScrollablePhotoArray extends HorizontalScrollView {
+public class AttachmentsPhotoPanel extends HorizontalScrollView {
     protected ArrayList<AttachmentPhoto> photos = new ArrayList<>();
     protected ArrayList<ImageView> photoViews = new ArrayList<>();
     protected LinearLayout layout;
-    protected int height;
+    protected final int height = 64;
 
-    public ScrollablePhotoArray(Context context, AttributeSet attrs) {
+    public AttachmentsPhotoPanel(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         setLayoutParams(lp);
-        setPadding(0, dpToPx(2), 0, dpToPx(2));
+        setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
 
-        height = 204;
         setMinimumHeight(dpToPx(height));
         layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         addView(layout);
-
     }
 
-    public ScrollablePhotoArray(Context context) {
+    public AttachmentsPhotoPanel(Context context) {
         this(context, null);
     }
 
@@ -56,23 +54,20 @@ public class ScrollablePhotoArray extends HorizontalScrollView {
             layout.addView(divider);
         }
 
-        if (photo.height < dm.density * (height - 4)) {
-            height = photo.height + 4;
-            setMinimumHeight(height);
-
-            for (ImageView iv : photoViews) {
-                iv.setMaxHeight((int) (dm.density * height));
-            }
-        }
-
         photos.add(photo);
         ImageView view = new ImageView(getContext());
+
+        view.setMinimumHeight((int) (dm.density * height));
         view.setMaxHeight((int) (dm.density * height));
+
+        view.setMinimumWidth((int) (dm.density * height));
+        view.setMaxWidth((int) (dm.density * height));
+
         view.setAdjustViewBounds(true);
         if (photo.localFilepath != null)
-            Picasso.with(getContext()).load(new File(photo.localFilepath)).into(view);
+            Picasso.with(getContext()).load(new File(photo.localFilepath)).fit().centerCrop().into(view);
         else
-            Picasso.with(getContext()).load(photo.getBestURL()).into(view);
+            Picasso.with(getContext()).load(photo.getBestURL()).fit().centerCrop().into(view);
         layout.addView(view);
         photoViews.add(view);
     }

@@ -22,7 +22,8 @@ public class ObjectMessage {
     public JSONObject json;
     public long date;
     public int flags;
-    public boolean out, read_state = true, muted = false;
+    private boolean out;
+    public boolean read_state = true, muted = false;
     public boolean isAction = false;
     public boolean isSending = false;
 
@@ -45,6 +46,18 @@ public class ObjectMessage {
             MEDIA_FLAG = 512;
 
     public ObjectMessage() {
+    }
+
+    public void setOut(boolean out) {
+        this.out = out;
+        if (out)
+            flags |= OUT_FLAG;
+        else
+            flags &= ~OUT_FLAG;
+    }
+
+    public boolean out() {
+        return out;
     }
 
     public ObjectMessage(int peer_id, int user_id, String body) {

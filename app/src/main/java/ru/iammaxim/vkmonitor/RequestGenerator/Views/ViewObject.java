@@ -35,7 +35,7 @@ public class ViewObject {
         String tmp_title = " ";
         String date = sdf.format(new Date(msg.date * 1000));
         String user_title = Users.get(msg.user_id).getTitle();
-        if (!msg.title.equals(user_title) && !msg.out) tmp_title = " (" + msg.title + ") ";
+        if (!msg.title.equals(user_title) && !msg.out()) tmp_title = " (" + msg.title + ") ";
         title = user_title + tmp_title + date;
 
         view = new LinearLayout(ctx);

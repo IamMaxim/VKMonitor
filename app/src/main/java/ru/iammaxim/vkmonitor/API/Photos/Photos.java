@@ -20,15 +20,12 @@ public class Photos {
         int album_id = serverObj.getInt("album_id");
         int user_id = serverObj.getInt("user_id");
 
-        String response = Net.postRequest(upload_url, f);
-        JSONObject responseObj = new JSONObject(response).getJSONObject("response");
+        String response = Net.postRequest(upload_url, f, "photo");
+        JSONObject responseObj = new JSONObject(response);
         int server = responseObj.getInt("server");
-        int aid = responseObj.getInt("aid");
         String hash = responseObj.getString("hash");
         String photo = responseObj.getString("photo");
 
-        JSONObject photoObj = new JSONObject(Net.processRequest("photos.saveMessagesPhoto", true, "server=" + server, "hash=" + hash, "photo=" + photo)).getJSONObject("response");
-        System.out.println(photoObj.toString());
-        return photoObj;
+        return new JSONObject(Net.processRequest("photos.saveMessagesPhoto", true, "server=" + server, "hash=" + hash, "photo=" + photo)).getJSONArray("response").getJSONObject(0);
     }
 }

@@ -1,10 +1,11 @@
 package ru.iammaxim.vkmonitor.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.NetworkOnMainThreadException;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -27,11 +28,14 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
+import in.arjsna.filechooser.FileChooseHelperActivity;
+import in.arjsna.filechooser.FileLibUtils;
 import ru.iammaxim.vkmonitor.API.Messages.Messages;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.Attachment;
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentDoc;
@@ -43,6 +47,7 @@ import ru.iammaxim.vkmonitor.API.Users.Users;
 import ru.iammaxim.vkmonitor.App;
 import ru.iammaxim.vkmonitor.R;
 import ru.iammaxim.vkmonitor.Views.Attachments.AttachmentDocumentView;
+import ru.iammaxim.vkmonitor.Views.AttachmentsPhotoPanel;
 import ru.iammaxim.vkmonitor.Views.ForwardedMessagesLine;
 import ru.iammaxim.vkmonitor.Views.ImprovedTextView;
 import ru.iammaxim.vkmonitor.Views.RecyclerViewWrapper;
@@ -50,6 +55,7 @@ import ru.iammaxim.vkmonitor.Views.ScrollablePhotoArray;
 
 public class DialogFragment extends mFragment {
     private int peer_id;
+
     private TextView count_tv;
     private RecyclerViewWrapper rv;
     private Messages.OnMessagesUpdate messagesCallback;
@@ -62,6 +68,7 @@ public class DialogFragment extends mFragment {
     private TextView subtitle;
 
     private EditText message_et;
+    private AttachmentsPhotoPanel attachmentsPhotoPanel;
     private View send_button;
     private View attachButton;
 
@@ -72,6 +79,7 @@ public class DialogFragment extends mFragment {
     private long animTime = 300;
 
     private ArrayList<ObjectMessage> currentlySending = new ArrayList<>();
+    private int STORAGE_REQUEST_CODE = 29452;
 
     public static final class MessageType {
         public static final int
@@ -134,6 +142,7 @@ public class DialogFragment extends mFragment {
         layout = v.findViewById(R.id.layout);
         count_tv = v.findViewById(R.id.count);
         message_et = v.findViewById(R.id.message_et);
+        attachmentsPhotoPanel = v.findViewById(R.id.attachments_photo_array);
         attachButton = v.findViewById(R.id.attachPhoto);
         send_button = v.findViewById(R.id.send);
         rv = v.findViewById(R.id.rv);
@@ -141,35 +150,41 @@ public class DialogFragment extends mFragment {
         rv.layoutManager.setMsPerInch(200);
         rv.initOnScrolledToTopListener();
 
-
         layout.setBackgroundResource(R.drawable.chat_bg);
 
+        // load message from drafts
+        ObjectMessage draft;
+        if ((draft = Messages.drafts.get(peer_id)) != null) {
+            message_et.setText(draft.body);
+            for (AttachmentPhoto photo : draft.photos) {
+                addAttachmentPhoto(photo);
+            }
+        }
 
-        rv.onScrolledToTop = () -> {
-            new AsyncTask<Void, Void, Void>() {
-                Messages.MessagesObject msgs;
+        rv.onScrolledToTop = () ->
+                new AsyncTask<Void, Void, Void>() {
+                    Messages.MessagesObject msgs;
 
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    try {
-                        msgs = Messages.getHistory(peer_id, 200, adapter.elements.size());
-                        for (int i = msgs.messages.size() - 1; i >= 0; i--) {
-                            adapter.elements.add(0, msgs.messages.get(i));
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        try {
+                            msgs = Messages.getHistory(peer_id, 200, adapter.elements.size());
+                            for (int i = msgs.messages.size() - 1; i >= 0; i--) {
+                                adapter.elements.add(0, msgs.messages.get(i));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        return null;
                     }
-                    return null;
-                }
 
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    adapter.notifyItemRangeInserted(0, msgs.messages.size());
-                }
-            }.execute();
-        };
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        adapter.notifyItemRangeInserted(0, msgs.messages.size());
+                    }
+                }.execute();
 
         Messages.addMessageCallback(messagesCallback = new Messages.OnMessagesUpdate() {
             @Override
@@ -180,13 +195,13 @@ public class DialogFragment extends mFragment {
                     while (it.hasNext()) {
                         ObjectMessage toSend = it.next();
                         if (toSend.random_id == msg.random_id) {
+                            toSend.id = msg.id;
+                            toSend.isSending = false;
+                            toSend.date = msg.date;
+                            toSend.body = msg.body;
                             it.remove();
                             for (int i = adapter.elements.size() - 1; i >= 0; i--) {
                                 if (adapter.elements.get(i) == toSend) {
-//                                    adapter.elements.set(i, msg); // this will update date, body, id etc.
-                                    toSend.isSending = false;
-                                    toSend.date = msg.date;
-                                    toSend.body = msg.body;
                                     adapter.notifyItemChanged(i);
                                     return;
                                 }
@@ -228,11 +243,7 @@ public class DialogFragment extends mFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                ObjectMessage msg = Messages.drafts.get(peer_id);
-                if (msg == null) {
-                    msg = new ObjectMessage();
-                    Messages.drafts.put(peer_id, msg);
-                }
+                ObjectMessage msg = getDraft();
                 msg.body = charSequence.toString();
                 new Thread(() -> Messages.setActivity(peer_id)).start();
             }
@@ -244,23 +255,20 @@ public class DialogFragment extends mFragment {
         });
 
         attachButton.setOnClickListener(b -> {
-            ObjectMessage msg = Messages.drafts.get(peer_id);
-            if (msg == null) {
-                msg = new ObjectMessage();
-                Messages.drafts.put(peer_id, msg);
-            }
-
-//            msg.photos.add(AttachmentPhoto.upload())
+            Intent addPhotosIntent = new Intent(getContext(), FileChooseHelperActivity.class);
+            addPhotosIntent.putExtra(FileLibUtils.FILE_TYPE_TO_CHOOSE, FileLibUtils.FILE_TYPE_IMAGES);
+            startActivityForResult(addPhotosIntent, STORAGE_REQUEST_CODE);
         });
 
         send_button.setOnClickListener(b -> {
-            String s;
-            if (!(s = message_et.getEditableText().toString()).isEmpty()) {
+            ObjectMessage msg = Messages.drafts.get(peer_id);
+            if (msg != null) {
+                String s = message_et.getEditableText().toString();
                 message_et.getEditableText().clear();
-                ObjectMessage msg = new ObjectMessage(peer_id, Users.get().id, s);
-                msg.random_id = (int) (Integer.MAX_VALUE * Math.random());
-                msg.isSending = true;
+                attachmentsPhotoPanel.setVisibility(View.GONE);
+                attachmentsPhotoPanel.clear();
 
+                msg.body = s;
                 adapter.elements.add(msg);
                 currentlySending.add(msg);
                 adapter.notifyItemInserted(adapter.elements.size() - 1);
@@ -269,7 +277,7 @@ public class DialogFragment extends mFragment {
 
                 new Thread(() -> {
                     try {
-                        Messages.send(msg);
+                        Messages.send(peer_id);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -318,9 +326,45 @@ public class DialogFragment extends mFragment {
         return v;
     }
 
+    private void addAttachmentPhoto(AttachmentPhoto photo) {
+        if (attachmentsPhotoPanel.getVisibility() == View.GONE)
+            attachmentsPhotoPanel.setVisibility(View.VISIBLE);
+
+        attachmentsPhotoPanel.add(photo);
+    }
+
     private void setMessagesCount(int count) {
         messagesCount = count;
         count_tv.setText(getString(R.string.message_count, count));
+    }
+
+    private ObjectMessage getDraft() {
+        ObjectMessage msg = Messages.drafts.get(peer_id);
+        if (msg == null) {
+            msg = new ObjectMessage();
+            msg.peer_id = peer_id;
+            msg.user_id = Users.get().id;
+            msg.setOut(true);
+            msg.read_state = false;
+            msg.isSending = true;
+            Messages.drafts.put(peer_id, msg);
+        }
+        return msg;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == STORAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            ArrayList<String> files = data.getStringArrayListExtra(FileLibUtils.SELECTED_FILES);
+
+            ObjectMessage msg = getDraft();
+
+            for (String s : files) {
+                AttachmentPhoto photo = AttachmentPhoto.upload(new File(s), peer_id);
+                Messages.drafts.get(peer_id).photos.add(photo);
+                addAttachmentPhoto(photo);
+            }
+        }
     }
 
     class DialogAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -330,7 +374,7 @@ public class DialogFragment extends mFragment {
         public int getItemViewType(int position) {
             ObjectMessage msg = elements.get(position);
 
-            if (msg.out) {
+            if (msg.out()) {
                 return MessageType.OUT;
             } else {
                 if (isChat) {
@@ -391,6 +435,7 @@ public class DialogFragment extends mFragment {
                         loadUserData(holder, user);
                 }
             });
+
             if (user != null)
                 loadUserData(holder, user);
 
@@ -412,7 +457,7 @@ public class DialogFragment extends mFragment {
                 holder.date.setText(App.timeSDF.format(new Date(message.date)));
             }
 
-            if (!message.body.isEmpty()) {
+            if (message.body != null && !message.body.isEmpty()) {
                 holder.container.addView(getBodyTextView(message.body));
             }
 

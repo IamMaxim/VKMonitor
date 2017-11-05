@@ -1,6 +1,11 @@
 package ru.iammaxim.vkmonitor.API.Messages;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.SparseArray;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,14 +73,19 @@ public class Messages {
         ObjectMessage msg = drafts.get(peer_id);
         if (msg == null)
             return;
+        drafts.remove(peer_id);
         send(msg);
     }
 
     public static void send(ObjectMessage msg) throws IOException {
+        msg.random_id = (int) (Integer.MAX_VALUE * Math.random());
+        msg.isSending = true;
+
         synchronized (sendLock) {
             ArrayList<String> keysAndValues = new ArrayList<>();
             keysAndValues.add("peer_id=" + msg.peer_id);
-            keysAndValues.add("message=" + msg.body);
+            if (msg.body != null && !msg.body.isEmpty())
+                keysAndValues.add("message=" + msg.body);
             keysAndValues.add("random_id=" + msg.random_id);
 
             ArrayList<String> attachments = new ArrayList<>();
@@ -104,11 +114,10 @@ public class Messages {
                     if (i != attachments.size() - 1)
                         attachmentsSB.append(",");
                 }
-                keysAndValues.add("attachments=" + attachmentsSB.toString());
+                keysAndValues.add("attachment=" + attachmentsSB.toString());
             }
 
-            // TODO: implement attachments support
-            Net.processRequest("messages.send", true, keysAndValues.toArray(new String[0]));
+            String response = Net.processRequest("messages.send", true, keysAndValues.toArray(new String[0]));
         }
     }
 
@@ -149,8 +158,27 @@ public class Messages {
         dialog.message.random_id = arr.getInt(8);
         dialogObjects.add(0, dialog);
 
-        if (!dialog.message.muted && dialog.message.out)
-            Notifications.send(App.context, "New message in \"" + dialog.message.title + "\"", dialog.message.body, null);
+        if (!dialog.message.muted && !dialog.message.out())
+            App.handler.post(() -> {
+                Picasso.with(App.context)
+                        .load(dialog.message.photo)
+                        .into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                Notifications.send(dialog.message.peer_id, App.context, "New message in \"" + dialog.message.title + "\"", dialog.message.body, bitmap);
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
+                                Notifications.send(dialog.message.peer_id, App.context, "New message in \"" + dialog.message.title + "\"", dialog.message.body, null);
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                Notifications.send(App.context, "OnPrepareLoad()", "OPL");
+                            }
+                        });
+            });
         App.handler.post(() -> {
             for (OnMessagesUpdate c : messageCallbacks) {
                 c.onMessageGet(ret.index, dialog.message);

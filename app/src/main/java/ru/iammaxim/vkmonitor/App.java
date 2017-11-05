@@ -13,6 +13,7 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
@@ -134,7 +135,7 @@ public class App extends Application {
 
     @SuppressLint("NewApi")
     public static void updateShortcuts(Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 
             ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "log")

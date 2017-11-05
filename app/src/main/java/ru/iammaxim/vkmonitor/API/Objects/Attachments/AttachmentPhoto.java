@@ -29,6 +29,7 @@ public class AttachmentPhoto extends Attachment {
     private int best = -1;
     public boolean isUploading = false;
     public boolean isErrored = false;
+    public String localFilepath;
 
     public AttachmentPhoto(JSONObject object) throws JSONException {
         super("photo");
@@ -59,6 +60,8 @@ public class AttachmentPhoto extends Attachment {
 
     public static AttachmentPhoto upload(File f, int peer_id) {
         AttachmentPhoto photo = new AttachmentPhoto();
+        photo.localFilepath = f.getAbsolutePath();
+        photo.height = 60;
         photo.isUploading = true;
 
         new Thread(() -> {
