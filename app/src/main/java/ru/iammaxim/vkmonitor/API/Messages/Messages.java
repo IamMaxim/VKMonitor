@@ -2,6 +2,7 @@ package ru.iammaxim.vkmonitor.API.Messages;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.util.SparseArray;
 
 import com.squareup.picasso.Picasso;
@@ -11,9 +12,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import ru.iammaxim.vkmonitor.API.Objects.Attachments.AttachmentPhoto;
 import ru.iammaxim.vkmonitor.API.Objects.ObjectDialog;
@@ -35,6 +41,17 @@ public class Messages {
     private static ArrayList<OnMessagesUpdate> messageCallbacks = new ArrayList<>();
     private static ArrayList<OnDialogsUpdate> dialogsCallbacks = new ArrayList<>();
     private static boolean needToUpdateDialogs = true;
+    private static boolean isDumping = false;
+    private static final String dumpFileName = Environment.getExternalStorageDirectory().getPath() + "/VKMonitor.msgDump";
+    private static ArrayList<MessageDumpCallback> dumpCallbacks = new ArrayList<>();
+
+    public static void addDumpCallback(MessageDumpCallback callback) {
+        dumpCallbacks.add(callback);
+    }
+
+    public static boolean isDumping() {
+        return isDumping;
+    }
 
     public static void addMessageCallback(OnMessagesUpdate callback) {
         messageCallbacks.add(callback);
@@ -345,6 +362,27 @@ public class Messages {
         return messageCallbacks.size();
     }
 
+    public static void foreachDumpedMessage(ForEachDumpedMessageCallback callback) {
+        File f = new File(dumpFileName);
+
+        if (!f.exists())
+            return;
+
+        try (FileInputStream fis = new FileInputStream(f); Scanner s = new Scanner(fis)) {
+            while (s.hasNext()) {
+                try {
+                    callback.process(new ObjectMessage(new JSONObject(s.nextLine())));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public interface OnMessagesUpdate {
         void onMessageGet(int prevDialogIndex, ObjectMessage msg);
 
@@ -381,5 +419,67 @@ public class Messages {
             this.fullyUpdated = fullyUpdated;
             this.index = index;
         }
+    }
+
+    public static void dump() throws IOException, JSONException {
+        if (isDumping)
+            return;
+
+        isDumping = true;
+
+        System.out.println("Dumping messages...");
+        File f = new File(dumpFileName);
+        if (!f.exists())
+            f.createNewFile();
+        try (FileOutputStream fos = new FileOutputStream(f)) {
+            ArrayList<ObjectDialog> dialogs = Messages.getDialogs();
+            int dialogIndex = 0;
+            System.out.println("Going to dump " + dialogs.size() + " dialogs");
+            for (ObjectDialog dialog : dialogs) {
+                int peed_id = dialog.message.peer_id;
+                int loaded = 0;
+                int count = 1;
+
+                while (loaded < count) {
+                    JSONObject o = new JSONObject(Net.processRequest("messages.getHistory", true, "rev=1", "count=200", "offset=" + loaded, "peer_id=" + peed_id)).getJSONObject("response");
+                    count = o.getInt("count");
+                    JSONArray arr = o.getJSONArray("items");
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject ob = arr.getJSONObject(i);
+                        fos.write(ob.toString().getBytes());
+                        fos.write("\n".getBytes());
+                    }
+
+                    System.out.println("dialog " + dialogIndex + "/" + dialogs.size() + " loaded " + loaded + "/" + count);
+                    for (MessageDumpCallback dumpCallback : dumpCallbacks) {
+                        dumpCallback.onUpdate(dialogIndex, dialogs.size(), loaded, count);
+                    }
+
+                    loaded += 200;
+                }
+
+                dialogIndex++;
+            }
+        }
+
+        isDumping = false;
+        dumpCallbacks.clear();
+    }
+
+    private static ArrayList<ObjectDialog> getDialogs() throws IOException, JSONException {
+        ArrayList<ObjectDialog> dialogs = new ArrayList<>();
+        int loaded = 0;
+        int count = 1;
+        while (loaded < count) {
+            JSONObject o = new JSONObject(Net.processRequest("messages.getDialogs", true, "count=200", "offset=" + loaded)).getJSONObject("response");
+            count = o.getInt("count");
+            JSONArray arr = o.getJSONArray("items");
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject ob = arr.getJSONObject(i);
+                dialogs.add(new ObjectDialog(ob));
+            }
+            loaded += 200;
+        }
+        return dialogs;
     }
 }

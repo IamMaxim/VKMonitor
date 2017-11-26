@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/dump"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dump now" />
+
+    <view
+        android:id="@+id/graph"
+        class="ru.iammaxim.graphlib.ColumnGraph"
+        id="@+id/view3"
+        layout_width="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

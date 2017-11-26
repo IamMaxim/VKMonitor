@@ -217,4 +217,8 @@ public class ObjectMessage {
     private boolean getFlag(int flags, int flag) {
         return (flags & flag) == flag;
     }
+
+    public boolean in() {
+        return !out;
+    }
 }

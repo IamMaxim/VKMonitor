@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/show_in_stats"
+        android:title="Show in msgs graph" />
+    <item
+        android:id="@+id/show_out_stats"
+        android:title="Show out msgs graph" />
+    <item
+        android:id="@+id/show_total_stats"
+        android:title="Show in/out msgs graph" />
+</menu>

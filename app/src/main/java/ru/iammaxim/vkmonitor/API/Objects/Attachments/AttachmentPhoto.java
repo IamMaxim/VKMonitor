@@ -33,11 +33,14 @@ public class AttachmentPhoto extends Attachment {
         id = object.getInt("id");
         album_id = object.getInt("album_id");
         owner_id = object.getInt("owner_id");
-        width = object.getInt("width");
-        height = object.getInt("height");
+        if (object.has("width"))
+            width = object.getInt("width");
+        if (object.has("height"))
+            height = object.getInt("height");
         text = object.getString("text");
         date = object.getLong("date");
-        access_key = object.getString("access_key");
+        if (object.has("access_key"))
+            access_key = object.getString("access_key");
 
         Iterator<String> it = object.keys();
         while (it.hasNext()) {

@@ -23,6 +23,9 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    sourceSets {
+        main.java.srcDirs += '/home/maxim/Android/GraphLib/app/src/main/java'
+    }
 }
 
 dependencies {

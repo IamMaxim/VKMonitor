@@ -10,9 +10,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,6 +43,9 @@ public class DialogsFragment extends mFragment {
     private Users.OnUsersUpdate usersCallback;
     private Messages.OnDialogsUpdate dialogsCallback;
     private long animTime = 300;
+    private boolean isLoading = false;
+
+    private int longClickPos = -1;
 
     public DialogsFragment() {
     }
@@ -71,6 +78,15 @@ public class DialogsFragment extends mFragment {
         rv.onScrolledToBottom = () ->
                 new AsyncTask<Void, Void, Void>() {
                     int oldCount, loaded;
+
+
+                    @Override
+                    protected void onPreExecute() {
+                        if (isLoading)
+                            cancel(true);
+
+                        isLoading = true;
+                    }
 
                     @Override
                     protected Void doInBackground(Void... voids) {
@@ -158,7 +174,84 @@ public class DialogsFragment extends mFragment {
         transaction.commit();
     }
 
-    class DialogsAdapter extends RecyclerView.Adapter<ViewHolder> implements View.OnClickListener {
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = new MenuInflater(getContext());
+        inflater.inflate(R.menu.dialogs_element_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        boolean enable_in = false;
+        boolean enable_out = false;
+
+        switch (item.getItemId()) {
+            case R.id.show_in_stats:
+                enable_in = true;
+                break;
+            case R.id.show_out_stats:
+                enable_out = true;
+                break;
+            case R.id.show_total_stats:
+                enable_in = true;
+                enable_out = true;
+                break;
+            default:
+                return super.onContextItemSelected(item);
+        }
+
+        GraphFragment fragment = new GraphFragment();
+        boolean finalEnable_out1 = enable_out;
+        boolean finalEnable_in1 = enable_in;
+
+        ObjectDialog dialog = ((DialogsAdapter) rv.adapter).elements.get(longClickPos);
+
+        new Thread(() -> {
+            boolean finalEnable_out = finalEnable_out1;
+            boolean finalEnable_in = finalEnable_in1;
+
+            final long[] divideBy = {60 * 60 * 24};
+            final long[] day = {0};
+            final int[] count = {0};
+
+            Messages.foreachDumpedMessage(msg -> {
+                if (msg.peer_id == dialog.message.peer_id && ((msg.out() && finalEnable_out) || (msg.in() && finalEnable_in))) {
+                    long currDay = msg.date / divideBy[0];
+                    if (day[0] == 0) {
+                        day[0] = currDay;
+                        count[0]++;
+                        return;
+                    }
+
+                    if (day[0] != currDay) {
+                        int counter = 3;
+                        while (fragment.graph == null) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            counter--;
+                            if (counter == 0)
+                                return;
+                        }
+                        fragment.graph.add(currDay, count[0]);
+                        day[0] = currDay;
+                        count[0] = 0;
+                    }
+
+                    count[0]++;
+                }
+            });
+        }).start();
+        addFragment(fragment);
+        return true;
+    }
+
+    class DialogsAdapter extends RecyclerView.Adapter<ViewHolder> implements View.OnClickListener, View.OnLongClickListener {
         public ArrayList<ObjectDialog> elements = new ArrayList<>();
 
         @Override
@@ -171,6 +264,8 @@ public class DialogsFragment extends mFragment {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.parent.setId(position);
             holder.parent.setOnClickListener(this);
+            holder.parent.setOnLongClickListener(this);
+            registerForContextMenu(rv);
             final ObjectDialog dialog = elements.get(position);
             holder.title.setText(dialog.message.title);
             holder.body.setText(dialog.message.getFullBody());
@@ -241,6 +336,13 @@ public class DialogsFragment extends mFragment {
             args.putInt("peer_id", elements.get(v.getId()).message.peer_id);
             fragment.setArguments(args);
             addFragment(fragment);
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            int index = v.getId();
+            longClickPos = index;
+            return false;
         }
     }
 
